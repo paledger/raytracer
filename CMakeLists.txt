@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 
 # Name of the project
-project(raytracer)
+project(raytrace)
 
 # Use glob to get the list of all source files.
 file(GLOB_RECURSE SOURCES "src/*.cpp")
@@ -12,6 +12,7 @@ file(GLOB_RECURSE HEADERS "src/*.h")
 
 # Set the executable.
 add_executable(${CMAKE_PROJECT_NAME} ${SOURCES} ${HEADERS})
+set (EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
 # OS specific options and libraries
 if(WIN32)
