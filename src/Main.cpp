@@ -3,32 +3,7 @@
 
 using namespace std;
 
-glm::vec3 pixelRay(const shared_ptr<Scene>& scene, int width, int height, int x, int y) {
-	glm::vec3 rayDirection = scene->calculatePixelRay(width, height, x, y);
-	cout << setprecision(4);
-	cout << "Pixel: [" << x << " " << y << "] ";
-	cout << "Ray: {" << scene->camera->location[0] << \
-		" " << scene->camera->location[1] << " " << scene->camera->location[2] << "} ";
-	cout << "-> {" << rayDirection[0] << " " << rayDirection[1] << " " << rayDirection[2] << "}\n";
-	return rayDirection;
-}
 
-void firstHit(const shared_ptr<Scene>& scene, int width, int height, int x, int y) {
-	float t;
-	glm::vec3 rayDirection = pixelRay(scene, width, height, x, y);
-	shared_ptr<Shape> firstHit = scene->getFirstHit(rayDirection, &t);
-	cout << setprecision(4);
-	if (t == INT_MAX) {
-		cout << "No Hit\n";
-	}
-	else {
-		cout << "T = " << t << "\n";
-		cout << "Object Type: " << firstHit->getTypeString() << "\n";
-		cout << "Color: " << firstHit->pigment[0] << " " << \
-			firstHit->pigment[1] << " " << \
-			firstHit->pigment[2] << "\n";
-	}
-}
 
 void render(shared_ptr<Scene>& scene, int width, int height) {
 	const int numChannels = 3;
@@ -103,7 +78,7 @@ int main(int argc, char* argv[]) {
 		}
 		else {
 			// Pixel: [319 239] Ray : {0 0 14} -> {0.220943 0.127908 - 0.966863}
-			pixelRay(scene, stoi(argv[3]), stoi(argv[4]), stoi(argv[5]), stoi(argv[6]));
+			scene->pixelRay(stoi(argv[3]), stoi(argv[4]), stoi(argv[5]), stoi(argv[6]));
 		}
 	// raytrace firsthit <input_filename> <width> <height> <x> <y>
     } else if (!strcmp(argv[1], "firsthit")) { 
@@ -111,7 +86,7 @@ int main(int argc, char* argv[]) {
 			cout << "Please follow the following format to see firsthit: raytrace firsthit <input_filename> <width> <height> <x> <y>\n";
 		}
 		else {
-			firstHit(scene, stoi(argv[3]), stoi(argv[4]), stoi(argv[5]), stoi(argv[6]));
+			scene->firstHit(stoi(argv[3]), stoi(argv[4]), stoi(argv[5]), stoi(argv[6]));
 		}
     } else {
         cout << "Your command is not one of the four options: render sceneinfo pixelray firsthit\n";

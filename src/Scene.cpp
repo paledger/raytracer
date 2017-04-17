@@ -57,6 +57,33 @@ public:
 		}
 	}
 
+	glm::vec3 pixelRay(int width, int height, int x, int y) {
+		glm::vec3 rayDirection = this->calculatePixelRay(width, height, x, y);
+		cout << setprecision(4);
+		cout << "Pixel: [" << x << " " << y << "] ";
+		cout << "Ray: {" << this->camera->location[0] << \
+			" " << this->camera->location[1] << " " << this->camera->location[2] << "} ";
+		cout << "-> {" << rayDirection[0] << " " << rayDirection[1] << " " << rayDirection[2] << "}\n";
+		return rayDirection;
+	}
+
+	void firstHit(int width, int height, int x, int y) {
+		float t;
+		glm::vec3 rayDirection = this->pixelRay(width, height, x, y);
+		shared_ptr<Shape> firstHit = this->getFirstHit(rayDirection, &t);
+		cout << setprecision(4);
+		if (t == INT_MAX) {
+			cout << "No Hit\n";
+		}
+		else {
+			cout << "T = " << t << "\n";
+			cout << "Object Type: " << firstHit->getTypeString().c_str() << "\n";
+			cout << "Color: " << firstHit->pigment[0] << " " << \
+				firstHit->pigment[1] << " " << \
+				firstHit->pigment[2] << "\n";
+		}
+	}
+
 	glm::vec3 calculatePixelRay(int width, int height, int x, int y) {
 		float right = abs(camera->right[0]) / 2.0;
 		float top = abs(camera->up[1]) / 2.0;
@@ -92,15 +119,6 @@ public:
 		return NULL;
 	}
 
-	/*shared_ptr<Shape> findIntersections(int width, int height) {
-		glm::vec3 currVec = glm::vec3(0.0, 0.0, 0.0);
-		vector<shared_ptr<Shape>> intersections;
-		for (int j = 0; j < height; j++) {
-			for (int i = 0; i < width; i++) {
-				calculateFirstHit(width, height, i, j);
-			}
-		}
-	}*/
 private:
 	void printSeparators() {
 		fputs("\n---\n", stdout);

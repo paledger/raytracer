@@ -4,4 +4,4 @@
 #include <memory>
 #include <math.h>
 
-#include "glm\glm.hpp"
+#include "glm/glm.hpp"
