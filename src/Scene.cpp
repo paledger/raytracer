@@ -63,7 +63,7 @@ public:
 		cout << "Pixel: [" << x << ", " << y << "] ";
 		cout << "Ray: {" << this->camera->location[0] << \
 			" " << this->camera->location[1] << " " << this->camera->location[2] << "} ";
-		cout << "-> {" << rayDirection[0] << " " << rayDirection[1] << " " << rayDirection[2] << "}";
+		cout << "-> {" << rayDirection[0] << " " << rayDirection[1] << " " << rayDirection[2] << "}\n";
 		return rayDirection;
 	}
 
