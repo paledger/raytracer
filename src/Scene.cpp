@@ -60,7 +60,7 @@ public:
 	glm::vec3 pixelRay(int width, int height, int x, int y) {
 		glm::vec3 rayDirection = this->calculatePixelRay(width, height, x, y);
 		cout << setprecision(4);
-		cout << "Pixel: [" << x << " " << y << "] ";
+		cout << "Pixel: [" << x << ", " << y << "] ";
 		cout << "Ray: {" << this->camera->location[0] << \
 			" " << this->camera->location[1] << " " << this->camera->location[2] << "} ";
 		cout << "-> {" << rayDirection[0] << " " << rayDirection[1] << " " << rayDirection[2] << "}\n";
