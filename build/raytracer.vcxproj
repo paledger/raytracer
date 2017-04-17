@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -57,33 +57,33 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup>
-    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\Users\paled\Documents\calpoly\cpe473\raytracer\build\Debug\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">raytracer.dir\Debug\</IntDir>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">raytracer</TargetName>
-    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.exe</TargetExt>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
-    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</GenerateManifest>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:\Users\paled\Documents\calpoly\cpe473\raytracer\build\Release\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">raytracer.dir\Release\</IntDir>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">raytracer</TargetName>
-    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.exe</TargetExt>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
-    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</GenerateManifest>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">C:\Users\paled\Documents\calpoly\cpe473\raytracer\build\MinSizeRel\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">raytracer.dir\MinSizeRel\</IntDir>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">raytracer</TargetName>
-    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">.exe</TargetExt>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">false</LinkIncremental>
-    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">true</GenerateManifest>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">C:\Users\paled\Documents\calpoly\cpe473\raytracer\build\RelWithDebInfo\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">raytracer.dir\RelWithDebInfo\</IntDir>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">raytracer</TargetName>
-    <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">.exe</TargetExt>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">true</LinkIncremental>
-    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">true</GenerateManifest>
-  </PropertyGroup>
+    <PropertyGroup>
+      <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+      <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\Users\paled\Documents\calpoly\cpe473\raytracer\build\Debug\</OutDir>
+      <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">raytracer.dir\Debug\</IntDir>
+      <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">raytracer</TargetName>
+      <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.exe</TargetExt>
+      <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+      <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</GenerateManifest>
+      <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:\Users\paled\Documents\calpoly\cpe473\raytracer\build\Release\</OutDir>
+      <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">raytracer.dir\Release\</IntDir>
+      <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">raytracer</TargetName>
+      <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.exe</TargetExt>
+      <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+      <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</GenerateManifest>
+      <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">C:\Users\paled\Documents\calpoly\cpe473\raytracer\build\MinSizeRel\</OutDir>
+      <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">raytracer.dir\MinSizeRel\</IntDir>
+      <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">raytracer</TargetName>
+      <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">.exe</TargetExt>
+      <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">false</LinkIncremental>
+      <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">true</GenerateManifest>
+      <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">C:\Users\paled\Documents\calpoly\cpe473\raytracer\build\RelWithDebInfo\</OutDir>
+      <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">raytracer.dir\RelWithDebInfo\</IntDir>
+      <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">raytracer</TargetName>
+      <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">.exe</TargetExt>
+      <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">true</LinkIncremental>
+      <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">true</GenerateManifest>
+    </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -123,8 +123,7 @@
       <ImportLibrary>C:/Users/paled/Documents/calpoly/cpe473/raytracer/build/Debug/raytracer.lib</ImportLibrary>
       <ProgramDataBaseFile>C:/Users/paled/Documents/calpoly/cpe473/raytracer/build/Debug/raytracer.pdb</ProgramDataBaseFile>
       <SubSystem>Console</SubSystem>
-      <Version>
-      </Version>
+      <Version></Version>
     </Link>
     <ProjectReference>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
@@ -145,8 +144,7 @@
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
-      <DebugInformationFormat>
-      </DebugInformationFormat>
+      <DebugInformationFormat></DebugInformationFormat>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -169,8 +167,7 @@
       <ImportLibrary>C:/Users/paled/Documents/calpoly/cpe473/raytracer/build/Release/raytracer.lib</ImportLibrary>
       <ProgramDataBaseFile>C:/Users/paled/Documents/calpoly/cpe473/raytracer/build/Release/raytracer.pdb</ProgramDataBaseFile>
       <SubSystem>Console</SubSystem>
-      <Version>
-      </Version>
+      <Version></Version>
     </Link>
     <ProjectReference>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
@@ -191,8 +188,7 @@
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR="MinSizeRel";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
-      <DebugInformationFormat>
-      </DebugInformationFormat>
+      <DebugInformationFormat></DebugInformationFormat>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"MinSizeRel\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -215,8 +211,7 @@
       <ImportLibrary>C:/Users/paled/Documents/calpoly/cpe473/raytracer/build/MinSizeRel/raytracer.lib</ImportLibrary>
       <ProgramDataBaseFile>C:/Users/paled/Documents/calpoly/cpe473/raytracer/build/MinSizeRel/raytracer.pdb</ProgramDataBaseFile>
       <SubSystem>Console</SubSystem>
-      <Version>
-      </Version>
+      <Version></Version>
     </Link>
     <ProjectReference>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
@@ -260,8 +255,7 @@
       <ImportLibrary>C:/Users/paled/Documents/calpoly/cpe473/raytracer/build/RelWithDebInfo/raytracer.lib</ImportLibrary>
       <ProgramDataBaseFile>C:/Users/paled/Documents/calpoly/cpe473/raytracer/build/RelWithDebInfo/raytracer.pdb</ProgramDataBaseFile>
       <SubSystem>Console</SubSystem>
-      <Version>
-      </Version>
+      <Version></Version>
     </Link>
     <ProjectReference>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
@@ -344,18 +338,18 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\glm\simd\trigonometric.h" />
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\glm\simd\vector_relational.h" />
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\stb_image_write.h" />
-    <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Box.cpp" />
-    <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Camera.cpp" />
-    <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Cone.cpp" />
-    <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Helper.cpp" />
-    <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\LightSource.cpp" />
-    <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Main.cpp" />
-    <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\MyParser.cpp" />
-    <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Plane.cpp" />
-    <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Scene.cpp" />
-    <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Shape.cpp" />
-    <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Sphere.cpp" />
-    <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Triangle.cpp" />
+    <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Box.cpp"  />
+    <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Camera.cpp"  />
+    <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Cone.cpp"  />
+    <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Helper.cpp"  />
+    <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\LightSource.cpp"  />
+    <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Main.cpp"  />
+    <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\MyParser.cpp"  />
+    <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Plane.cpp"  />
+    <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Scene.cpp"  />
+    <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Shape.cpp"  />
+    <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Sphere.cpp"  />
+    <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Triangle.cpp"  />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="C:/Users/paled/Documents/calpoly/cpe473/raytracer/build/ZERO_CHECK.vcxproj">
