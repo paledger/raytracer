@@ -33,6 +33,7 @@ public:
 	}
 
 	string getTypeString() {
-		return string("Sphere");
+		string sphereStr("Sphere");
+		return sphereStr;
 	}
 };

@@ -44,15 +44,15 @@ public:
 	void printInfo() {
 		camera->printInfo();
 		printSeparators();
-		printf("\n%d light(s)\n", lightSources.size());
+		printf("\n%lu light(s)\n", lightSources.size());
 		for (size_t i = 0; i < lightSources.size(); i++) {
-			printf("\nLight[%d]\n", i);
+			printf("\nLight[%lu]\n", i);
 			lightSources[i]->printInfo();
 		}
 		printSeparators();
-		printf("\n%d object(s)\n", shapes.size());
+		printf("\n%lu object(s)\n", shapes.size());
 		for (size_t i = 0; i < shapes.size(); i++) {
-			printf("\nObject[%d]\n", i);
+			printf("\nObject[%lu]\n", i);
 			shapes[i]->printInfo();
 		}
 	}
@@ -97,7 +97,7 @@ public:
 	shared_ptr<Shape> getFirstHit(const glm::vec3& rayDirection, float* intersectT = nullptr) {
 		shared_ptr<Shape> closestShape;
 		float closestT = INT_MAX, t;
-		for (size_t sh = 0; sh < shapes.size(); sh++) {
+		for (int sh = 0; sh < shapes.size(); sh++) {
 			t = calculateFirstHit(rayDirection, shapes[sh]);
 			if (t && t < closestT) {
 				closestT = t;
@@ -116,7 +116,7 @@ public:
 			sort(t.begin(), t.end());
 			return t[0];
 		}
-		return NULL;
+		return 0;
 	}
 
 private:

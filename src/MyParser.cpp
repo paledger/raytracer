@@ -19,8 +19,7 @@ public:
 	int parseFileToScene(shared_ptr<Scene>  scene) {
 		stringstream buffer;
 		string strBuffer, tempStr;
-		size_t chunkStart = 0, chunkEnd = 0, currStart = 0, currEnd = 0;
-		int counter = 0;
+		size_t chunkStart = 0, chunkEnd = 0;
 
 		buffer << sceneFile.rdbuf();
 		strBuffer = buffer.str();
@@ -62,21 +61,28 @@ private:
 	}
 
 	bool parseCamera(string& stringChunk, shared_ptr<Camera> cam) {
-		parseKeywordVector(stringChunk, string("location"), cam->location);
-		parseKeywordVector(stringChunk, string("up"), cam->up);
-		parseKeywordVector(stringChunk, string("right"), cam->right);
-		parseKeywordVector(stringChunk, string("look_at"), cam->look_at);
+		string location("location");
+		string up("up");
+		string right("right");
+		string look_at("look_at");
+		parseKeywordVector(stringChunk, location, cam->location);
+		parseKeywordVector(stringChunk, up, cam->up);
+		parseKeywordVector(stringChunk, right, cam->right);
+		parseKeywordVector(stringChunk, look_at, cam->look_at);
 		return true;
 	}
 
 	bool parseLightSource(string& stringChunk, shared_ptr<LightSource> ls) {
-		parseKeywordVector(stringChunk, string("source"), ls->location);
-		parseKeywordVector(stringChunk, string("color"), ls->color);
+		string source("source");
+		string color("color");
+		parseKeywordVector(stringChunk, source, ls->location);
+		parseKeywordVector(stringChunk, color, ls->color);
 		return true;
 	}
 
 	bool parseSphere(string& stringChunk, shared_ptr<Sphere> sphere) {
-		parseKeywordVector(stringChunk, string("sphere"), sphere->center);
+		string sphereStr("sphere");
+		parseKeywordVector(stringChunk, sphereStr, sphere->center);
 		parseFloatAfterVec(stringChunk, sphere->radius);
 		parsePigment(stringChunk, sphere);
 		parseFinish(stringChunk, sphere);
@@ -87,7 +93,8 @@ private:
 	}
 
 	bool parsePlane(string& stringChunk, shared_ptr<Plane> plane) {
-		parseKeywordVector(stringChunk, string("plane"), plane->normal);
+		string planeStr("plane");
+		parseKeywordVector(stringChunk, planeStr, plane->normal);
 		parseFloatAfterVec(stringChunk, plane->distance);
 		parsePigment(stringChunk, plane);
 		parseFinish(stringChunk, plane);
@@ -98,7 +105,8 @@ private:
 	}
 
 	bool parsePigment(string& str, shared_ptr<Shape> shape) {
-		parseKeywordVector(str, string("pigment"), shape->pigment);
+		string pigment("pigment");
+		parseKeywordVector(str, pigment, shape->pigment);
 		return true;
 	}
 
@@ -120,21 +128,24 @@ private:
 
 	bool parseTranslate(string& str, shared_ptr<Shape> shape) {
 		glm::vec3 tempVec(0.0, 0.0, 0.0);
-		parseKeywordVector(str, string("translate"), tempVec);
+		string translate("translate");
+		parseKeywordVector(str, translate, tempVec);
 		shape->translate = shape->translate + tempVec;
 		return true;
 	}
 
 	bool parseScale(string& str, shared_ptr<Shape> shape) {
 		glm::vec3 tempVec(0.0, 0.0, 0.0);
-		parseKeywordVector(str, string("scale"), tempVec);
+		string scale("scale");
+		parseKeywordVector(str, scale, tempVec);
 		shape->scale = shape->scale + tempVec;
 		return true;
 	}
 
 	bool parseRotate(string& str, shared_ptr<Shape> shape) {
 		glm::vec3 tempVec(0.0, 0.0, 0.0);
-		parseKeywordVector(str, string("rotate"), tempVec);
+		string rotate("rotate");
+		parseKeywordVector(str, rotate, tempVec);
 		shape->rotate = shape->rotate + tempVec;
 		return true;
 	}
@@ -164,18 +175,6 @@ private:
 		size_t startRadius = floatString.find(",", floatString.find(">")) + 1;
 		size_t endRadius = floatString.find("\n", startRadius);
 		flt = stof(floatString.substr(startRadius, endRadius - startRadius));
-	}
-
-	vector<string> MyParser::tokenizer(const std::string& inString, char delim) {
-		vector<std::string> tokens;
-		stringstream   mySstream(inString);
-		string         temp;
-
-		while (getline(mySstream, temp, delim)) {
-			tokens.push_back(temp);
-		}
-
-		return tokens;
 	}
 
 	std::vector<std::string> split(const std::string& text, const std::string& delims)

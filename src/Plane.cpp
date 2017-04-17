@@ -36,6 +36,7 @@ public:
 	}
 
 	string getTypeString() {
-		return string("Plane");
+		string planeStr("Plane");
+		return planeStr;
 	}
 };
