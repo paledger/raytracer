@@ -36,6 +36,8 @@ void render(shared_ptr<Scene>& scene, int width, int height) {
 		}
 	}
 
+	// slight change
+
 	stbi_write_png(fileName.c_str(), size.x, size.y, numChannels, data, size.x * numChannels);
 	delete[] data;
 }
