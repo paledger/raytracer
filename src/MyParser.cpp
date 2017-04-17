@@ -157,7 +157,8 @@ private:
 		if (currStart != stringChunk.npos) {
 			vecStart = stringChunk.find("<", currStart + currKeyword.size());
 			vecEnd = stringChunk.find(">", currStart + currKeyword.size());
-			parse3FloatVector(stringChunk.substr(vecStart + 1, vecEnd - vecStart - 1), vec);
+			string subString(stringChunk.substr(vecStart + 1, vecEnd - vecStart - 1));
+			parse3FloatVector(subString, vec);
 		}
 	}
 

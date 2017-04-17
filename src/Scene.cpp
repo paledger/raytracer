@@ -85,19 +85,19 @@ public:
 	}
 
 	glm::vec3 calculatePixelRay(int width, int height, int x, int y) {
-		float right = abs(camera->right[0]) / 2.0;
-		float top = abs(camera->up[1]) / 2.0;
+		float right = abs(camera->right[0]) / 2.0f;
+		float top = abs(camera->up[1]) / 2.0f;
 		float left = -right;
 		float bottom = -top;
-		float u = (left + (right - left)*(x + 0.5) / width);
-		float v = (bottom + (top - bottom)*(y + 0.5) / height);
+		float u = (left + (right - left)*(x + 0.5f) / width);
+		float v = (bottom + (top - bottom)*(y + 0.5f) / height);
 		return glm::normalize(glm::vec3(u, v, -1));
 	}
 
 	shared_ptr<Shape> getFirstHit(const glm::vec3& rayDirection, float* intersectT = nullptr) {
 		shared_ptr<Shape> closestShape;
-		float closestT = INT_MAX, t;
-		for (int sh = 0; sh < shapes.size(); sh++) {
+		float closestT = (float)INT_MAX, t = 0;
+		for (unsigned int sh = 0; sh < shapes.size(); sh++) {
 			t = calculateFirstHit(rayDirection, shapes[sh]);
 			if (t && t < closestT) {
 				closestT = t;
