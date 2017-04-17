@@ -46,13 +46,13 @@ public:
 		printSeparators();
 		printf("\n%lu light(s)\n", lightSources.size());
 		for (size_t i = 0; i < lightSources.size(); i++) {
-			printf("\nLight[%lu]\n", i);
+			printf("\nLight[%lu]:\n", i);
 			lightSources[i]->printInfo();
 		}
 		printSeparators();
 		printf("\n%lu object(s)\n", shapes.size());
 		for (size_t i = 0; i < shapes.size(); i++) {
-			printf("\nObject[%lu]\n", i);
+			printf("\nObject[%lu]:\n", i);
 			shapes[i]->printInfo();
 		}
 	}
@@ -63,7 +63,7 @@ public:
 		cout << "Pixel: [" << x << ", " << y << "] ";
 		cout << "Ray: {" << this->camera->location[0] << \
 			" " << this->camera->location[1] << " " << this->camera->location[2] << "} ";
-		cout << "-> {" << rayDirection[0] << " " << rayDirection[1] << " " << rayDirection[2] << "}\n";
+		cout << "-> {" << rayDirection[0] << " " << rayDirection[1] << " " << rayDirection[2] << "}";
 		return rayDirection;
 	}
 
