@@ -7,4 +7,9 @@
 #include <string>
 #include <memory>
 
-#define BLACK 0
+#ifndef MODES
+#define MODES
+#define RAYCAST_MODE 0
+#define BLINNPHONG_MODE 1
+#define COOKTORRANCE_MODE 2
+#endif /* MODES */

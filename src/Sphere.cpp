@@ -24,3 +24,7 @@ string Sphere::getTypeString() {
 	string sphereStr("Sphere");
 	return sphereStr;
 }
+
+glm::vec3 Sphere::getNormal(glm::vec3 point) {
+	return glm::normalize(point - center);
+}

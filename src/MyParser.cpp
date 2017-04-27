@@ -111,14 +111,28 @@ bool MyParser::parseFinish(string& str, shared_ptr<Shape> shape) {
 	if (str.find("finish") == str.npos) {
 		return false;
 	}
-	size_t ambientStart = str.find("ambient") + strlen("ambient");
-	size_t diffuseStart = str.find("diffuse") + strlen("diffuse");
+	size_t ambientStart = str.find("ambient");
+	size_t diffuseStart = str.find("diffuse");
+	size_t specStart = str.find("specular");
+	size_t roughStart = str.find("roughness");
 
+	string substr;
 	if (ambientStart != str.npos) {
-		shape->ambient = stof(str.substr(ambientStart, str.find_first_of("d}", ambientStart) - ambientStart));
+		substr = str.substr(ambientStart + strlen("ambient"), str.npos);
+		shape->ambient = stof(substr.substr(0, substr.find_first_of("dsr}")));
 	}
 	if (diffuseStart != str.npos) {
-		shape->diffuse = stof(str.substr(diffuseStart, str.find_first_of("a}", diffuseStart) - diffuseStart));
+		substr = str.substr(diffuseStart + strlen("diffuse"), str.npos);
+		shape->diffuse = stof(substr.substr(0, substr.find_first_of("asr}")));
+	}
+	if (specStart != str.npos) {
+		substr = str.substr(specStart + strlen("specular"), str.npos);
+		shape->specular = stof(substr.substr(0, substr.find_first_of("sadr}")));
+		cout << "specular: " << shape->specular << endl;
+	}
+	if (roughStart != str.npos) {
+		substr = str.substr(roughStart + strlen("roughness"), str.npos);
+		shape->shininess = stof(substr.substr(0, substr.find_first_of("rads}")));
 	}
 	return true;
 }

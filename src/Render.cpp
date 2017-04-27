@@ -9,7 +9,45 @@
 using namespace std;
 
 /* PUBLIC */
-void Render::render(shared_ptr<Scene>& scene, int width, int height) {
+
+/*** PROJECT 2 COMMANDS ***/
+
+/* Blinn-Phong Shading Model */
+void Render::shadedPixels(std::shared_ptr<Scene>& scene, 
+	std::shared_ptr<Shape>& shape, glm::vec3& viewRay, float t,
+	unsigned char& retRed, unsigned char& retGreen, unsigned char& retBlue) 
+{
+	glm::vec3 point = Helper::getPointOnRay(scene->camera->location, viewRay, t);
+	glm::vec3 normal = shape->getNormal(point);
+	glm::vec3 view = glm::normalize(-viewRay);
+	glm::vec3 halfVec, lightVec;
+	glm::vec3 lightColor;
+	shared_ptr<LightSource> currLight;
+	float power = (2 / (shape->shininess*shape->shininess) - 2);
+	float s, t2, epsilon = 0.001f;
+
+	glm::vec3 color = shape->pigment * shape->ambient;
+	for (int l = 0; l < scene->lightSources.size(); l++) {
+		currLight = scene->lightSources[l];
+		lightVec = glm::normalize(currLight->location - point);
+		s = Render::calculateFirstHit(scene, currLight->location, -lightVec, shape);
+		Render::getFirstHit(scene, point, (point*(epsilon) + s*lightVec), &t2);
+		if (t2 > s) {
+			halfVec = glm::normalize(view + lightVec);
+			lightColor = currLight->color;
+			color += shape->pigment * shape->diffuse * lightColor * glm::max(glm::dot(normal, lightVec), 0.0f);
+			color += shape->pigment * shape->specular * lightColor * glm::pow(glm::max(glm::dot(halfVec, normal), 0.0f), power);
+		}
+
+	}
+	retRed = Helper::convertToRgb(color[0]);
+	retGreen = Helper::convertToRgb(color[1]);
+	retBlue = Helper::convertToRgb(color[2]);
+}
+
+
+/*** PROJECT 1 COMMANDS ***/
+void Render::createOutput(shared_ptr<Scene>& scene, int width, int height, unsigned int mode) {
 	const int numChannels = 3;
 	const string fileName = "output.png";
 	const glm::ivec2 size = glm::ivec2(width, height);
@@ -22,17 +60,22 @@ void Render::render(shared_ptr<Scene>& scene, int width, int height) {
 	{
 		for (int x = 0; x < size.x; ++x)
 		{
-
 			unsigned char red, green, blue;
 			rayDirection = Render::calculatePixelRay(scene, width, height, x, y);
-			shape = Render::getFirstHit(scene, rayDirection, &t);
+			shape = Render::getFirstHit(scene, scene->camera->location, rayDirection, &t);
 			if (shape) {
-				red = Helper::convertToRgb(shape->pigment[0]);
-				green = Helper::convertToRgb(shape->pigment[1]);
-				blue = Helper::convertToRgb(shape->pigment[2]);
+				if (mode == RAYCAST_MODE) {
+					Render::raycastPixels(shape, red, green, blue);
+				}
+				else if (mode == BLINNPHONG_MODE) {
+					Render::shadedPixels(scene, shape, rayDirection, t, red, green, blue);
+				} 
+				else if (mode == COOKTORRANCE_MODE) {
+
+				}
 			}
 			else {
-				red = green = blue = 0;
+				red = green = blue = BLACK;
 			}
 
 			data[(size.x * numChannels) * (size.y - 1 - y) + numChannels * x + 0] = red;
@@ -44,6 +87,13 @@ void Render::render(shared_ptr<Scene>& scene, int width, int height) {
 	stbi_write_png(fileName.c_str(), size.x, size.y, numChannels, data, size.x * numChannels);
 	delete[] data;
 }
+
+void Render::raycastPixels(std::shared_ptr<Shape>& shape, unsigned char& retRed, unsigned char& retGreen, unsigned char& retBlue) {
+	retRed = Helper::convertToRgb(shape->pigment[0]);
+	retGreen = Helper::convertToRgb(shape->pigment[1]);
+	retBlue = Helper::convertToRgb(shape->pigment[2]);
+}
+
 
 glm::vec3 Render::pixelRay(shared_ptr<Scene>& scene, int width, int height, int x, int y) {
 	glm::vec3 rayDirection = Render::calculatePixelRay(scene, width, height, x, y);
@@ -58,7 +108,7 @@ glm::vec3 Render::pixelRay(shared_ptr<Scene>& scene, int width, int height, int 
 void Render::firstHit(shared_ptr<Scene>& scene, int width, int height, int x, int y) {
 	float t;
 	glm::vec3 rayDirection = Render::pixelRay(scene, width, height, x, y);
-	shared_ptr<Shape> firstHit = Render::getFirstHit(scene, rayDirection, &t);
+	shared_ptr<Shape> firstHit = Render::getFirstHit(scene, scene->camera->location, rayDirection, &t);
 	cout << setprecision(4);
 	if (t == INT_MAX) {
 		cout << "No Hit\n";
@@ -74,21 +124,25 @@ void Render::firstHit(shared_ptr<Scene>& scene, int width, int height, int x, in
 
 /* PRIVATE */
 
+/*** PROJECT 1 COMMANDS ***/
 glm::vec3 Render::calculatePixelRay(shared_ptr<Scene>& scene, int width, int height, int x, int y) {
-	float right = abs(scene->camera->right[0]) / 2.0f;
-	float top = abs(scene->camera->up[1]) / 2.0f;
+	float right = glm::length(glm::normalize(scene->camera->right)) / 2.0f;
+	float top = glm::length(scene->camera->up) / 2.0f;
 	float left = -right;
 	float bottom = -top;
 	float u = (left + (right - left)*(x + 0.5f) / width);
 	float v = (bottom + (top - bottom)*(y + 0.5f) / height);
-	return glm::normalize(glm::vec3(u, v, -1));
+	glm::vec3 l = glm::normalize(scene->camera->look_at - scene->camera->location);
+	return glm::normalize(u*scene->camera->right + \
+						  v*scene->camera->up +	\
+						  l);
 }
 
-shared_ptr<Shape> Render::getFirstHit(shared_ptr<Scene>& scene, const glm::vec3& rayDirection, float* intersectT) {
+shared_ptr<Shape> Render::getFirstHit(shared_ptr<Scene>& scene, const glm::vec3& origin, glm::vec3& rayDirection, float* intersectT) {
 	shared_ptr<Shape> closestShape;
 	float closestT = (float)INT_MAX, t = 0;
 	for (unsigned int sh = 0; sh < scene->shapes.size(); sh++) {
-		t = calculateFirstHit(scene, rayDirection, scene->shapes[sh]);
+		t = calculateFirstHit(scene, origin, rayDirection, scene->shapes[sh]);
 		if (t && t < closestT) {
 			closestT = t;
 			closestShape = scene->shapes[sh];
@@ -100,8 +154,8 @@ shared_ptr<Shape> Render::getFirstHit(shared_ptr<Scene>& scene, const glm::vec3&
 	return closestShape;
 }
 
-float Render::calculateFirstHit(shared_ptr<Scene>& scene, const glm::vec3& rayDirection, const shared_ptr<Shape>& shapeToTest) {
-	vector<float> t = shapeToTest->getIntersection(rayDirection, scene->camera->location);
+float Render::calculateFirstHit(shared_ptr<Scene>& scene, const glm::vec3& origin, glm::vec3& rayDirection, const shared_ptr<Shape>& shapeToTest) {
+	vector<float> t = shapeToTest->getIntersection(rayDirection, origin);
 	if (!t.empty()) {
 		sort(t.begin(), t.end());
 		return t[0];

@@ -19,5 +19,19 @@ vector<float> Helper::quadratic(float a, float b, float c) {
 }
 
 int Helper::convertToRgb(float flt) {
-	return (unsigned int)std::round(flt * 255.f);
+	return (unsigned int)std::round(glm::min(flt, 1.0f) * 255.f);
+}
+
+glm::vec3 Helper::convertToRgb(glm::vec3 vec) {
+	return glm::vec3(Helper::convertToRgb(vec[0]), 
+		Helper::convertToRgb(vec[1]), 
+		Helper::convertToRgb(vec[2]));
+}
+
+glm::vec3 Helper::getPointOnRay(glm::vec3 origin, glm::vec3 direction, float t) {
+	return origin + t*direction;
+}
+
+glm::vec3 Helper::getReverseVec(glm::vec3 vec) {
+	return -1.0f * vec;
 }

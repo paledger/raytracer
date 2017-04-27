@@ -27,3 +27,7 @@ string Plane::getTypeString() {
 	string planeStr("Plane");
 	return planeStr;
 }
+
+glm::vec3 Plane::getNormal(glm::vec3 point) {
+	return normal;
+}
