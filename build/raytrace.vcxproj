@@ -364,6 +364,9 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <Project>47ACDA26-8FCB-3302-BB95-CA23CA94799D</Project>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\resources\specular.pov" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
