@@ -24,10 +24,11 @@ void Render::pixelcolor(std::shared_ptr<Scene>& scene, int width, int height, in
 			Render::raycastPixels(shape, red, green, blue);
 		}
 		else if (mode == BLINNPHONG_MODE) {
-			Render::shadedPixels(scene, shape, rayDirection, t, red, green, blue);
+			Render::shadedPixels(scene, shape, rayDirection, t, mode, red, green, blue);
 			cout << "BRDF: Blinn-Phong" << endl;
 		}
 		else if (mode == COOKTORRANCE_MODE) {
+			Render::shadedPixels(scene, shape, rayDirection, t, mode, red, green, blue);
 			cout << "BRDF: Cook-Torrance" << endl;
 		}
 	}
@@ -56,12 +57,9 @@ void Render::createOutput(shared_ptr<Scene>& scene, int width, int height, unsig
 				if (mode == RAYCAST_MODE) {
 					Render::raycastPixels(shape, red, green, blue);
 				}
-				else if (mode == BLINNPHONG_MODE) {
-					Render::shadedPixels(scene, shape, rayDirection, t, red, green, blue);
+				else if (mode == BLINNPHONG_MODE || mode == COOKTORRANCE_MODE) {
+					Render::shadedPixels(scene, shape, rayDirection, t, mode, red, green, blue);
 				} 
-				else if (mode == COOKTORRANCE_MODE) {
-
-				}
 			}
 			else {
 				red = green = blue = BLACK;
@@ -117,6 +115,7 @@ void Render::firstHit(shared_ptr<Scene>& scene, int width, int height, int x, in
 /* Blinn-Phong Shading Model */
 void Render::shadedPixels(std::shared_ptr<Scene>& scene,
 	std::shared_ptr<Shape>& shape, glm::vec3& viewRay, float t,
+	unsigned int mode, 
 	unsigned char& retRed, unsigned char& retGreen, unsigned char& retBlue)
 {
 	glm::vec3 point = Helper::getPointOnRay(scene->camera->location, viewRay, t);
@@ -128,7 +127,12 @@ void Render::shadedPixels(std::shared_ptr<Scene>& scene,
 
 	glm::vec3 color = shape->pigment * shape->ambient;
 	for (unsigned int l = 0; l < scene->lightSources.size(); l++) {
-		color += Render::blinnPhong(scene, scene->lightSources[l], shape, view, point);
+		if (mode == BLINNPHONG_MODE) {
+			color += Render::blinnPhong(scene, scene->lightSources[l], shape, view, point);
+		}
+		else {
+			color += Render::cookTorrance(scene, scene->lightSources[l], shape, view, point);
+		}
 	}
 	retRed = Helper::convertToRgb(color[0]);
 	retGreen = Helper::convertToRgb(color[1]);

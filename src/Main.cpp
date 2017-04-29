@@ -79,6 +79,7 @@ int main(int argc, char* argv[]) {
 		else {
 			string arg1 = string(argv[1]);
 			if (arg1.find("-altbrdf") != arg1.npos) {
+				Render::createOutput(scene, stoi(argv[3]), stoi(argv[4]), BLINNPHONG_MODE);
 			} 
 			else {
 				Render::createOutput(scene, stoi(argv[3]), stoi(argv[4]), BLINNPHONG_MODE);

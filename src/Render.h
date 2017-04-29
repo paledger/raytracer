@@ -44,7 +44,8 @@ private:
 
 	/*** PROJECT 2 COMMANDS ***/	
 	static void shadedPixels(std::shared_ptr<Scene>& scene, 
-							 std::shared_ptr<Shape>& shape, glm::vec3& viewRay, float t, 
+							 std::shared_ptr<Shape>& shape, glm::vec3& viewRay, float t,
+							 unsigned int mode,
 							 unsigned char& retRed, unsigned char& retGreen, unsigned char& retBlue);
 	static glm::vec3 Render::blinnPhong(std::shared_ptr<Scene>& scene, std::shared_ptr<LightSource>& currLight,
 										std::shared_ptr<Shape>& shape, glm::vec3& view, glm::vec3& point);
