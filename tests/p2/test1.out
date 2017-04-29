@@ -1,0 +1,5 @@
+Pixel: [275, 285] Ray: {0 0 14} -> {-0.0919 0.09397 -0.9913}
+T = 13.1
+Object Type: Sphere
+BRDF: Blinn-Phong
+Color: (203, 0, 203)

@@ -11,38 +11,27 @@ using namespace std;
 /* PUBLIC */
 
 /*** PROJECT 2 COMMANDS ***/
-
-/* Blinn-Phong Shading Model */
-void Render::shadedPixels(std::shared_ptr<Scene>& scene, 
-	std::shared_ptr<Shape>& shape, glm::vec3& viewRay, float t,
-	unsigned char& retRed, unsigned char& retGreen, unsigned char& retBlue) 
-{
-	glm::vec3 point = Helper::getPointOnRay(scene->camera->location, viewRay, t);
-	glm::vec3 normal = shape->getNormal(point);
-	glm::vec3 view = glm::normalize(-viewRay);
-	glm::vec3 halfVec, lightVec;
-	glm::vec3 lightColor;
-	shared_ptr<LightSource> currLight;
-	float power = (2 / (shape->shininess*shape->shininess) - 2);
-	float s, t2, epsilon = 0.001f;
-
-	glm::vec3 color = shape->pigment * shape->ambient;
-	for (int l = 0; l < scene->lightSources.size(); l++) {
-		currLight = scene->lightSources[l];
-		lightVec = glm::normalize(currLight->location - point);
-		s = Render::calculateFirstHit(scene, currLight->location, -lightVec, shape);
-		Render::getFirstHit(scene, point, (point*(epsilon) + s*lightVec), &t2);
-		if (t2 > s) {
-			halfVec = glm::normalize(view + lightVec);
-			lightColor = currLight->color;
-			color += shape->pigment * shape->diffuse * lightColor * glm::max(glm::dot(normal, lightVec), 0.0f);
-			color += shape->pigment * shape->specular * lightColor * glm::pow(glm::max(glm::dot(halfVec, normal), 0.0f), power);
+void Render::pixelcolor(std::shared_ptr<Scene>& scene, int width, int height, int x, int y, unsigned int mode) {
+	unsigned char red, green, blue;
+	float t;
+	glm::vec3 rayDirection = Render::pixelRay(scene, width, height, x, y);
+	shared_ptr<Shape> shape = Render::getFirstHit(scene, scene->camera->location, rayDirection, &t);
+	cout << setprecision(4);
+	cout << "T = " << t << endl;
+	cout << "Object Type: " << shape->getTypeString() << endl;
+	if (shape) {
+		if (mode == RAYCAST_MODE) {
+			Render::raycastPixels(shape, red, green, blue);
 		}
-
+		else if (mode == BLINNPHONG_MODE) {
+			Render::shadedPixels(scene, shape, rayDirection, t, red, green, blue);
+			cout << "BRDF: Blinn-Phong" << endl;
+		}
+		else if (mode == COOKTORRANCE_MODE) {
+			cout << "BRDF: Cook-Torrance" << endl;
+		}
 	}
-	retRed = Helper::convertToRgb(color[0]);
-	retGreen = Helper::convertToRgb(color[1]);
-	retBlue = Helper::convertToRgb(color[2]);
+	cout << "Color: (" << Helper::convertToRgb(red) << ", " << Helper::convertToRgb(green) << ", " << Helper::convertToRgb(blue) << ")" << endl;
 }
 
 
@@ -123,6 +112,68 @@ void Render::firstHit(shared_ptr<Scene>& scene, int width, int height, int x, in
 }
 
 /* PRIVATE */
+
+/*** PROJECT 1 COMMANDS ***/
+/* Blinn-Phong Shading Model */
+void Render::shadedPixels(std::shared_ptr<Scene>& scene,
+	std::shared_ptr<Shape>& shape, glm::vec3& viewRay, float t,
+	unsigned char& retRed, unsigned char& retGreen, unsigned char& retBlue)
+{
+	glm::vec3 point = Helper::getPointOnRay(scene->camera->location, viewRay, t);
+	glm::vec3 view = glm::normalize(-viewRay);
+	glm::vec3 halfVec, lightVec;
+	glm::vec3 lightColor;
+	shared_ptr<LightSource> currLight;
+	float power = (2 / (shape->shininess*shape->shininess) - 2);
+
+	glm::vec3 color = shape->pigment * shape->ambient;
+	for (unsigned int l = 0; l < scene->lightSources.size(); l++) {
+		color += Render::blinnPhong(scene, scene->lightSources[l], shape, view, point);
+	}
+	retRed = Helper::convertToRgb(color[0]);
+	retGreen = Helper::convertToRgb(color[1]);
+	retBlue = Helper::convertToRgb(color[2]);
+}
+
+glm::vec3 Render::blinnPhong(shared_ptr<Scene>& scene, shared_ptr<LightSource>& currLight, 
+						shared_ptr<Shape>& shape, glm::vec3& view, glm::vec3& point) {
+	float t2, epsilon = .0001f;
+	float power = (2 / (shape->shininess*shape->shininess) - 2);
+	glm::vec3 color;	
+	glm::vec3 normal = shape->getNormal(point);
+	glm::vec3 lightVec = glm::normalize(currLight->location - point);
+	float s = Render::calculateFirstHit(scene, currLight->location, -lightVec, shape);
+	Render::getFirstHit(scene, point + lightVec*epsilon, point + lightVec*s, &t2);
+	if (Render::notShaded(s, t2)) {
+		glm::vec3 halfVec = glm::normalize(view + lightVec);
+		glm::vec3 lightColor = currLight->color;
+		color += shape->pigment * shape->diffuse * lightColor * glm::max(glm::dot(normal, lightVec), 0.0f);
+		color += shape->pigment * shape->specular * lightColor * glm::pow(glm::max(glm::dot(halfVec, normal), 0.0f), power);
+	}
+	return color;
+}
+
+glm::vec3 Render::cookTorrance(shared_ptr<Scene>& scene, shared_ptr<LightSource>& currLight,
+	shared_ptr<Shape>& shape, glm::vec3& view, glm::vec3& point) {
+	float t2, epsilon = .0001f;
+	float power = (2 / (shape->shininess*shape->shininess) - 2);
+	glm::vec3 color;
+	glm::vec3 normal = shape->getNormal(point);
+	glm::vec3 lightVec = glm::normalize(currLight->location - point);
+	float s = Render::calculateFirstHit(scene, currLight->location, -lightVec, shape);
+	Render::getFirstHit(scene, point + lightVec*epsilon, point + lightVec*s, &t2);
+	if (Render::notShaded(s, t2)) {
+		glm::vec3 halfVec = glm::normalize(view + lightVec);
+		glm::vec3 lightColor = currLight->color;
+		color += shape->pigment * shape->diffuse * lightColor * glm::max(glm::dot(normal, lightVec), 0.0f);
+		color += shape->pigment * shape->specular * lightColor * glm::pow(glm::max(glm::dot(halfVec, normal), 0.0f), power);
+	}
+	return color;
+}
+
+bool Render::notShaded(float s, float t2) {
+	return t2 == INT_MAX || t2 >= s;
+}
 
 /*** PROJECT 1 COMMANDS ***/
 glm::vec3 Render::calculatePixelRay(shared_ptr<Scene>& scene, int width, int height, int x, int y) {

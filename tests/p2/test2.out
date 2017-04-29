@@ -1,0 +1,5 @@
+Pixel: [360, 195] Ray: {0 0 14} -> {0.08372 -0.09199 -0.9922}
+T = 12.91
+Object Type: Sphere
+BRDF: Blinn-Phong
+Color: (51, 0, 51)

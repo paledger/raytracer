@@ -12,7 +12,7 @@ class Plane : public Shape
 {
 public:
 	void printInfo() override;
-	std::vector<float> getIntersection(const glm::vec3& dir, const glm::vec3& camLoc) override;
+	std::vector<float> getIntersection(const glm::vec3& dir, const glm::vec3& origin) override;
 	std::string getTypeString() override;
 	glm::vec3 getNormal(glm::vec3 point) override;
 

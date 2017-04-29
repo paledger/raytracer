@@ -128,7 +128,6 @@ bool MyParser::parseFinish(string& str, shared_ptr<Shape> shape) {
 	if (specStart != str.npos) {
 		substr = str.substr(specStart + strlen("specular"), str.npos);
 		shape->specular = stof(substr.substr(0, substr.find_first_of("sadr}")));
-		cout << "specular: " << shape->specular << endl;
 	}
 	if (roughStart != str.npos) {
 		substr = str.substr(roughStart + strlen("roughness"), str.npos);

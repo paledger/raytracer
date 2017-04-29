@@ -1,0 +1,7 @@
+simple render
+spheres render
+planes render
+simp_cam0 render
+simp_cam1 render
+simp_cam2 render
+simp_cam3 render

@@ -34,7 +34,7 @@ public:
 	static void firstHit(std::shared_ptr<Scene>& scene, int width, int height, int x, int y);
 
 	/*** PROJECT 2 COMMANDS ***/
-	static void shadedPixels(std::shared_ptr<Scene>& scene, std::shared_ptr<Shape>& shape, glm::vec3& viewRay, float t, unsigned char& retRed, unsigned char& retGreen, unsigned char& retBlue);
+	static void Render::pixelcolor(std::shared_ptr<Scene>& scene, int width, int height, int x, int y, unsigned int mode);
 
 private:
 	/*** PROJECT 1 COMMANDS ***/
@@ -42,6 +42,13 @@ private:
 	static std::shared_ptr<Shape> Render::getFirstHit(std::shared_ptr<Scene>& scene, const glm::vec3& origin, glm::vec3& rayDirection, float* intersectT = nullptr);
 	static float calculateFirstHit(std::shared_ptr<Scene>& scene, const glm::vec3& origin, glm::vec3& rayDirection, const std::shared_ptr<Shape>& shapeToTest);
 
-	/*** PROJECT 2 COMMANDS ***/
-
+	/*** PROJECT 2 COMMANDS ***/	
+	static void shadedPixels(std::shared_ptr<Scene>& scene, 
+							 std::shared_ptr<Shape>& shape, glm::vec3& viewRay, float t, 
+							 unsigned char& retRed, unsigned char& retGreen, unsigned char& retBlue);
+	static glm::vec3 Render::blinnPhong(std::shared_ptr<Scene>& scene, std::shared_ptr<LightSource>& currLight,
+										std::shared_ptr<Shape>& shape, glm::vec3& view, glm::vec3& point);
+	static glm::vec3 Render::cookTorrance(std::shared_ptr<Scene>& scene, std::shared_ptr<LightSource>& currLight,
+		std::shared_ptr<Shape>& shape, glm::vec3& view, glm::vec3& point);
+	static bool notShaded(float s, float t2);
 };

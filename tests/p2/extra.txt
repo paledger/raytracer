@@ -1,0 +1,4 @@
+simple render -altbrdf
+specular render -altbrdf
+simp_cam1 render -altbrdf
+pbr_grid render -altbrdf

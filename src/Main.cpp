@@ -87,7 +87,20 @@ int main(int argc, char* argv[]) {
 	}
 	// raytrace pixelcolor <input_filename> <width> <height> <x> <y> [-altbrdf]
 	else if (!strcmp(argv[1], "pixelcolor")) {
+		if (argc < 7) {
+			cout << "Please follow the following format to render: raytrace render <input_filename> <width> <height> [-altbrdf]\n";
+		}
+		else {
+			string arg1 = string(argv[1]);
 
+			if (arg1.find("-altbrdf") != arg1.npos) {
+				Render::pixelcolor(scene, stoi(argv[3]), stoi(argv[4]), stoi(argv[5]), stoi(argv[6]), COOKTORRANCE_MODE);
+			}
+			else {
+				Render::createOutput(scene, stoi(argv[3]), stoi(argv[4]), BLINNPHONG_MODE);
+				Render::pixelcolor(scene, stoi(argv[3]), stoi(argv[4]), stoi(argv[5]), stoi(argv[6]), BLINNPHONG_MODE);
+			}
+		}
 	}
   
 	return 0;

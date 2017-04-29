@@ -1,0 +1,5 @@
+Pixel: [400, 105] Ray: {0 0 14} -> {0.1594 -0.2664 -0.9506}
+T = 15.02
+Object Type: Plane
+BRDF: Blinn-Phong
+Color: (56, 56, 225)
