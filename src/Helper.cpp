@@ -17,7 +17,7 @@ vector<float> Helper::quadratic(float a, float b, float c) {
 }
 
 int Helper::convertToRgb(float flt) {
-	return (unsigned int)std::round(glm::min(flt, 1.0f) * 255.f);
+	return (unsigned int)std::round(flt * 255.f);
 }
 
 glm::vec3 Helper::convertToRgb(glm::vec3 vec) {
