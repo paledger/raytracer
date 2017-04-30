@@ -11,7 +11,7 @@
 class Shape
 {
 public:
-	virtual void Shape::printInfo();
+	virtual void printInfo();
 	virtual std::vector<float> getIntersection(const glm::vec3& dir, const glm::vec3& origin) = 0;
 	virtual std::string getTypeString()  = 0;
 	virtual glm::vec3 getNormal(glm::vec3 point) = 0;
