@@ -24,6 +24,7 @@
 #endif /* MODES */
 
 #define BLACK 0
+#define PI 3.14
 
 class Render {
 public:

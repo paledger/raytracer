@@ -162,20 +162,29 @@ glm::vec3 Render::blinnPhong(shared_ptr<Scene>& scene, shared_ptr<LightSource>& 
 
 glm::vec3 Render::cookTorrance(shared_ptr<Scene>& scene, shared_ptr<LightSource>& currLight,
 	shared_ptr<Shape>& shape, glm::vec3 view, glm::vec3 point) {
+
+	float specular = shape->metallic;
+	float diffuse = 1 - specular;
 	float t2, epsilon = .01f;
-	float power = (2 / (shape->shininess*shape->shininess) - 2);
-	glm::vec3 shadingColor;
+	glm::vec3 shadingColor = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 normal = shape->getNormal(point);
 	glm::vec3 lightVec = glm::normalize(currLight->location - point);
 	float s = Render::calculateFirstHit(scene, currLight->location, -lightVec, shape);
 	Render::getFirstHit(scene, point + lightVec*epsilon, point + lightVec*s, &t2);
 
-
 	if (Render::notShaded(s, t2)) {
 		glm::vec3 halfVec = glm::normalize(view + lightVec);
 		glm::vec3 lightColor = currLight->color;
-		shadingColor += shape->pigment * shape->diffuse * lightColor * glm::max(glm::dot(normal, lightVec), 0.0f);
-		shadingColor += shape->pigment * shape->specular * lightColor * glm::pow(glm::max(glm::dot(halfVec, normal), 0.0f), power);
+		float alpha = shape->shininess*shape->shininess;
+		float power = ((2 / alpha*alpha) - 2);
+		float D = (1/(PI*alpha*alpha))*glm::pow(glm::dot(halfVec, normal), power);
+		float constant = (2 * glm::dot(halfVec, normal) / glm::dot(view, halfVec));
+		float G = glm::min(1.0f, glm::min(constant * glm::dot(normal, view), constant * glm::dot(normal, lightVec)));
+		float F_0 = ((shape->ior - 1)*(shape->ior - 1)) / ((shape->ior + 1)*(shape->ior + 1));
+		float F = F_0 + (1 - F_0) * glm::pow(1 - glm::dot(view, halfVec), 5);
+		float r_d = shape->diffuse;
+		float r_s = (D*G*F) / (4 * glm::dot(normal, view));
+		shadingColor += (shape->pigment) * lightColor * (diffuse * glm::dot(normal, lightVec) * r_d + specular * r_s);
 	}
 	return shadingColor;
 }
