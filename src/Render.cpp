@@ -176,7 +176,7 @@ glm::vec3 Render::cookTorrance(shared_ptr<Scene>& scene, shared_ptr<LightSource>
 }
 
 bool Render::notShaded(float s, float t2) {
-	return t2 == INT_MAX || t2 >= s;
+	return t2 > 0 && (t2 == INT_MAX || t2 >= s);
 }
 
 /*** PROJECT 1 COMMANDS ***/

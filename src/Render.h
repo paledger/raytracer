@@ -13,7 +13,7 @@
 
 #include "Scene.h"
 #include "Shape.h"
-#include "Lightsource.h"
+#include "LightSource.h"
 #include "Camera.h"
 
 #ifndef MODES
