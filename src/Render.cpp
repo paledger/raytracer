@@ -164,18 +164,20 @@ glm::vec3 Render::cookTorrance(shared_ptr<Scene>& scene, shared_ptr<LightSource>
 	shared_ptr<Shape>& shape, glm::vec3 view, glm::vec3 point) {
 	float t2, epsilon = .01f;
 	float power = (2 / (shape->shininess*shape->shininess) - 2);
-	glm::vec3 color;
+	glm::vec3 shadingColor;
 	glm::vec3 normal = shape->getNormal(point);
 	glm::vec3 lightVec = glm::normalize(currLight->location - point);
 	float s = Render::calculateFirstHit(scene, currLight->location, -lightVec, shape);
 	Render::getFirstHit(scene, point + lightVec*epsilon, point + lightVec*s, &t2);
+
+
 	if (Render::notShaded(s, t2)) {
 		glm::vec3 halfVec = glm::normalize(view + lightVec);
 		glm::vec3 lightColor = currLight->color;
-		color += shape->pigment * shape->diffuse * lightColor * glm::max(glm::dot(normal, lightVec), 0.0f);
-		color += shape->pigment * shape->specular * lightColor * glm::pow(glm::max(glm::dot(halfVec, normal), 0.0f), power);
+		shadingColor += shape->pigment * shape->diffuse * lightColor * glm::max(glm::dot(normal, lightVec), 0.0f);
+		shadingColor += shape->pigment * shape->specular * lightColor * glm::pow(glm::max(glm::dot(halfVec, normal), 0.0f), power);
 	}
-	return color;
+	return shadingColor;
 }
 
 bool Render::notShaded(float s, float t2) {

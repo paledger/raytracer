@@ -34,7 +34,7 @@ public:
 	static void firstHit(std::shared_ptr<Scene>& scene, int width, int height, int x, int y);
 
 	/*** PROJECT 2 COMMANDS ***/
-	static void Render::pixelcolor(std::shared_ptr<Scene>& scene, int width, int height, int x, int y, unsigned int mode);
+	static void pixelcolor(std::shared_ptr<Scene>& scene, int width, int height, int x, int y, unsigned int mode);
 
 private:
 	/*** PROJECT 1 COMMANDS ***/
