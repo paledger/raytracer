@@ -124,9 +124,6 @@ void Render::shadedPixels(std::shared_ptr<Scene>& scene,
 {
 	glm::vec3 point = Helper::getPointOnRay(scene->camera->location, viewRay, t);
 	glm::vec3 view = glm::normalize(-viewRay);
-	glm::vec3 halfVec, lightVec;
-	glm::vec3 lightColor;
-	shared_ptr<LightSource> currLight;
 
 	glm::vec3 color = shape->pigment * shape->ambient;
 	for (unsigned int l = 0; l < scene->lightSources.size(); l++) {
@@ -149,8 +146,10 @@ glm::vec3 Render::blinnPhong(shared_ptr<Scene>& scene, shared_ptr<LightSource>& 
 	glm::vec3 color;	
 	glm::vec3 normal = shape->getNormal(point);
 	glm::vec3 lightVec = glm::normalize(currLight->location - point);
-	float s = Render::calculateFirstHit(scene, currLight->location, -lightVec, shape);
-	Render::getFirstHit(scene, point, point + lightVec*epsilon + lightVec*s, &t2);
+	//cout << "getting light length " << endl;
+	float s = Render::calculateFirstHit(scene, currLight->location - lightVec*epsilon, -lightVec, shape);
+	//cout << "getting light occlusion " << endl;
+	Render::getFirstHit(scene, point + lightVec*epsilon, point + lightVec*epsilon + lightVec*s, &t2);
 	if (Render::notShaded(s, t2)) {
 		glm::vec3 halfVec = glm::normalize(view + lightVec);
 		glm::vec3 lightColor = currLight->color;
@@ -190,7 +189,7 @@ glm::vec3 Render::cookTorrance(shared_ptr<Scene>& scene, shared_ptr<LightSource>
 }
 
 bool Render::notShaded(float s, float t2) {
-	return t2 == INT_MAX || t2 > s;
+	return t2 == INT_MAX;
 }
 
 /*** PROJECT 1 COMMANDS ***/
@@ -212,7 +211,7 @@ shared_ptr<Shape> Render::getFirstHit(shared_ptr<Scene>& scene, glm::vec3 origin
 	float closestT = (float)INT_MAX, t = -1;
 	for (unsigned int sh = 0; sh < scene->shapes.size(); sh++) {
 		t = calculateFirstHit(scene, origin, rayDirection, scene->shapes[sh]);
-		if (t > 0 && t < closestT) {
+		if (t >= 0 && t < closestT) {
 			closestT = t;
 			closestShape = scene->shapes[sh];
 		}
@@ -225,9 +224,12 @@ shared_ptr<Shape> Render::getFirstHit(shared_ptr<Scene>& scene, glm::vec3 origin
 
 float Render::calculateFirstHit(shared_ptr<Scene>& scene,  glm::vec3 origin, glm::vec3 rayDirection, const shared_ptr<Shape>& shapeToTest) {
 	vector<float> t = shapeToTest->getIntersection(rayDirection, origin);
+	for (int i = 0; i < t.size(); i++) {
+		//cout << t[i] << endl;
+	}
 	if (!t.empty()) {
 		sort(t.begin(), t.end());
 		return t[0];
 	}
-	return 0;
+	return -1;
 }

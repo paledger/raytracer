@@ -6,7 +6,7 @@ using namespace std;
 
 vector<float> Helper::quadratic(float a, float b, float c) {
 	vector<float> t;
-	float discriminant = b*b - 4 * a*c;
+	float discriminant = b*b - 4.0f * a*c;
 	if (discriminant >= 0) {
 		float pos = (-b + float(sqrt(discriminant))) / (2 * a);
 		t.push_back(pos);

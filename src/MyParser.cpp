@@ -134,7 +134,7 @@ bool MyParser::parseFinish(string& str, shared_ptr<Shape> shape) {
 		substr = str.substr(roughStart + strlen("roughness"), str.npos);
 		shape->shininess = stof(substr.substr(0, substr.find_first_of("mrads}")));
 	}
-	if (roughStart != str.npos) {
+	if (metallicStart != str.npos) {
 		substr = str.substr(metallicStart + strlen("metallic"), str.npos);
 		shape->metallic = stof(substr.substr(0, substr.find_first_of("mrads}")));
 	}
