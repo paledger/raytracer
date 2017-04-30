@@ -145,15 +145,16 @@ glm::vec3 Render::blinnPhong(shared_ptr<Scene>& scene, shared_ptr<LightSource>& 
 	float power = (2 / (shape->shininess*shape->shininess) - 2);
 	glm::vec3 color;	
 	glm::vec3 normal = shape->getNormal(point);
-	glm::vec3 lightVec = glm::normalize(currLight->location - point);
+	glm::vec3 lightVec = (currLight->location - point);
+	glm::vec3 normalizedL = glm::normalize(lightVec);
 	//cout << "getting light length " << endl;
-	float s = Render::calculateFirstHit(scene, currLight->location - lightVec*epsilon, -lightVec, shape);
+	float s = Render::calculateFirstHit(scene, currLight->location - normalizedL*epsilon, -lightVec, shape);
 	//cout << "getting light occlusion " << endl;
-	Render::getFirstHit(scene, point + lightVec*epsilon, point + lightVec*epsilon + lightVec*s, &t2);
+	Render::getFirstHit(scene, point, point + lightVec*epsilon + lightVec*s, &t2);
 	if (Render::notShaded(s, t2)) {
-		glm::vec3 halfVec = glm::normalize(view + lightVec);
+		glm::vec3 halfVec = glm::normalize(view + normalizedL);
 		glm::vec3 lightColor = currLight->color;
-		color += shape->pigment * shape->diffuse * lightColor * glm::max(glm::dot(normal, lightVec), 0.0f);
+		color += shape->pigment * shape->diffuse * lightColor * glm::max(glm::dot(normal, normalizedL), 0.0f);
 		color += shape->pigment * shape->specular * lightColor * glm::pow(glm::max(glm::dot(halfVec, normal), 0.0f), power);
 	}
 	return color;
