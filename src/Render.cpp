@@ -123,7 +123,6 @@ void Render::shadedPixels(std::shared_ptr<Scene>& scene,
 	glm::vec3 halfVec, lightVec;
 	glm::vec3 lightColor;
 	shared_ptr<LightSource> currLight;
-	float power = (2 / (shape->shininess*shape->shininess) - 2);
 
 	glm::vec3 color = shape->pigment * shape->ambient;
 	for (unsigned int l = 0; l < scene->lightSources.size(); l++) {
@@ -140,7 +139,7 @@ void Render::shadedPixels(std::shared_ptr<Scene>& scene,
 }
 
 glm::vec3 Render::blinnPhong(shared_ptr<Scene>& scene, shared_ptr<LightSource>& currLight, 
-						shared_ptr<Shape>& shape, glm::vec3& view, glm::vec3& point) {
+						shared_ptr<Shape>& shape, glm::vec3 view, glm::vec3 point) {
 	float t2, epsilon = .0001f;
 	float power = (2 / (shape->shininess*shape->shininess) - 2);
 	glm::vec3 color;	
@@ -158,7 +157,7 @@ glm::vec3 Render::blinnPhong(shared_ptr<Scene>& scene, shared_ptr<LightSource>& 
 }
 
 glm::vec3 Render::cookTorrance(shared_ptr<Scene>& scene, shared_ptr<LightSource>& currLight,
-	shared_ptr<Shape>& shape, glm::vec3& view, glm::vec3& point) {
+	shared_ptr<Shape>& shape, glm::vec3 view, glm::vec3 point) {
 	float t2, epsilon = .0001f;
 	float power = (2 / (shape->shininess*shape->shininess) - 2);
 	glm::vec3 color;
@@ -176,7 +175,7 @@ glm::vec3 Render::cookTorrance(shared_ptr<Scene>& scene, shared_ptr<LightSource>
 }
 
 bool Render::notShaded(float s, float t2) {
-	return t2 > 0 && (t2 == INT_MAX || t2 >= s);
+	return true; // t2 > 0 && (t2 == INT_MAX || t2 >= s);
 }
 
 /*** PROJECT 1 COMMANDS ***/
@@ -209,7 +208,7 @@ shared_ptr<Shape> Render::getFirstHit(shared_ptr<Scene>& scene, const glm::vec3&
 	return closestShape;
 }
 
-float Render::calculateFirstHit(shared_ptr<Scene>& scene, const glm::vec3& origin, glm::vec3& rayDirection, const shared_ptr<Shape>& shapeToTest) {
+float Render::calculateFirstHit(shared_ptr<Scene>& scene, glm::vec3 origin, glm::vec3 rayDirection, const shared_ptr<Shape>& shapeToTest) {
 	vector<float> t = shapeToTest->getIntersection(rayDirection, origin);
 	if (!t.empty()) {
 		sort(t.begin(), t.end());
