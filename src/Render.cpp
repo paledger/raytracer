@@ -14,12 +14,13 @@ using namespace std;
 void Render::pixelcolor(std::shared_ptr<Scene>& scene, int width, int height, int x, int y, unsigned int mode) {
 	unsigned char red, green, blue;
 	float t;
-	glm::vec3 rayDirection = Render::pixelRay(scene, width, height, x, y);
+	glm::vec3 rayDirection = Render::calculatePixelRay(scene, width, height, x, y);
 	shared_ptr<Shape> shape = Render::getFirstHit(scene, scene->camera->location, rayDirection, &t);
-	cout << setprecision(4);
-	cout << "T = " << t << endl;
-	cout << "Object Type: " << shape->getTypeString() << endl;
 	if (shape) {
+		Render::pixelRay(scene, width, height, x, y);
+		cout << setprecision(4);
+		cout << "T = " << t << endl;
+		cout << "Object Type: " << shape->getTypeString() << endl;
 		if (mode == RAYCAST_MODE) {
 			Render::raycastPixels(shape, red, green, blue);
 		}
@@ -31,8 +32,11 @@ void Render::pixelcolor(std::shared_ptr<Scene>& scene, int width, int height, in
 			Render::shadedPixels(scene, shape, rayDirection, t, mode, red, green, blue);
 			cout << "BRDF: Cook-Torrance" << endl;
 		}
+		cout << "Color: (" << (int)red << ", " << (int)green << ", " << (int)blue << ")" << endl;
 	}
-	cout << "Color: (" << Helper::convertToRgb(red) << ", " << Helper::convertToRgb(green) << ", " << Helper::convertToRgb(blue) << ")" << endl;
+	else {
+		cout << "No Hit" << endl;
+	}
 }
 
 
@@ -146,7 +150,7 @@ glm::vec3 Render::blinnPhong(shared_ptr<Scene>& scene, shared_ptr<LightSource>& 
 	glm::vec3 normal = shape->getNormal(point);
 	glm::vec3 lightVec = glm::normalize(currLight->location - point);
 	float s = Render::calculateFirstHit(scene, currLight->location, -lightVec, shape);
-	Render::getFirstHit(scene, point + lightVec*epsilon, point + lightVec*s, &t2);
+	Render::getFirstHit(scene, point, point + lightVec*epsilon + lightVec*s, &t2);
 	if (Render::notShaded(s, t2)) {
 		glm::vec3 halfVec = glm::normalize(view + lightVec);
 		glm::vec3 lightColor = currLight->color;
@@ -158,7 +162,7 @@ glm::vec3 Render::blinnPhong(shared_ptr<Scene>& scene, shared_ptr<LightSource>& 
 
 glm::vec3 Render::cookTorrance(shared_ptr<Scene>& scene, shared_ptr<LightSource>& currLight,
 	shared_ptr<Shape>& shape, glm::vec3 view, glm::vec3 point) {
-	float t2, epsilon = .0001f;
+	float t2, epsilon = .01f;
 	float power = (2 / (shape->shininess*shape->shininess) - 2);
 	glm::vec3 color;
 	glm::vec3 normal = shape->getNormal(point);
@@ -175,7 +179,7 @@ glm::vec3 Render::cookTorrance(shared_ptr<Scene>& scene, shared_ptr<LightSource>
 }
 
 bool Render::notShaded(float s, float t2) {
-	return true; // t2 > 0 && (t2 == INT_MAX || t2 >= s);
+	return t2 == INT_MAX || t2 > s;
 }
 
 /*** PROJECT 1 COMMANDS ***/
@@ -192,12 +196,12 @@ glm::vec3 Render::calculatePixelRay(shared_ptr<Scene>& scene, int width, int hei
 						  l);
 }
 
-shared_ptr<Shape> Render::getFirstHit(shared_ptr<Scene>& scene, const glm::vec3& origin, glm::vec3& rayDirection, float* intersectT) {
+shared_ptr<Shape> Render::getFirstHit(shared_ptr<Scene>& scene, glm::vec3 origin, glm::vec3 rayDirection, float* intersectT) {
 	shared_ptr<Shape> closestShape;
 	float closestT = (float)INT_MAX, t = 0;
 	for (unsigned int sh = 0; sh < scene->shapes.size(); sh++) {
 		t = calculateFirstHit(scene, origin, rayDirection, scene->shapes[sh]);
-		if (t && t < closestT) {
+		if (t && t < closestT && t > 0) {
 			closestT = t;
 			closestShape = scene->shapes[sh];
 		}
@@ -208,7 +212,7 @@ shared_ptr<Shape> Render::getFirstHit(shared_ptr<Scene>& scene, const glm::vec3&
 	return closestShape;
 }
 
-float Render::calculateFirstHit(shared_ptr<Scene>& scene, glm::vec3 origin, glm::vec3 rayDirection, const shared_ptr<Shape>& shapeToTest) {
+float Render::calculateFirstHit(shared_ptr<Scene>& scene,  glm::vec3 origin, glm::vec3 rayDirection, const shared_ptr<Shape>& shapeToTest) {
 	vector<float> t = shapeToTest->getIntersection(rayDirection, origin);
 	if (!t.empty()) {
 		sort(t.begin(), t.end());
