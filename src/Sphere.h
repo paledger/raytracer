@@ -17,7 +17,7 @@ public:
 	glm::vec3 getNormal(glm::vec3 point) override;
 
 	glm::vec3 center = glm::vec3(0.0, 0.0, 0.0);
-	float radius = 1;
+	float radius = 1.0f;
 
 };
 

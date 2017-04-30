@@ -10,10 +10,8 @@ vector<float> Helper::quadratic(float a, float b, float c) {
 	if (discriminant >= 0) {
 		float pos = (-b + float(sqrt(discriminant))) / (2 * a);
 		t.push_back(pos);
-		if (discriminant > 0) {
-			float neg = (-b - float(sqrt(discriminant))) / (2 * a);
-			t.push_back(neg);
-		}
+		float neg = (-b - float(sqrt(discriminant))) / (2 * a);
+		t.push_back(neg);
 	}
 	return t;
 }

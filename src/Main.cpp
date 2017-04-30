@@ -77,10 +77,12 @@ int main(int argc, char* argv[]) {
 			cout << "Please follow the following format to render: raytrace render <input_filename> <width> <height> [-altbrdf]\n";
 		}
 		else {
-			string arg5 = string(argv[5]);
-			if (arg5.find("-altbrdf") != arg5.npos) { // -ALTBRDF FOUND
-				Render::createOutput(scene, stoi(argv[3]), stoi(argv[4]), COOKTORRANCE_MODE);
-			} 
+			if (argc > 6) {
+				string arg5 = string(argv[5]);
+				if (arg5.find("-altbrdf") != arg5.npos) { // -ALTBRDF FOUND
+					Render::createOutput(scene, stoi(argv[3]), stoi(argv[4]), COOKTORRANCE_MODE);
+				}
+			}
 			else { // -ALTBRDF NOT FOUND
 				Render::createOutput(scene, stoi(argv[3]), stoi(argv[4]), BLINNPHONG_MODE);
 			}

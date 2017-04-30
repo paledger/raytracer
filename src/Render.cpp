@@ -144,7 +144,7 @@ void Render::shadedPixels(std::shared_ptr<Scene>& scene,
 
 glm::vec3 Render::blinnPhong(shared_ptr<Scene>& scene, shared_ptr<LightSource>& currLight, 
 						shared_ptr<Shape>& shape, glm::vec3 view, glm::vec3 point) {
-	float t2, epsilon = .0001f;
+	float t2, epsilon = .000001f;
 	float power = (2 / (shape->shininess*shape->shininess) - 2);
 	glm::vec3 color;	
 	glm::vec3 normal = shape->getNormal(point);
@@ -177,7 +177,7 @@ glm::vec3 Render::cookTorrance(shared_ptr<Scene>& scene, shared_ptr<LightSource>
 		glm::vec3 lightColor = currLight->color;
 		float alpha = shape->shininess*shape->shininess;
 		float power = ((2 / alpha*alpha) - 2);
-		float D = (1/(PI*alpha*alpha))*glm::pow(glm::dot(halfVec, normal), power);
+		float D = (1.0f/(float(PI)*alpha*alpha))*glm::pow(glm::dot(halfVec, normal), power);
 		float constant = (2 * glm::dot(halfVec, normal) / glm::dot(view, halfVec));
 		float G = glm::min(1.0f, glm::min(constant * glm::dot(normal, view), constant * glm::dot(normal, lightVec)));
 		float F_0 = ((shape->ior - 1)*(shape->ior - 1)) / ((shape->ior + 1)*(shape->ior + 1));
@@ -209,10 +209,10 @@ glm::vec3 Render::calculatePixelRay(shared_ptr<Scene>& scene, int width, int hei
 
 shared_ptr<Shape> Render::getFirstHit(shared_ptr<Scene>& scene, glm::vec3 origin, glm::vec3 rayDirection, float* intersectT) {
 	shared_ptr<Shape> closestShape;
-	float closestT = (float)INT_MAX, t = 0;
+	float closestT = (float)INT_MAX, t = -1;
 	for (unsigned int sh = 0; sh < scene->shapes.size(); sh++) {
 		t = calculateFirstHit(scene, origin, rayDirection, scene->shapes[sh]);
-		if (t && t < closestT && t > 0) {
+		if (t > 0 && t < closestT) {
 			closestT = t;
 			closestShape = scene->shapes[sh];
 		}
