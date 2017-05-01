@@ -140,7 +140,8 @@ void Render::shadedPixels(std::shared_ptr<Scene>& scene,
 }
 
 glm::vec3 Render::blinnPhong(shared_ptr<Scene>& scene, shared_ptr<LightSource>& currLight, 
-						shared_ptr<Shape>& shape, glm::vec3 view, glm::vec3 point) {
+						shared_ptr<Shape>& shape, glm::vec3 view, glm::vec3 point) 
+{
 	float t2, epsilon = .001f;
 	float power = (2 / (shape->shininess*shape->shininess) - 2);
 	glm::vec3 color;	
@@ -162,16 +163,18 @@ glm::vec3 Render::blinnPhong(shared_ptr<Scene>& scene, shared_ptr<LightSource>& 
 
 glm::vec3 Render::cookTorrance(shared_ptr<Scene>& scene, 
 	shared_ptr<LightSource>& currLight,	shared_ptr<Shape>& shape, 
-	glm::vec3 view, glm::vec3 point) {
-
+	glm::vec3 view, glm::vec3 point) 
+{
 	float specular = shape->metallic;
 	float diffuse = 1 - specular;
 	float t2, epsilon = .0001f;
 	glm::vec3 shadingColor;
 	glm::vec3 normal = shape->getNormal(point);
+	glm::vec3 lightVec = currLight->location - point;
 	glm::vec3 normalizedL = glm::normalize(currLight->location - point);
+
 	float s = Render::calculateFirstHit(scene, currLight->location, -normalizedL, shape);
-	Render::getFirstHit(scene, point, normalizedL, &t2);
+	Render::getFirstHit(scene, point + normalizedL*epsilon, normalizedL, &t2);
 	if (Render::notShaded(s, t2)) {
 		glm::vec3 halfVec = glm::normalize(view + normalizedL);
 		glm::vec3 lightColor = currLight->color;
