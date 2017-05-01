@@ -141,39 +141,39 @@ void Render::shadedPixels(std::shared_ptr<Scene>& scene,
 
 glm::vec3 Render::blinnPhong(shared_ptr<Scene>& scene, shared_ptr<LightSource>& currLight, 
 						shared_ptr<Shape>& shape, glm::vec3 view, glm::vec3 point) {
-	float t2, epsilon = .000001f;
+	float t2, epsilon = .001f;
 	float power = (2 / (shape->shininess*shape->shininess) - 2);
 	glm::vec3 color;	
 	glm::vec3 normal = shape->getNormal(point);
-	glm::vec3 lightVec = (currLight->location - point);
-	glm::vec3 normalizedL = glm::normalize(lightVec);
-	//cout << "getting light length " << endl;
-	float s = Render::calculateFirstHit(scene, currLight->location - normalizedL*epsilon, -lightVec, shape);
-	//cout << "getting light occlusion " << endl;
-	Render::getFirstHit(scene, point, point + lightVec*epsilon + lightVec*s, &t2);
+	glm::vec3 normalizedL = glm::normalize(currLight->location - point);
+
+	float s = Render::calculateFirstHit(scene, currLight->location, -normalizedL, shape);
+	Render::getFirstHit(scene, point, normalizedL, &t2);
 	if (Render::notShaded(s, t2)) {
 		glm::vec3 halfVec = glm::normalize(view + normalizedL);
 		glm::vec3 lightColor = currLight->color;
-		color += shape->pigment * shape->diffuse * lightColor * glm::max(glm::dot(normal, normalizedL), 0.0f);
-		color += shape->pigment * shape->specular * lightColor * glm::pow(glm::max(glm::dot(halfVec, normal), 0.0f), power);
+		color += shape->pigment * shape->diffuse * lightColor * \
+			glm::max(glm::dot(normal, normalizedL), 0.0f);
+		color += shape->pigment * shape->specular * lightColor * \
+			glm::pow(glm::max(glm::dot(halfVec, normal), 0.0f), power);
 	}
 	return color;
 }
 
-glm::vec3 Render::cookTorrance(shared_ptr<Scene>& scene, shared_ptr<LightSource>& currLight,
-	shared_ptr<Shape>& shape, glm::vec3 view, glm::vec3 point) {
+glm::vec3 Render::cookTorrance(shared_ptr<Scene>& scene, 
+	shared_ptr<LightSource>& currLight,	shared_ptr<Shape>& shape, 
+	glm::vec3 view, glm::vec3 point) {
 
 	float specular = shape->metallic;
 	float diffuse = 1 - specular;
-	float t2, epsilon = .01f;
+	float t2, epsilon = .0001f;
 	glm::vec3 shadingColor;
 	glm::vec3 normal = shape->getNormal(point);
-	glm::vec3 lightVec = glm::normalize(currLight->location - point);
-	float s = Render::calculateFirstHit(scene, currLight->location, -lightVec, shape);
-	Render::getFirstHit(scene, point + lightVec*epsilon, point + lightVec*s, &t2);
-
+	glm::vec3 normalizedL = glm::normalize(currLight->location - point);
+	float s = Render::calculateFirstHit(scene, currLight->location, -normalizedL, shape);
+	Render::getFirstHit(scene, point, normalizedL, &t2);
 	if (Render::notShaded(s, t2)) {
-		glm::vec3 halfVec = glm::normalize(view + lightVec);
+		glm::vec3 halfVec = glm::normalize(view + normalizedL);
 		glm::vec3 lightColor = currLight->color;
 		float alpha = shape->shininess*shape->shininess;
 		float power = ((2 / (alpha*alpha)) - 2);
@@ -181,13 +181,13 @@ glm::vec3 Render::cookTorrance(shared_ptr<Scene>& scene, shared_ptr<LightSource>
 		float constant = (2 * glm::dot(halfVec, normal) / glm::dot(view, halfVec));
 		float G = glm::min(1.0f, \
 			glm::min(constant * glm::dot(normal, view), \
-					 constant * glm::dot(normal, lightVec)
+					 constant * glm::dot(normal, normalizedL)
 			));
 		float F_0 = ((shape->ior - 1)*(shape->ior - 1)) / ((shape->ior + 1)*(shape->ior + 1));
 		float F = F_0 + (1 - F_0) * glm::pow(1 - glm::dot(view, halfVec), 5);
 		float r_d = shape->diffuse;
 		float r_s = glm::max(0.0f, (D*G*F) / (4 * glm::dot(normal, view)));
-		shadingColor += (shape->pigment) * lightColor * glm::max(0.0f, diffuse * glm::dot(normal, lightVec) * r_d + \
+		shadingColor += (shape->pigment) * lightColor * glm::max(0.0f, diffuse * glm::dot(normal, normalizedL) * r_d + \
 			specular * r_s);
 	}
 	return shadingColor;
@@ -229,9 +229,6 @@ shared_ptr<Shape> Render::getFirstHit(shared_ptr<Scene>& scene, glm::vec3 origin
 
 float Render::calculateFirstHit(shared_ptr<Scene>& scene,  glm::vec3 origin, glm::vec3 rayDirection, const shared_ptr<Shape>& shapeToTest) {
 	vector<float> t = shapeToTest->getIntersection(rayDirection, origin);
-	for (int i = 0; i < t.size(); i++) {
-		//cout << t[i] << endl;
-	}
 	if (!t.empty()) {
 		sort(t.begin(), t.end());
 		return t[0];

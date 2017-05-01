@@ -94,13 +94,12 @@ int main(int argc, char* argv[]) {
 			cout << "Please follow the following format to render: raytrace render <input_filename> <width> <height> [-altbrdf]\n";
 		}
 		else {
-			string arg1 = string(argv[1]);
+			string arg7 = string(argv[7]);
 
-			if (arg1.find("-altbrdf") != arg1.npos) {
+			if (arg7.find("-altbrdf") != arg7.npos) {
 				Render::pixelcolor(scene, stoi(argv[3]), stoi(argv[4]), stoi(argv[5]), stoi(argv[6]), COOKTORRANCE_MODE);
 			}
 			else {
-				Render::createOutput(scene, stoi(argv[3]), stoi(argv[4]), BLINNPHONG_MODE);
 				Render::pixelcolor(scene, stoi(argv[3]), stoi(argv[4]), stoi(argv[5]), stoi(argv[6]), BLINNPHONG_MODE);
 			}
 		}
