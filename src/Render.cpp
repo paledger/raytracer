@@ -169,28 +169,58 @@ glm::vec3 Render::cookTorrance(shared_ptr<Scene>& scene,
 	float diffuse = 1 - specular;
 	float t2, epsilon = .0001f;
 	glm::vec3 shadingColor;
-	glm::vec3 normal = shape->getNormal(point);
-	glm::vec3 lightVec = currLight->location - point;
-	glm::vec3 normalizedL = glm::normalize(currLight->location - point);
+	glm::vec3 n = shape->getNormal(point);
+	glm::vec3 l = glm::normalize(currLight->location - point);
 
-	float s = Render::calculateFirstHit(scene, currLight->location, -normalizedL, shape);
-	Render::getFirstHit(scene, point + normalizedL*epsilon, normalizedL, &t2);
+	float s = Render::calculateFirstHit(scene, currLight->location, -l, shape);
+	Render::getFirstHit(scene, point + l*epsilon, l, &t2);
 	if (Render::notShaded(s, t2)) {
-		glm::vec3 halfVec = glm::normalize(view + normalizedL);
+		glm::vec3 h = glm::normalize(view + l);
 		glm::vec3 lightColor = currLight->color;
 		float alpha = shape->shininess*shape->shininess;
 		float power = ((2 / (alpha*alpha)) - 2);
-		float D = (1.0f/(float(PI)*alpha*alpha))*glm::pow(glm::dot(halfVec, normal), power);
-		float constant = (2 * glm::dot(halfVec, normal) / glm::dot(view, halfVec));
+		float D = GGX_Distribution(n, h, alpha);
+		float G = GGX_Geometry(view, n, h, alpha);
+		float F_0 = ((shape->ior - 1)*(shape->ior - 1)) / ((shape->ior + 1)*(shape->ior + 1));
+		float F = F_0 + (1 - F_0) * glm::pow(1 - glm::dot(view, h), 5);
+		float r_d = shape->diffuse;
+		float r_s = glm::max(0.0f, (D*G*F) / (4 * glm::dot(n, view)));
+		shadingColor += (shape->pigment) * lightColor * glm::max(0.0f, diffuse * glm::dot(n, l) * r_d + \
+			specular * r_s);
+	}
+	return shadingColor;
+}
+
+glm::vec3 Render::cookTorrance_BlinnPhong(shared_ptr<Scene>& scene,
+	shared_ptr<LightSource>& currLight, shared_ptr<Shape>& shape,
+	glm::vec3 view, glm::vec3 point)
+{
+	float specular = shape->metallic;
+	float diffuse = 1 - specular;
+	float t2, epsilon = .0001f;
+	glm::vec3 shadingColor;
+	glm::vec3 n = shape->getNormal(point);
+	glm::vec3 l = glm::normalize(currLight->location - point);
+
+	float s = Render::calculateFirstHit(scene, currLight->location, -l, shape);
+	Render::getFirstHit(scene, point + l*epsilon, l, &t2);
+	if (Render::notShaded(s, t2)) {
+		glm::vec3 h = glm::normalize(view + l);
+		glm::vec3 lightColor = currLight->color;
+		float HoN = glm::dot(h, n);
+		float alpha = shape->shininess*shape->shininess;
+		float power = ((2 / (alpha*alpha)) - 2);
+		float D = (1.0f / (float(PI)*alpha*alpha))*glm::pow(HoN, power);
+		float constant = (2 * HoN / glm::dot(view, h));
 		float G = glm::min(1.0f, \
-			glm::min(constant * glm::dot(normal, view), \
-					 constant * glm::dot(normal, normalizedL)
+			glm::min(constant * glm::dot(n, view), \
+				constant * glm::dot(n, l)
 			));
 		float F_0 = ((shape->ior - 1)*(shape->ior - 1)) / ((shape->ior + 1)*(shape->ior + 1));
-		float F = F_0 + (1 - F_0) * glm::pow(1 - glm::dot(view, halfVec), 5);
+		float F = F_0 + (1 - F_0) * glm::pow(1 - glm::dot(view, h), 5);
 		float r_d = shape->diffuse;
-		float r_s = glm::max(0.0f, (D*G*F) / (4 * glm::dot(normal, view)));
-		shadingColor += (shape->pigment) * lightColor * glm::max(0.0f, diffuse * glm::dot(normal, normalizedL) * r_d + \
+		float r_s = glm::max(0.0f, (D*G*F) / (4 * glm::dot(n, view)));
+		shadingColor += (shape->pigment) * lightColor * glm::max(0.0f, diffuse * glm::dot(n, l) * r_d + \
 			specular * r_s);
 	}
 	return shadingColor;
@@ -198,6 +228,29 @@ glm::vec3 Render::cookTorrance(shared_ptr<Scene>& scene,
 
 bool Render::notShaded(float s, float t2) {
 	return t2 == INT_MAX || t2 > s;
+}
+
+float Render::chiGGX(float v)
+{
+	return v > 0 ? 1 : 0;
+}
+
+float Render::GGX_Distribution(glm::vec3 n, glm::vec3 h, float alpha)
+{
+	float NoH = glm::dot(n, h);
+	float alpha2 = alpha * alpha;
+	float NoH2 = NoH * NoH;
+	float den = NoH2 * alpha2 + (1 - NoH2);
+	return (Render::chiGGX(NoH) * alpha2) / (PI * den * den);
+}
+
+float Render::GGX_Geometry(glm::vec3 v, glm::vec3 n, glm::vec3 h, float alpha)
+{
+	float VoH2 = glm::dot(v, h);
+	float chi = Render::chiGGX(VoH2 / glm::dot(v, n));
+	VoH2 = VoH2 * VoH2;
+	float tan2 = (1 - VoH2) / VoH2;
+	return (chi * 2) / (1 + glm::sqrt(1 + alpha * alpha * tan2));
 }
 
 /*** PROJECT 1 COMMANDS ***/
