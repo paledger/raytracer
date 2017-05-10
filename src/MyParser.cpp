@@ -132,13 +132,19 @@ bool MyParser::parseFinish(string& str, shared_ptr<Finish>& finish) {
 		return false;
 	}
 	string pigment("pigment");
+	string ambient("ambient");
+	string diffuse("diffuse");
+	string specular("specular");
+	string roughness("roughness");
+	string metallic("metallic");
+	string reflection("reflection");
 	parseKeywordVector(str, pigment, finish->pigment);
-	finish->ambient = MyParser::parseFinishKeyword(str, string("ambient"));
-	finish->diffuse = MyParser::parseFinishKeyword(str, string("diffuse"));
-	finish->specular = MyParser::parseFinishKeyword(str, string("specular"));
-	finish->shininess = MyParser::parseFinishKeyword(str, string("roughness"));
-	finish->metallic = MyParser::parseFinishKeyword(str, string("metallic"));
-	finish->reflection = MyParser::parseFinishKeyword(str, string("reflection"));
+	finish->ambient = MyParser::parseFinishKeyword(str, ambient);
+	finish->diffuse = MyParser::parseFinishKeyword(str, diffuse);
+	finish->specular = MyParser::parseFinishKeyword(str, specular);
+	finish->shininess = MyParser::parseFinishKeyword(str, roughness);
+	finish->metallic = MyParser::parseFinishKeyword(str, metallic);
+	finish->reflection = MyParser::parseFinishKeyword(str, reflection);
 
 	return true;
 }

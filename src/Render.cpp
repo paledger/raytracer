@@ -76,12 +76,12 @@ void Render::createOutput(shared_ptr<Scene>& scene, int width, int height, unsig
 			if (shape) {
 				reflection = shape->finish->reflection;
 			}
-			color = (1 - reflection) * Render::getPixelColor(scene, shape, scene->camera->location, rayDirection, mode, t);
+			color = /*(1 - reflection) **/ Render::getPixelColor(scene, shape, scene->camera->location, rayDirection, mode, t);
 			if (shape) {
 				reflectionColor = glm::vec3(0.0f, 0.0f, 0.0f);
 				glm::vec3 intersectionPt = Helper::getPointOnRay(scene->camera->location, rayDirection, t);
 				reflectionColor = getReflection(scene, shape, intersectionPt, rayDirection, 0);
-				color += reflection * reflectionColor;
+				//color += reflection * reflectionColor;
 			}
 			red = Helper::convertToRgb(color[0]);
 			green = Helper::convertToRgb(color[1]);
@@ -139,32 +139,36 @@ glm::vec3 Render::getReflection(shared_ptr<Scene> scene, shared_ptr<Shape> shape
 	glm::vec3 intersectionPt, glm::vec3& d, unsigned int depth, bool test)
 {
 	glm::vec3 addition;
-	glm::vec3 incident = glm::normalize(d);
+	glm::vec3 incident = (d);
 	float newT;
 
-	if (depth >= 6 || !shape) {
+	if (depth >= 6) {
 		return glm::vec3(0.0f, 0.0f, 0.0f);
 	}
 	glm::vec3 n = shape->getNormal(intersectionPt);
-	glm::vec3 reflectionVec = glm::normalize(incident - 2 * glm::dot(incident, n) * n);
+	glm::vec3 reflectionVec = incident - 2 * glm::dot(incident, n) * n;
 	// find new reflection information 
-	shared_ptr<Shape> newShape = Render::getFirstHit(scene, intersectionPt,
+	shared_ptr<Shape> newShape = Render::getFirstHit(scene, intersectionPt + n * 0.001f,
 		reflectionVec, &newT);
 	glm::vec3 newPoint = Helper::getPointOnRay(intersectionPt, reflectionVec, newT);
 
 	// get reflection to multiply
-	float reflection;
-	reflection = shape->finish->reflection;
-	addition = Render::getPixelColor(scene, newShape, intersectionPt, reflectionVec, BLINNPHONG_MODE, newT);
+	float reflection = 0.0f;
+	if (newShape)
+		reflection = newShape->finish->reflection;
+	addition = Render::getPixelColor(scene, newShape, intersectionPt + n * 0.001f, reflectionVec, BLINNPHONG_MODE, newT);
 	if (test) {
 		cout << shape->getTypeString() << endl;
+		cout << "intersectionPt: " << intersectionPt.x << " " << intersectionPt.y << " " << intersectionPt.z << endl;
+		cout << "normal: " << n.x << " " << n.y << " " << n.z << endl;
+		cout << "reflectvec: " << reflectionVec.x << " " << reflectionVec.y << " " << reflectionVec.z << endl;
 		cout << "reflection: " << reflection << endl;
 		glm::vec3 rgb = Helper::convertToRgb(addition);
 		cout << "intersectionPt: " << newPoint.x << " " << newPoint.y << " " << newPoint.z << endl;
 		cout << "next color: " << rgb.r << " " << rgb.g << " " << rgb.b << endl;
 	}
 	if (newShape && newShape->finish->reflection)
-		return (1 - reflection) * addition + reflection * getReflection(scene, newShape, newPoint, reflectionVec, depth + 1, test);
+		return (1 - reflection) * addition + reflection * getReflection(scene, newShape, newPoint + n * 0.001f, reflectionVec, depth + 1, test);
 	else {
 		if (test)
 			cout << newShape->getTypeString() << endl;
@@ -200,7 +204,7 @@ glm::vec3 Render::blinnPhong(shared_ptr<Scene>& scene, shared_ptr<LightSource>& 
 						shared_ptr<Shape>& shape, glm::vec3 view, glm::vec3 point) 
 {
 	shared_ptr<Finish> finish = shape->finish;
-	float t2, epsilon = .001f;
+	float t2;
 	float power = (2 / (finish->shininess*finish->shininess) - 2);
 	glm::vec3 color;	
 	glm::vec3 normal = shape->getNormal(point);
@@ -235,7 +239,6 @@ glm::vec3 Render::cookTorrance(shared_ptr<Scene>& scene,
 		glm::vec3 h = glm::normalize(view + l);
 		glm::vec3 lightColor = currLight->color;
 		float alpha = finish->shininess*finish->shininess;
-		float power = ((2 / (alpha*alpha)) - 2);
 		float D = GGX_Distribution(n, h, alpha);
 		float G = GGX_Geometry(view, n, h, alpha);
 		float F_0 = ((finish->ior - 1)*(finish->ior - 1)) / ((finish->ior + 1)*(finish->ior + 1));
