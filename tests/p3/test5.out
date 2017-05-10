@@ -1,0 +1,53 @@
+Pixel: [315, 320] Color: (104, 30, 107)
+o - Iteration type: Primary
+|   Ray: {0 0 14} -> {-0.009245 0.1654 -0.9862}
+|   Hit Object ID (1 - Sphere) at T = 11.9, Intersection = {-0.1101 1.969 2.261}
+|   Normal {-0.03668 0.6562 0.7537}
+|   Transformed Ray: {0 0 14} -> {-0.009245 0.1654 -0.9862}
+|   Ambient: 0.1, 0, 0.1
+|   Diffuse: 0.1245, 0, 0.1245
+|   Specular: 0, 0, 0
+|
+|\
+| o - Iteration type: Refraction
+| |   Ray: {-0.11 1.969 2.26} -> {0.005403 -0.09665 -0.9953}
+| |   Hit Object ID (1 - Sphere) at T = 4.881, Intersection = {-0.08367 1.497 -2.599}
+| |   Normal {-0.02789 0.4989 -0.8662}
+| |   Transformed Ray: {-0.11 1.969 2.26} -> {0.005403 -0.09665 -0.9953}
+| |   Ambient: 0.1, 0, 0.1
+| |   Diffuse: 0, 0, 0
+| |   Specular: 0, 0, 0
+| |   Extra Info: into-object 
+| |
+| |\
+| | o - Iteration type: Refraction
+| | |   Ray: {-0.08365 1.496 -2.599} -> {0.01968 -0.352 -0.9358}
+| | |   Hit Object ID (2 - Sphere) at T = 0.4918, Intersection = {-0.07398 1.323 -3.06}
+| | |   Normal {-0.9017 0.1406 0.4088}
+| | |   Transformed Ray: {-0.08365 1.496 -2.599} -> {0.01968 -0.352 -0.9358}
+| | |   Ambient: 0.152, 0.276, 0.16
+| | |   Diffuse: 0.3825, 0.6945, 0.4026
+| | |   Specular: 0, 0, 0
+| | |   Extra Info: into-air 
+| | |----
+| | 
+|  \
+|   o - Iteration type: Reflection
+|   |   Ray: {-0.08367 1.497 -2.599} -> {0.0508 -0.9087 0.4144}
+|   |   Hit Object ID (3 - Plane) at T = 6.049, Intersection = {0.2236 -4 -0.09175}
+|   |   Normal {0 1 0}
+|   |   Transformed Ray: {-0.08367 1.497 -2.599} -> {0.0508 -0.9087 0.4144}
+|   |   Ambient: 0.08, 0.08, 0.32
+|   |   Diffuse: 0.142, 0.142, 0.5682
+|   |   Specular: 0, 0, 0
+|   |----
+|   
+ \
+  o - Iteration type: Reflection
+  |   Ray: {-0.1101 1.969 2.261} -> {-0.05579 0.998 -0.02999}
+  |   No intersection.
+  |----
+  
+
+--------------------------------------------------------------------------------
+

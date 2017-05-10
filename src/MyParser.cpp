@@ -55,6 +55,9 @@ void MyParser::handleChunk(string& strChunk, shared_ptr<Scene> scene) {
 	else if (contains(strChunk, "plane")) {
 		parsePlane(strChunk, scene->createPlane());
 	}
+	else if (contains(strChunk, "triangle")) {
+		parseTriangle(strChunk, scene->createTriangle());
+	}
 }
 
 bool MyParser::parseCamera(string& stringChunk, shared_ptr<Camera> cam) {
@@ -81,8 +84,7 @@ bool MyParser::parseSphere(string& stringChunk, shared_ptr<Sphere> sphere) {
 	string sphereStr("sphere");
 	parseKeywordVector(stringChunk, sphereStr, sphere->center);
 	parseFloatAfterVec(stringChunk, sphere->radius);
-	parsePigment(stringChunk, sphere);
-	parseFinish(stringChunk, sphere);
+	parseFinish(stringChunk, sphere->finish);
 	parseTranslate(stringChunk, sphere);
 	parseRotate(stringChunk, sphere);
 	parseScale(stringChunk, sphere);
@@ -93,51 +95,51 @@ bool MyParser::parsePlane(string& stringChunk, shared_ptr<Plane> plane) {
 	string planeStr("plane");
 	parseKeywordVector(stringChunk, planeStr, plane->normal);
 	parseFloatAfterVec(stringChunk, plane->distance);
-	parsePigment(stringChunk, plane);
-	parseFinish(stringChunk, plane);
+	parseFinish(stringChunk, plane->finish);
 	parseTranslate(stringChunk, plane);
 	parseRotate(stringChunk, plane);
 	parseScale(stringChunk, plane);
 	return true;
 }
 
-bool MyParser::parsePigment(string& str, shared_ptr<Shape> shape) {
-	string pigment("pigment");
-	parseKeywordVector(str, pigment, shape->pigment);
+bool MyParser::parseTriangle(string& stringChunk, shared_ptr<Triangle> triangle) {
+	string triStr("triangle");
+	string substr, endVector = string(">");
+	parseKeywordVector(stringChunk, triStr, triangle->a); 
+	substr = stringChunk.substr(stringChunk.find(">"));
+	parseKeywordVector(substr, endVector, triangle->b);
+	substr = substr.substr(substr.find(">") + 1);
+	parseKeywordVector(substr, endVector, triangle->c);
+	parseFinish(stringChunk, triangle->finish);
+	parseTranslate(stringChunk, triangle);
+	parseRotate(stringChunk, triangle);
+	parseScale(stringChunk, triangle);
 	return true;
 }
 
-bool MyParser::parseFinish(string& str, shared_ptr<Shape> shape) {
+float MyParser::parseFinishKeyword(string& str, string& keyword) {
+	size_t keywordStart = str.find(keyword);
+	string substr;
+	if (keywordStart != str.npos) {
+		substr = str.substr(keywordStart + keyword.length(), str.npos);
+		return stof(substr.substr(0, substr.find_first_of("mrads}")));
+	}
+	return false;
+}
+
+bool MyParser::parseFinish(string& str, shared_ptr<Finish>& finish) {
 	if (str.find("finish") == str.npos) {
 		return false;
 	}
-	size_t ambientStart = str.find("ambient");
-	size_t diffuseStart = str.find("diffuse");
-	size_t specStart = str.find("specular");
-	size_t roughStart = str.find("roughness");
-	size_t metallicStart = str.find("metallic");
+	string pigment("pigment");
+	parseKeywordVector(str, pigment, finish->pigment);
+	finish->ambient = MyParser::parseFinishKeyword(str, string("ambient"));
+	finish->diffuse = MyParser::parseFinishKeyword(str, string("diffuse"));
+	finish->specular = MyParser::parseFinishKeyword(str, string("specular"));
+	finish->shininess = MyParser::parseFinishKeyword(str, string("roughness"));
+	finish->metallic = MyParser::parseFinishKeyword(str, string("metallic"));
+	finish->reflection = MyParser::parseFinishKeyword(str, string("reflection"));
 
-	string substr;
-	if (ambientStart != str.npos) {
-		substr = str.substr(ambientStart + strlen("ambient"), str.npos);
-		shape->ambient = stof(substr.substr(0, substr.find_first_of("mrads}")));
-	}
-	if (diffuseStart != str.npos) {
-		substr = str.substr(diffuseStart + strlen("diffuse"), str.npos);
-		shape->diffuse = stof(substr.substr(0, substr.find_first_of("mrads}")));
-	}
-	if (specStart != str.npos) {
-		substr = str.substr(specStart + strlen("specular"), str.npos);
-		shape->specular = stof(substr.substr(0, substr.find_first_of("mrads}")));
-	}
-	if (roughStart != str.npos) {
-		substr = str.substr(roughStart + strlen("roughness"), str.npos);
-		shape->shininess = stof(substr.substr(0, substr.find_first_of("mrads}")));
-	}
-	if (metallicStart != str.npos) {
-		substr = str.substr(metallicStart + strlen("metallic"), str.npos);
-		shape->metallic = stof(substr.substr(0, substr.find_first_of("mrads}")));
-	}
 	return true;
 }
 
@@ -167,7 +169,6 @@ bool MyParser::parseRotate(string& str, shared_ptr<Shape> shape) {
 
 void MyParser::parseKeywordVector(string& stringChunk, string& currKeyword, glm::vec3& vec) {
 	size_t currStart = 0, vecStart = 0, vecEnd = 0;
-
 	currStart = stringChunk.find(currKeyword);
 	if (currStart != stringChunk.npos) {
 		vecStart = stringChunk.find("<", currStart + currKeyword.size());

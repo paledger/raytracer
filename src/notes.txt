@@ -1,0 +1,13 @@
+/** 
+enum class LightMode {
+blinn_phong
+cook_torrance
+} *
+*/
+
+a lot of shared pointers and calculations
+make the data holding things a struct instead of Class.
+functions are returning const reference rather than const in class.
+const correctness
+const static instead of #DEFINE
+but wary of assigning and then checking later for not change -- unclear

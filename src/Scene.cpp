@@ -36,6 +36,12 @@ shared_ptr<Plane> Scene::createPlane() {
 	return plane;
 }
 
+shared_ptr<Triangle> Scene::createTriangle() {
+	auto tri = make_shared<Triangle>();
+	this->shapes.push_back(tri);
+	return tri;
+}
+
 void Scene::printInfo() {
 	this->camera->printInfo();
 	this->printSeparators();

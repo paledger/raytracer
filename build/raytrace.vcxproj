@@ -324,6 +324,8 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\Finish.h" />
+    <ClInclude Include="..\src\Triangle.h" />
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Box.h" />
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Camera.h" />
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Helper.h" />
@@ -366,6 +368,9 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\resources\specular.pov" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\src\notes.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

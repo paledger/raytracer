@@ -10,6 +10,7 @@
 #include "LightSource.h"
 #include "Sphere.h"
 #include "Plane.h"
+#include "Triangle.h"
 
 class Scene
 {
@@ -22,6 +23,7 @@ public:
 	std::shared_ptr<LightSource> createLightSource();
 	std::shared_ptr<Sphere> createSphere();
 	std::shared_ptr<Plane> createPlane();
+	std::shared_ptr<Triangle> createTriangle();
 	void printInfo();
 
 	std::vector<std::shared_ptr<Shape>> shapes;

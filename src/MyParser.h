@@ -20,8 +20,10 @@
 #include "Shape.h"
 #include "Sphere.h"
 #include "Plane.h"
+#include "Triangle.h"
 #include "Camera.h"
 #include "LightSource.h"
+#include "Finish.h"
 
 
 class MyParser
@@ -38,9 +40,10 @@ private:
 	bool parseCamera(std::string& stringChunk, std::shared_ptr<Camera> cam);
 	bool parseLightSource(std::string& stringChunk, std::shared_ptr<LightSource> ls);
 	bool parseSphere(std::string& stringChunk, std::shared_ptr<Sphere> sphere);
-	bool parsePlane(std::string& stringChunk, std::shared_ptr<Plane> plane);
-	bool parsePigment(std::string& str, std::shared_ptr<Shape> shape);
-	bool parseFinish(std::string& str, std::shared_ptr<Shape> shape);
+	bool parsePlane(std::string& stringChunk, std::shared_ptr<Plane> plane); 
+	bool parseTriangle(std::string& stringChunk, std::shared_ptr<Triangle> triangle);
+	float parseFinishKeyword(std::string& str, std::string& keyword);
+	bool parseFinish(std::string& str, std::shared_ptr<Finish>& finish);
 	bool parseTranslate(std::string& str, std::shared_ptr<Shape> shape);
 	bool parseScale(std::string& str, std::shared_ptr<Shape> shape);
 	bool parseRotate(std::string& str, std::shared_ptr<Shape> shape);

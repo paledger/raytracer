@@ -4,8 +4,11 @@
 #include <vector>
 #include <iostream>
 #include <iomanip>
+#include <memory>
+#include <memory.h>
 
 #include "glm/glm.hpp"
+#include "Finish.h"
 
 
 class Shape
@@ -19,12 +22,6 @@ public:
 	glm::vec3 scale = glm::vec3(1.0, 1.0, 1.0);
 	glm::vec3 rotate = glm::vec3(0.0, 0.0, 0.0);
 	glm::vec3 translate = glm::vec3(0.0, 0.0, 0.0);
-	glm::vec3 pigment = glm::vec3(0.0, 0.0, 0.0);
-	float ambient = 0.0f;
-	float diffuse = 0.0f;
-	float specular = 0.0f;
-	float shininess = 0.1f;
-	float metallic = 0.1f;
-	float ior = 1.6f;
+	std::shared_ptr<Finish> finish = std::make_shared<Finish>();
 };
 

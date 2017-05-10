@@ -1,0 +1,8 @@
+simple_tri render
+simple_reflect1 render
+simple_reflect2 render
+simple_reflect3 render
+simple_refract render
+refract2 render
+refract_refl render
+recurse_simp2 render
