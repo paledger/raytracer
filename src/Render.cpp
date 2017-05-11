@@ -27,23 +27,8 @@ void Render::pixelcolor(std::shared_ptr<Scene>& scene, int width, int height, in
 		cout << setprecision(4);
 		cout << "T = " << t << endl;
 		cout << "Object Type: " << shape->getTypeString() << endl;
-		if (mode == RAYCAST_MODE) {
-			color = Render::raycastPixels(shape);
-		}
-		else if (mode == BLINNPHONG_MODE) {
-			color = (1 - reflection) * Shading::shadedPixels(scene, shape, scene->camera->location, rayDirection, t, mode);
-			cout << "BRDF: Blinn-Phong" << endl;
-		}
-		else if (mode == COOKTORRANCE_MODE) {
-			color = Shading::shadedPixels(scene, shape, scene->camera->location, rayDirection, t, mode);
-			cout << "BRDF: Cook-Torrance" << endl;
-		}
 
-		// reflection
-		glm::vec3 reflectionColor = glm::vec3(0.0f, 0.0f, 0.0f);
-		glm::vec3 intersectionPt = Helper::getPointOnRay(scene->camera->location, rayDirection, t);
-		reflectionColor = Reflection::getReflection(scene, shape, intersectionPt, rayDirection, 0, true);
-		color += reflection * reflectionColor;
+		color = Render::getPixelColor(scene, scene->camera->location, rayDirection, mode, true);
 
 		red = Helper::convertToRgb(color[0]);
 		green = Helper::convertToRgb(color[1]);
@@ -63,7 +48,6 @@ void Render::createOutput(shared_ptr<Scene>& scene, int width, int height, unsig
 	const glm::ivec2 size = glm::ivec2(width, height);
 	shared_ptr<Shape> shape;
 	glm::vec3 rayDirection, color;
-	float t;
 	unsigned char *data = new unsigned char[size.x * size.y * numChannels];
 
 	glm::vec3 reflectionColor;
@@ -91,10 +75,11 @@ void Render::createOutput(shared_ptr<Scene>& scene, int width, int height, unsig
 }
 
 
-glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, const glm::vec3 origin, glm::vec3& viewRay, unsigned int mode, bool test)
+glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, const glm::vec3 origin, glm::vec3& viewRay, unsigned int mode, 
+	bool test)
 {
 	glm::vec3 total_color, reflect_color, transmit_color, local_color;
-	float t, transmission_contrib, local_contrib, reflect_contrib, fresnel;
+	float t, transmission_contrib, local_contrib, reflect_contrib;
 	shared_ptr<Shape> shape = Render::getFirstHit(scene, origin, viewRay, &t);
 
 	if (!shape) {
@@ -120,17 +105,24 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, const glm::vec3 origin
 			local_color = Render::raycastPixels(shape);
 		}
 		else if (mode == BLINNPHONG_MODE || mode == COOKTORRANCE_MODE) {
-			local_color = Shading::shadedPixels(scene, shape, origin, viewRay, t, mode);
+			local_color = Shading::shadedPixels(scene, shape, origin, viewRay, t, mode, test);
 		}
 		else {
 			local_color = glm::vec3(0.0f, 0.0f, 0.0f);
 		}
 
 		// get reflection amount
-		reflect_color = Reflection::getReflection(scene, shape, intersectionPt, viewRay, 0);
+		if (test) {
+			cout << "local: " << local_color.x << " " << local_color.y << " " << local_color.z << endl;
+			cout << "\nGETTING REFLECTION" << endl;
+		}
+		reflect_color = Reflection::getReflection(scene, shape, intersectionPt, glm::normalize(viewRay), 0, test);
 
 		// get refraction amount
-		transmit_color = Refraction::getRefraction(scene, shape, intersectionPt, viewRay, 0);
+		if (test) {
+			cout << "GETTING REFRACTION" << endl;
+		}
+		transmit_color = Refraction::getRefraction(scene, shape, intersectionPt, viewRay, 0, test);
 
 		total_color = local_contrib * local_color + \
 			reflect_contrib * reflect_color + \

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Box.cpp">
@@ -25,10 +25,19 @@
     <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Plane.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Reflection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Refraction.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Render.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Scene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Shading.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Shape.cpp">
@@ -40,21 +49,15 @@
     <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Triangle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Reflection.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\Shading.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\Refraction.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Box.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Finish.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Helper.h">
@@ -72,16 +75,28 @@
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Plane.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Reflection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Refraction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Render.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Shading.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Shape.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Sphere.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Triangle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\glm\simd\common.h">
@@ -114,21 +129,6 @@
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\stb_image_write.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\Triangle.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\Finish.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\Reflection.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\Refraction.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\Shading.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\CMakeLists.txt" />
@@ -140,13 +140,5 @@
     <Filter Include="Header Files">
       <UniqueIdentifier>{6AB2B2A6-42DE-3C37-B394-13486BF7E1BB}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\resources\specular.pov">
-      <Filter>Source Files</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="..\src\notes.txt" />
   </ItemGroup>
 </Project>

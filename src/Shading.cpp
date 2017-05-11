@@ -5,44 +5,56 @@ using namespace std;
 
 glm::vec3 Shading::shadedPixels(std::shared_ptr<Scene>& scene,
 	std::shared_ptr<Shape>& shape, glm::vec3 origin, glm::vec3& viewRay, float t,
-	unsigned int mode)
+	unsigned int mode, bool test)
 {
 	shared_ptr<Finish> finish = shape->finish;
-	glm::vec3 point = Helper::getPointOnRay(scene->camera->location, viewRay, t);
+	glm::vec3 point = Helper::getPointOnRay(origin, viewRay, t);
 	glm::vec3 view = glm::normalize(-viewRay);
 
-	glm::vec3 color = finish->pigment * finish->ambient;
+	glm::vec3 color;
 	for (unsigned int l = 0; l < scene->lightSources.size(); l++) {
 		shared_ptr<LightSource> currLight = scene->lightSources[l];
 		if (mode == BLINNPHONG_MODE) {
-			color += Shading::blinnPhong(scene, currLight, shape, view, point);
+			color = Shading::blinnPhong(scene, currLight, shape, view, point, test);
 		}
 		else if (mode == COOKTORRANCE_MODE) {
-			color += Shading::cookTorrance(scene, currLight, shape, view, point);
+			color = Shading::cookTorrance(scene, currLight, shape, view, point);
 		}
 	}
 	return color;
 }
 
 glm::vec3 Shading::blinnPhong(shared_ptr<Scene>& scene, shared_ptr<LightSource>& currLight,
-	shared_ptr<Shape>& shape, glm::vec3 view, glm::vec3 point)
+	shared_ptr<Shape>& shape, glm::vec3 view, glm::vec3 point, bool test)
 {
 	shared_ptr<Finish> finish = shape->finish;
 	float t2;
 	float power = (2 / (finish->shininess*finish->shininess) - 2);
-	glm::vec3 color;
+	glm::vec3 color, ambient, diffuse, spec;
 	glm::vec3 normal = shape->getNormal(point);
 	glm::vec3 normalizedL = glm::normalize(currLight->location - point);
-
 	Render::getFirstHit(scene, point, normalizedL, &t2);
+
+	ambient = finish->pigment * finish->ambient;
 	if (Shading::notShaded(t2)) {
+		ambient = finish->pigment * finish->ambient;
 		glm::vec3 halfVec = glm::normalize(view + normalizedL);
 		glm::vec3 lightColor = currLight->color;
-		color += finish->pigment * finish->diffuse * lightColor * \
-glm::max(glm::dot(normal, normalizedL), 0.0f);
-color += finish->pigment * finish->specular * lightColor * \
-glm::pow(glm::max(glm::dot(halfVec, normal), 0.0f), power);
+		diffuse = finish->pigment * finish->diffuse * lightColor * \
+					glm::max(glm::dot(normal, normalizedL), 0.0f);
+		spec = finish->pigment * finish->specular * lightColor * \
+					glm::pow(glm::max(glm::dot(halfVec, normal), 0.0f), power);
 	}
+	if (test) {
+		if (!Shading::notShaded(t2)) {
+			cout << "note ----> is shaded" << endl;
+		}
+		cout << "intersects AT: " << point.x << " " << point.y << " " << point.z << endl;
+		cout << "ambient: " << ambient.x << " " << ambient.y << " " << ambient.z << endl;
+		cout << "diffuse: " << diffuse.x << " " << diffuse.y << " " << diffuse.z << endl;
+		cout << "spec: " << spec.x << " " << spec.y << " " << spec.z << endl;
+	}
+	color = ambient + diffuse + spec;
 	return color;
 }
 
@@ -116,7 +128,7 @@ bool Shading::notShaded(float t2) {
 
 float Shading::chiGGX(float v)
 {
-	return v > 0 ? 1 : 0;
+	return v > 0 ? 1.0f : 0.0f;
 }
 
 float Shading::GGX_Distribution(glm::vec3 n, glm::vec3 h, float alpha)
@@ -125,7 +137,7 @@ float Shading::GGX_Distribution(glm::vec3 n, glm::vec3 h, float alpha)
 	float alpha2 = alpha * alpha;
 	float NoH2 = NoH * NoH;
 	float den = NoH2 * alpha2 + (1 - NoH2);
-	return (Shading::chiGGX(NoH) * alpha2) / (PI * den * den);
+	return (Shading::chiGGX(NoH) * alpha2) / (3.14f * den * den);
 }
 
 float Shading::GGX_Geometry(glm::vec3 v, glm::vec3 n, glm::vec3 h, float alpha)
