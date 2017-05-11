@@ -11,6 +11,9 @@ void Shape::printInfo()
 	cout << "- Material:\n";
 	cout << "  - Ambient: " << Shape::finish->ambient << "\n";
 	cout << "  - Diffuse: " << Shape::finish->diffuse << "\n";
+	if (Shape::finish->filter) {
+		cout << "  - Filter: " << Shape::finish->filter << "\n";
+	}
 	if (Shape::finish->specular) {
 		cout << "  - Specular: " << Shape::finish->specular << "\n";
 	}
@@ -25,5 +28,8 @@ void Shape::printInfo()
 	}
 	if (Shape::finish->reflection) {
 		cout << "  - Reflection: " << Shape::finish->reflection << "\n";
+	}
+	if (Shape::finish->refraction) {
+		cout << "  - Refraction: " << Shape::finish->refraction << "\n";
 	}
 }

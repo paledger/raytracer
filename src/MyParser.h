@@ -48,10 +48,13 @@ private:
 	bool parseScale(std::string& str, std::shared_ptr<Shape> shape);
 	bool parseRotate(std::string& str, std::shared_ptr<Shape> shape);
 	void parseKeywordVector(std::string& stringChunk, std::string& currKeyword, glm::vec3& vec);
+	void parsePigmentVector(std::string& stringChunk, std::string& currKeyword, glm::vec3& vec, float& filter);
+	void parse4FloatVector(std::string& vecString, std::vector<float>& ret); 	// should be given a string of floats separated by commas
 	void parse3FloatVector(std::string& vecString, glm::vec3& ret); 	// should be given a string of floats separated by commas
 	void parseFloatAfterVec(std::string& floatString, float& flt);
 	std::vector<std::string> split(const std::string& text, const std::string& delims);
 	bool contains(std::string& str, const std::string substring);
 	std::string trim(const std::string& str, const std::string& whitespace = " \t\n\r\v\f");
+	int getNumOccur(const std::string str, const std::string substr);
 };
 

@@ -14,6 +14,7 @@ int main(int argc, char* argv[])
 	auto parser = std::make_shared<MyParser>();
 	auto scene = make_shared<Scene>();
 
+
 	if ((!strcmp(argv[1], "raycast") ||
 		!strcmp(argv[1], "sceneinfo") ||
 		!strcmp(argv[1], "pixelray") ||

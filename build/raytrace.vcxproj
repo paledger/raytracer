@@ -325,6 +325,9 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\Finish.h" />
+    <ClInclude Include="..\src\Reflection.h" />
+    <ClInclude Include="..\src\Refraction.h" />
+    <ClInclude Include="..\src\Shading.h" />
     <ClInclude Include="..\src\Triangle.h" />
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Box.h" />
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Camera.h" />
@@ -347,6 +350,9 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\glm\simd\trigonometric.h" />
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\glm\simd\vector_relational.h" />
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\stb_image_write.h" />
+    <ClCompile Include="..\src\Reflection.cpp" />
+    <ClCompile Include="..\src\Refraction.cpp" />
+    <ClCompile Include="..\src\Shading.cpp" />
     <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Box.cpp" />
     <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Camera.cpp" />
     <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Cone.cpp" />

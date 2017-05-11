@@ -122,9 +122,9 @@ float MyParser::parseFinishKeyword(string& str, string& keyword) {
 	string substr;
 	if (keywordStart != str.npos) {
 		substr = str.substr(keywordStart + keyword.length(), str.npos);
-		return stof(substr.substr(0, substr.find_first_of("mrads}")));
+		return stof(substr.substr(0, substr.find_first_of("mradis}")));
 	}
-	return false;
+	return 0.0f;
 }
 
 bool MyParser::parseFinish(string& str, shared_ptr<Finish>& finish) {
@@ -138,13 +138,18 @@ bool MyParser::parseFinish(string& str, shared_ptr<Finish>& finish) {
 	string roughness("roughness");
 	string metallic("metallic");
 	string reflection("reflection");
-	parseKeywordVector(str, pigment, finish->pigment);
+	string refraction("refraction");
+	string filter("filter");
+	string ior("ior");
+	parsePigmentVector(str, pigment, finish->pigment, finish->filter);
 	finish->ambient = MyParser::parseFinishKeyword(str, ambient);
 	finish->diffuse = MyParser::parseFinishKeyword(str, diffuse);
 	finish->specular = MyParser::parseFinishKeyword(str, specular);
 	finish->shininess = MyParser::parseFinishKeyword(str, roughness);
 	finish->metallic = MyParser::parseFinishKeyword(str, metallic);
 	finish->reflection = MyParser::parseFinishKeyword(str, reflection);
+	finish->refraction = MyParser::parseFinishKeyword(str, refraction);
+	finish->ior = MyParser::parseFinishKeyword(str, ior);
 
 	return true;
 }
@@ -176,11 +181,34 @@ bool MyParser::parseRotate(string& str, shared_ptr<Shape> shape) {
 void MyParser::parseKeywordVector(string& stringChunk, string& currKeyword, glm::vec3& vec) {
 	size_t currStart = 0, vecStart = 0, vecEnd = 0;
 	currStart = stringChunk.find(currKeyword);
+	vector<float> vec4 = vector<float>();
 	if (currStart != stringChunk.npos) {
 		vecStart = stringChunk.find("<", currStart + currKeyword.size());
 		vecEnd = stringChunk.find(">", currStart + currKeyword.size());
 		string subString(stringChunk.substr(vecStart + 1, vecEnd - vecStart - 1));
 		parse3FloatVector(subString, vec);
+	}
+}
+
+void MyParser::parsePigmentVector(string& stringChunk, string& currKeyword, glm::vec3& vec, float& filter) {
+	size_t currStart = 0, vecStart = 0, vecEnd = 0;
+	vector<float> rgbfVec = vector<float>();
+	currStart = stringChunk.find(currKeyword);
+	vector<float> vec4 = vector<float>();
+	if (currStart != stringChunk.npos) {
+		vecStart = stringChunk.find("<", currStart + currKeyword.size());
+		vecEnd = stringChunk.find(">", currStart + currKeyword.size());
+		string subString(stringChunk.substr(vecStart + 1, vecEnd - vecStart - 1));
+		if (stringChunk.find("rgbf") != stringChunk.npos) {
+			parse4FloatVector(subString, rgbfVec);
+			vec.r = rgbfVec[0];
+			vec.g = rgbfVec[1];
+			vec.g = rgbfVec[2];
+			filter = rgbfVec[3];
+		}
+		else {
+			parse3FloatVector(subString, vec);
+		}
 	}
 }
 
@@ -190,6 +218,15 @@ void MyParser::parse3FloatVector(string& vecString, glm::vec3& ret) {
 	for (int i = 0; i < 3; i++) {
 		endPos = vecString.find(",", startPos);
 		ret[i] = stof(vecString.substr(startPos, endPos - startPos));
+		startPos = endPos + 1;
+	}
+}
+
+void MyParser::parse4FloatVector(string& vecString, vector<float>& ret) {
+	size_t startPos = 0, endPos = 0;
+	for (int i = 0; i < 4; i++) {
+		endPos = vecString.find(",", startPos);
+		ret.push_back(stof(vecString.substr(startPos, endPos - startPos)));
 		startPos = endPos + 1;
 	}
 }
@@ -233,4 +270,15 @@ string MyParser::trim(const string& str, const string& whitespace)
 	auto strRange = strEnd - strBegin + 1;
 
 	return str.substr(strBegin, strRange);
+}
+
+
+int MyParser::getNumOccur(const std::string str, const std::string substr) {
+	size_t currPos = 0;
+	int count = 0;
+	while ((currPos = str.find(substr, currPos + substr.size())) != str.npos) {
+		count++;
+	}
+
+	return count;
 }
