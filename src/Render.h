@@ -35,7 +35,7 @@ public:
 	static glm::vec3 pixelRay(std::shared_ptr<Scene>& scene, int width, int height, int x, int y);
 	static void firstHit(std::shared_ptr<Scene>& scene, int width, int height, int x, int y);
 	static glm::vec3 getPixelColor(std::shared_ptr<Scene>& scene, const glm::vec3 origin, 
-		glm::vec3& viewRay, unsigned int mode, bool test = false);
+		glm::vec3& viewRay, unsigned int mode, int depth, bool test = false);
 	static glm::vec3 calculatePixelRay(std::shared_ptr<Scene>& scene, int width, int height, int x, int y);
 	static std::shared_ptr<Shape> getFirstHit(std::shared_ptr<Scene>& scene, glm::vec3 origin, glm::vec3 rayDirection, float* intersectT = nullptr);
 	static float calculateFirstHit(std::shared_ptr<Scene>& scene, glm::vec3 origin, glm::vec3 rayDirection, const std::shared_ptr<Shape>& shapeToTest);

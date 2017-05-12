@@ -27,7 +27,7 @@ void Render::pixelcolor(std::shared_ptr<Scene>& scene, int width, int height, in
 		cout << "T = " << t << endl;
 		cout << "Object Type: " << shape->getTypeString() << endl;
 
-		color = Render::getPixelColor(scene, scene->camera->location, rayDirection, mode, true);
+		color = Render::getPixelColor(scene, scene->camera->location, rayDirection, mode, 0, true);
 
 		red = Helper::convertToRgb(color[0]);
 		green = Helper::convertToRgb(color[1]);
@@ -57,7 +57,7 @@ void Render::createOutput(shared_ptr<Scene>& scene, int width, int height, unsig
 			unsigned char red, green, blue;
 
 			glm::vec3 rayDirection = Render::calculatePixelRay(scene, width, height, x, y);
-			color = Render::getPixelColor(scene, scene->camera->location, rayDirection, mode);
+			color = Render::getPixelColor(scene, scene->camera->location, rayDirection, mode, 0);
 
 			red = Helper::convertToRgb(color[0]);
 			green = Helper::convertToRgb(color[1]);
@@ -74,7 +74,7 @@ void Render::createOutput(shared_ptr<Scene>& scene, int width, int height, unsig
 
 
 glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, const glm::vec3 origin, glm::vec3& viewRay, unsigned int mode, 
-	bool test)
+	int depth, bool test)
 {
 	glm::vec3 total_color, reflect_color, transmit_color, local_color;
 	float t, transmission_contrib, local_contrib, reflect_contrib;
@@ -96,8 +96,8 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, const glm::vec3 origin
 		float reflection = shape->finish->reflection;
 
 		local_contrib = (1 - filter) * (1 - reflection);
-		reflect_contrib = (1 - filter) * reflection + filter * fresnel_reflectance;
-		transmission_contrib = filter * (1 - fresnel_reflectance);
+		reflect_contrib = (1 - filter) * reflection + filter/* * fresnel_reflectance*/;
+		transmission_contrib = filter/* * (1 - fresnel_reflectance)*/;
 
 		// get local color
 		if (mode == RAYCAST_MODE) {
@@ -113,19 +113,22 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, const glm::vec3 origin
 			local_color = glm::vec3(0.0f, 0.0f, 0.0f);
 		}
 
-		// get reflection amount
-		if (test) {
-			cout << "local: " << local_color.x << " " << local_color.y << " " << local_color.z << endl;
-			cout << "\nGETTING REFLECTION" << endl;
+		if (shape->finish->reflection) {
+			// get reflection amount
+			if (test) {
+				cout << "local: " << local_color.x << " " << local_color.y << " " << local_color.z << endl;
+				cout << "\nGETTING REFLECTION" << endl;
+			}
+			reflect_color = Reflection::getReflection(scene, shape, intersectionPt, viewRay, 0, test);
 		}
-		reflect_color = Reflection::getReflection(scene, shape, intersectionPt, viewRay, 0, test);
+		if (shape->finish->filter) {
+			// get refraction amount
+			if (test) {
+				cout << "\nGETTING REFRACTION" << endl;
+			}
+			transmit_color = Refraction::getRefraction(scene, shape, intersectionPt, viewRay, 0, test);
 
-		// get refraction amount
-		if (test) {
-			cout << "\nGETTING REFRACTION" << endl;
 		}
-		transmit_color = Refraction::getRefraction(scene, shape, intersectionPt, viewRay, 0, test);
-
 		total_color = local_contrib * local_color + \
 			reflect_contrib * reflect_color + \
 			transmission_contrib * transmit_color;
