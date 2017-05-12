@@ -1,5 +1,6 @@
 #include "Reflection.h"
 #include "Render.h"
+#include "Shading.h"
 
 using namespace std;
 
@@ -15,11 +16,12 @@ glm::vec3 Reflection::getReflection(shared_ptr<Scene> scene, shared_ptr<Shape> s
 	}
 
 	glm::vec3 n = glm::normalize(shape->getNormal(intersectionPt));
+	glm::vec3 epsilonVec = n * 0.001f;
 
 	// find new reflection information 
 	float reflection = shape->finish->reflection;
 	glm::vec3 reflectionVec = incident - 2 * glm::dot(incident, n) * n;
-	shared_ptr<Shape> newShape = Render::getFirstHit(scene, intersectionPt + n * 0.001f,
+	shared_ptr<Shape> newShape = Render::getFirstHit(scene, intersectionPt + epsilonVec,
 		reflectionVec, &newT);
 	glm::vec3 newPoint = Helper::getPointOnRay(intersectionPt, reflectionVec, newT);
 
@@ -28,8 +30,8 @@ glm::vec3 Reflection::getReflection(shared_ptr<Scene> scene, shared_ptr<Shape> s
 		if (test) {
 			cout << newShape->getTypeString() << " " << depth << endl;
 		}
-		thisShapeLocal = Render::getPixelColor(scene, intersectionPt,
-				reflectionVec, BLINNPHONG_MODE, test);
+		thisShapeLocal = Shading::shadedPixels(scene, newShape, intersectionPt + epsilonVec, reflectionVec, newT, BLINNPHONG_MODE, test);
+
 		if (test) {
 			n = newShape->getNormal(newPoint);
 			cout << "origin: " << intersectionPt.x << " " << intersectionPt.y << " " << intersectionPt.z << endl;
@@ -41,7 +43,10 @@ glm::vec3 Reflection::getReflection(shared_ptr<Scene> scene, shared_ptr<Shape> s
 			cout << reflection << " * next color: " << rgb.r << " " << rgb.g << " " << rgb.b << endl << endl;
 		}
 	}
+	if (depth == 0) {
+		return glm::vec3(0.0f, 0.0f, 0.0f);
+	}
 
-	reflection_color = (thisShapeLocal + getReflection(scene, newShape, newPoint + n * 0.001f, reflectionVec, depth + 1, test));
+	reflection_color = (thisShapeLocal + getReflection(scene, newShape, newPoint + epsilonVec, reflectionVec, depth + 1, test));
 	return reflection * reflection_color;
 }
