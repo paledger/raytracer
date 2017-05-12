@@ -22,7 +22,6 @@ void Render::pixelcolor(std::shared_ptr<Scene>& scene, int width, int height, in
 	glm::vec3 rayDirection = Render::calculatePixelRay(scene, width, height, x, y);
 	shared_ptr<Shape> shape = Render::getFirstHit(scene, scene->camera->location, rayDirection, &t);
 	if (shape) {
-		float reflection = shape->finish->reflection;
 		Render::pixelRay(scene, width, height, x, y);
 		cout << setprecision(4);
 		cout << "T = " << t << endl;
@@ -51,7 +50,6 @@ void Render::createOutput(shared_ptr<Scene>& scene, int width, int height, unsig
 	unsigned char *data = new unsigned char[size.x * size.y * numChannels];
 
 	glm::vec3 reflectionColor;
-	float reflection = 0.0f;
 	for (int y = 0; y < size.y; ++y)
 	{
 		for (int x = 0; x < size.x; ++x)
@@ -82,14 +80,17 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, const glm::vec3 origin
 	float t, transmission_contrib, local_contrib, reflect_contrib;
 	shared_ptr<Shape> shape = Render::getFirstHit(scene, origin, viewRay, &t);
 
+	//cout << "OKAY" << endl;
 	if (!shape) {
 		local_color = glm::vec3(0.0f, 0.0f, 0.0f); // set to all black
 		total_color = local_color;
+		//cout << "FUN" << endl;
 	}
 	else {
+		//cout << "MAYBE" << endl;
 		// beer's law values
 		float ior = shape->finish->ior;
-		glm::vec3 intersectionPt = Helper::getPointOnRay(scene->camera->location, viewRay, t);
+		glm::vec3 intersectionPt = Helper::getPointOnRay(origin, viewRay, t);
 		float fresnel_reflectance = Shading::getSchlickApproximation(shape->getNormal(intersectionPt), ior, viewRay);
 
 		// get contribution amounts
@@ -116,11 +117,11 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, const glm::vec3 origin
 			cout << "local: " << local_color.x << " " << local_color.y << " " << local_color.z << endl;
 			cout << "\nGETTING REFLECTION" << endl;
 		}
-		reflect_color = Reflection::getReflection(scene, shape, intersectionPt, glm::normalize(viewRay), 0, test);
+		reflect_color = Reflection::getReflection(scene, shape, intersectionPt, viewRay, 0, test);
 
 		// get refraction amount
 		if (test) {
-			cout << "GETTING REFRACTION" << endl;
+			//cout << "GETTING REFRACTION" << endl;
 		}
 		transmit_color = Refraction::getRefraction(scene, shape, intersectionPt, viewRay, 0, test);
 

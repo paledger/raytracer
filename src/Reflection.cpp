@@ -4,7 +4,7 @@
 using namespace std;
 
 glm::vec3 Reflection::getReflection(shared_ptr<Scene> scene, shared_ptr<Shape> shape,
-	glm::vec3 intersectionPt, glm::vec3& d, unsigned int depth, bool test)
+	const glm::vec3 intersectionPt, const glm::vec3 d, unsigned int depth, bool test)
 {
 	glm::vec3 thisShapeLocal, reflection_color;
 	glm::vec3 incident = glm::normalize(d);

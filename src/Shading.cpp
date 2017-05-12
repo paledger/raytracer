@@ -50,6 +50,7 @@ glm::vec3 Shading::blinnPhong(shared_ptr<Scene>& scene, shared_ptr<LightSource>&
 			cout << "note ----> is shaded" << endl;
 		}
 		cout << "intersects AT: " << point.x << " " << point.y << " " << point.z << endl;
+		cout << "normal: " << normal.x << " " << normal.y << " " << normal.z << endl;
 		cout << "ambient: " << ambient.x << " " << ambient.y << " " << ambient.z << endl;
 		cout << "diffuse: " << diffuse.x << " " << diffuse.y << " " << diffuse.z << endl;
 		cout << "spec: " << spec.x << " " << spec.y << " " << spec.z << endl;
