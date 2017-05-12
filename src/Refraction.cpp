@@ -23,14 +23,14 @@ glm::vec3 Refraction::getRefraction(shared_ptr<Scene> scene, shared_ptr<Shape> s
 		if (test) {
 			cout << "entering" << endl;
 		}
-		snellRatio = 1 / shape->finish->ior;
+		snellRatio = 0.85f / shape->finish->ior;
 	}
 	else if (dir > 0) { // exiting
 		if (test) {
 			cout << "exiting" << endl;
 		}
 		n = -n;
-		snellRatio = shape->finish->ior;
+		snellRatio = shape->finish->ior / 0.85f;
 	}
 
 	float d_dot_n = glm::dot(d, n);

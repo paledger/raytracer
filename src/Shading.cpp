@@ -33,7 +33,7 @@ glm::vec3 Shading::blinnPhong(shared_ptr<Scene>& scene, shared_ptr<LightSource>&
 	glm::vec3 color, ambient, diffuse, spec;
 	glm::vec3 normal = shape->getNormal(point);
 	glm::vec3 normalizedL = glm::normalize(currLight->location - point);
-	Render::getFirstHit(scene, point, normalizedL, &t2);
+	Render::getFirstHit(scene, point + normal * 0.001f, normalizedL, &t2);
 
 	ambient = finish->pigment * finish->ambient;
 	if (Shading::notShaded(t2)) {
