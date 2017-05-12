@@ -43,9 +43,6 @@ glm::vec3 Reflection::getReflection(shared_ptr<Scene> scene, shared_ptr<Shape> s
 			cout << reflection << " * next color: " << rgb.r << " " << rgb.g << " " << rgb.b << endl << endl;
 		}
 	}
-	if (depth == 0) {
-		return glm::vec3(0.0f, 0.0f, 0.0f);
-	}
 
 	reflection_color = (thisShapeLocal + getReflection(scene, newShape, newPoint + epsilonVec, reflectionVec, depth + 1, test));
 	return reflection * reflection_color;
