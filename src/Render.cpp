@@ -124,7 +124,7 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, const glm::vec3 origin
 		if (test) {
 			cout << "\nGETTING REFRACTION" << endl;
 		}
-		//transmit_color = Refraction::getRefraction(scene, shape, intersectionPt, viewRay, 0, test);
+		transmit_color = Refraction::getRefraction(scene, shape, intersectionPt, viewRay, 0, test);
 
 		total_color = local_contrib * local_color + \
 			reflect_contrib * reflect_color + \
