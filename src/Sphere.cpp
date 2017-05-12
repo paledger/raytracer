@@ -14,8 +14,10 @@ void Sphere::printInfo() {
 }
 
 vector<float> Sphere::getIntersection(const glm::vec3& dir, const glm::vec3& origin) {
-	float a = glm::dot(dir, dir);
-	float b = glm::dot(2.0f*dir, origin - center);
+	glm::vec3 normalDir = glm::normalize(origin - center);
+	glm::vec3 d = dir;
+	float a = glm::dot(d, d);
+	float b = glm::dot(2.0f * d, origin - center);
 	float c = glm::dot(origin - center, origin - center) - glm::pow(radius, 2.0f);
 	return Helper::quadratic(a, b, c);
 }

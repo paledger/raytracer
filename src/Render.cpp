@@ -79,15 +79,13 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, const glm::vec3 origin
 	glm::vec3 total_color, reflect_color, transmit_color, local_color;
 	float t, transmission_contrib, local_contrib, reflect_contrib;
 	shared_ptr<Shape> shape = Render::getFirstHit(scene, origin, viewRay, &t);
+	viewRay = glm::normalize(viewRay);
 
-	//cout << "OKAY" << endl;
 	if (!shape) {
 		local_color = glm::vec3(0.0f, 0.0f, 0.0f); // set to all black
 		total_color = local_color;
-		//cout << "FUN" << endl;
 	}
 	else {
-		//cout << "MAYBE" << endl;
 		// beer's law values
 		float ior = shape->finish->ior;
 		glm::vec3 intersectionPt = Helper::getPointOnRay(origin, viewRay, t);
@@ -106,6 +104,9 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, const glm::vec3 origin
 			local_color = Render::raycastPixels(shape);
 		}
 		else if (mode == BLINNPHONG_MODE || mode == COOKTORRANCE_MODE) {
+			if (test) {
+				cout << "T: " << t << endl;
+			}
 			local_color = Shading::shadedPixels(scene, shape, origin, viewRay, t, mode, test);
 		}
 		else {
@@ -115,13 +116,13 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, const glm::vec3 origin
 		// get reflection amount
 		if (test) {
 			cout << "local: " << local_color.x << " " << local_color.y << " " << local_color.z << endl;
-			cout << "\nGETTING REFLECTION" << endl;
+			//cout << "\nGETTING REFLECTION" << endl;
 		}
-		reflect_color = Reflection::getReflection(scene, shape, intersectionPt, viewRay, 0, test);
+		//reflect_color = Reflection::getReflection(scene, shape, intersectionPt, viewRay, 0, test);
 
 		// get refraction amount
 		if (test) {
-			//cout << "GETTING REFRACTION" << endl;
+			cout << "\nGETTING REFRACTION" << endl;
 		}
 		transmit_color = Refraction::getRefraction(scene, shape, intersectionPt, viewRay, 0, test);
 
