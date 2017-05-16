@@ -35,6 +35,7 @@ vector<float> Triangle::getIntersection(const glm::vec3& dir, const glm::vec3& o
 			edge3 >= 0 && 
 			t > epsilon) 
 		{
+			//t = transform->getTransformedT(origin, dir, t);
 			vec.push_back(t);
 		}
 	}
@@ -54,5 +55,5 @@ glm::vec3 Triangle::getNormal(glm::vec3 point)
 	glm::vec3 U = b - a;
 	glm::vec3 V = c - a;
 	glm::vec3 normal = glm::normalize(glm::cross(U, V));
-	return normal;
+	return transform->getTransformNormal(normal);
 }

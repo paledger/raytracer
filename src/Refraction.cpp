@@ -16,6 +16,7 @@ glm::vec3 Refraction::getRefraction(shared_ptr<Scene> scene, shared_ptr<Shape> s
 	float dir, snellRatio, newT;
 	float transmission = shape->finish->filter;
 	d = glm::normalize(d);
+	shared_ptr<Transformation> transform = shape->transform;
 
 	glm::vec3 n = glm::normalize(shape->getNormal(intersectionPt));
 

@@ -88,7 +88,7 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, const glm::vec3 origin
 	else {
 		// beer's law values
 		float ior = shape->finish->ior;
-		glm::vec3 intersectionPt = Helper::getPointOnRay(origin, viewRay, t);
+		glm::vec3 intersectionPt = Helper::getPointOnRay(shape->transform, origin, viewRay, t);
 		float fresnel_reflectance = Shading::getSchlickApproximation(shape->getNormal(intersectionPt), ior, viewRay);
 
 		// get contribution amounts
@@ -96,7 +96,7 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, const glm::vec3 origin
 		float reflection = shape->finish->reflection;
 
 		local_contrib = (1 - filter) * (1 - reflection);
-		reflect_contrib = (1 - filter) * reflection + filter/* * fresnel_reflectance*/;
+		reflect_contrib = (1 - filter) * reflection/* * fresnel_reflectance*/;
 		transmission_contrib = filter/* * (1 - fresnel_reflectance)*/;
 
 		// get local color
@@ -119,14 +119,14 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, const glm::vec3 origin
 				cout << "local: " << local_color.x << " " << local_color.y << " " << local_color.z << endl;
 				cout << "\nGETTING REFLECTION" << endl;
 			}
-			reflect_color = Reflection::getReflection(scene, shape, intersectionPt, viewRay, 0, test);
+			reflect_color = Reflection::getReflection(scene, shape, intersectionPt, viewRay, depth, test);
 		}
 		if (shape->finish->filter) {
 			// get refraction amount
 			if (test) {
 				cout << "\nGETTING REFRACTION" << endl;
 			}
-			transmit_color = Refraction::getRefraction(scene, shape, intersectionPt, viewRay, 0, test);
+			transmit_color = Refraction::getRefraction(scene, shape, intersectionPt, viewRay, depth, test);
 
 		}
 		total_color = local_contrib * local_color + \
@@ -206,7 +206,8 @@ shared_ptr<Shape> Render::getFirstHit(shared_ptr<Scene>& scene,
 float Render::calculateFirstHit(shared_ptr<Scene>& scene,  glm::vec3 origin, 
 	glm::vec3 rayDirection, const shared_ptr<Shape>& shapeToTest) 
 {
-	vector<float> t = shapeToTest->getIntersection(rayDirection, origin);
+	shared_ptr<Transformation> transform = shapeToTest->transform;
+	vector<float> t = shapeToTest->getIntersection(transform->transformVector(rayDirection), origin);
 	if (!t.empty()) {
 		sort(t.begin(), t.end());
 		return t[0];

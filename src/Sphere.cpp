@@ -26,14 +26,17 @@ vector<float> Sphere::getIntersection(const glm::vec3& dir, const glm::vec3& ori
 	}
 	if (tVals.size() == 1) {
 		if (tVals[0] >= 0) {
+			//tVals[0] = transform->getTransformedT(origin, dir, tVals[0]);
 			ret.push_back(tVals[0]);
 		}
 	}
 	if (tVals.size() == 2) {
 		if (tVals[0] >= 0) {
+			//tVals[0] = transform->getTransformedT(origin, dir, tVals[0]);
 			ret.push_back(tVals[0]);
 		}
 		if (tVals[1] >= 0) {
+			//tVals[1] = transform->getTransformedT(origin, dir, tVals[1]);
 			ret.push_back(tVals[1]);
 		}
 	}
@@ -46,5 +49,6 @@ string Sphere::getTypeString() {
 }
 
 glm::vec3 Sphere::getNormal(glm::vec3 point) {
-	return glm::normalize(point - center);
+	glm::vec3 normal = glm::normalize(point - center);
+	return transform->getTransformNormal(normal);
 }

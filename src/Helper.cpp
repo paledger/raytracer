@@ -30,6 +30,10 @@ glm::vec3 Helper::getPointOnRay(glm::vec3 origin, glm::vec3 direction, float t) 
 	return origin + t*direction;
 }
 
+glm::vec3 Helper::getPointOnRay(const shared_ptr<Transformation> transform, glm::vec3 origin, glm::vec3 direction, float t) {
+	return transform->transformPoint(origin + t*transform->transformVector(direction));
+}
+
 glm::vec3 Helper::getReverseVec(glm::vec3 vec) {
 	return -1.0f * vec;
 }

@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "Shape.h"
+#include "Transformation.h"
 #include "Helper.h"
 #include "glm/glm.hpp"
 

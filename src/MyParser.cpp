@@ -155,26 +155,30 @@ bool MyParser::parseFinish(string& str, shared_ptr<Finish>& finish) {
 }
 
 bool MyParser::parseTranslate(string& str, shared_ptr<Shape> shape) {
+	shared_ptr<Transformation> transform = shape->transform;
 	glm::vec3 tempVec(0.0, 0.0, 0.0);
 	string translate("translate");
 	parseKeywordVector(str, translate, tempVec);
-	shape->translate = shape->translate + tempVec;
+	transform->translate = tempVec;
 	return true;
 }
 
 bool MyParser::parseScale(string& str, shared_ptr<Shape> shape) {
-	glm::vec3 tempVec(0.0, 0.0, 0.0);
+	shared_ptr<Transformation> transform = shape->transform;
+	glm::vec3 tempVec(1.0, 1.0, 1.0);
 	string scale("scale");
 	parseKeywordVector(str, scale, tempVec);
-	shape->scale = shape->scale + tempVec;
+	transform->scale = tempVec;
 	return true;
 }
 
 bool MyParser::parseRotate(string& str, shared_ptr<Shape> shape) {
+	shared_ptr<Transformation> transform = shape->transform;
 	glm::vec3 tempVec(0.0, 0.0, 0.0);
-	string rotate("rotate");
-	parseKeywordVector(str, rotate, tempVec);
-	shape->rotate = shape->rotate + tempVec;
+	string rotation("rotate");
+	parseKeywordVector(str, rotation, tempVec);
+	transform->rotateDir = tempVec;
+	transform->setRotation();
 	return true;
 }
 

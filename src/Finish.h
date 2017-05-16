@@ -1,6 +1,11 @@
 #pragma once
-#include "glm/glm.hpp"
+
 #include <vector>
+#include <stdio.h>
+#include <vector>
+#include <iostream>
+#include <iomanip>
+#include "glm/glm.hpp"
 
 class Finish
 {
@@ -16,4 +21,6 @@ public:
 	float reflection = 0.0f;
 	float refraction = 0.0f;
 	float filter = 0.0f;
+
+	void printInfo();
 };

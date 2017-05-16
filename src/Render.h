@@ -16,6 +16,7 @@
 #include "LightSource.h"
 #include "Camera.h"
 #include "Finish.h"
+#include "Transformation.h"
 
 #ifndef MODES
 #define MODES
