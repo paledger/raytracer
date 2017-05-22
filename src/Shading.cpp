@@ -9,8 +9,8 @@ glm::vec3 Shading::shadedPixels(std::shared_ptr<Scene>& scene,
 {
 	shared_ptr<Finish> finish = shape->finish;
 	shared_ptr<Transformation> transform = shape->transform;
-	//viewRay = transform->transformVector(viewRay);
 	glm::vec3 point = Helper::getPointOnRay(origin, viewRay, t);
+
 	glm::vec3 view = glm::normalize(-viewRay);
 
 	glm::vec3 color;

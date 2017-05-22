@@ -12,7 +12,7 @@ glm::vec3 Refraction::getRefraction(shared_ptr<Scene> scene, shared_ptr<Shape> s
 		return glm::vec3(0.0f, 0.0f, 0.0f);
 	}
 
-	glm::vec3 transmission_color, thisShapeLocal;
+	glm::vec3 transmission_color, thisShapeLocal, attenuation = glm::vec3(1.0f);
 	float dir, snellRatio, newT;
 	float transmission = shape->finish->filter;
 	d = glm::normalize(d);
@@ -47,11 +47,17 @@ glm::vec3 Refraction::getRefraction(shared_ptr<Scene> scene, shared_ptr<Shape> s
 		if (test) {
 			cout << newShape->getTypeString() << " " << depth << endl;
 		}
-		thisShapeLocal = Render::getPixelColor(scene, intersectionPt - epsilonVec,
+		thisShapeLocal = /*Shading::shadedPixels(scene, newShape, intersectionPt - epsilonVec,
+		transmissionVec, newT, BLINNPHONG_MODE, test); */Render::getPixelColor(scene, intersectionPt - epsilonVec,
 			transmissionVec, BLINNPHONG_MODE, depth + 1, test);
-			
-			/* Shading::shadedPixels(scene, newShape, intersectionPt - epsilonVec, 
-			transmissionVec, newT, BLINNPHONG_MODE, test); */
+
+		// beer's law
+		float d = newT;
+		glm::vec3 absorbance = (glm::vec3(1.f) - thisShapeLocal)*0.15f*-d;
+		glm::vec3 attenuation = glm::vec3(glm::pow(glm::e<float>(), absorbance.r), 
+											glm::pow(glm::e<float>(), absorbance.g), 
+											glm::pow(glm::e<float>(), absorbance.b));
+
 		if (test) {
 			cout << "origin: " << intersectionPt.x << " " << intersectionPt.y << " " << intersectionPt.z << endl;
 			cout << "normal: " << n.x << " " << n.y << " " << n.z << endl;
@@ -68,7 +74,7 @@ glm::vec3 Refraction::getRefraction(shared_ptr<Scene> scene, shared_ptr<Shape> s
 		}
 	}
 
-	transmission_color = thisShapeLocal; /* +Refraction::getRefraction(scene, newShape,
+	transmission_color = attenuation * thisShapeLocal; /*+ Refraction::getRefraction(scene, newShape,
 		newPoint - epsilonVec, transmissionVec, depth + 1, test);*/
 
 	return transmission * transmission_color;

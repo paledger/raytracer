@@ -22,17 +22,31 @@ void Render::pixelcolor(std::shared_ptr<Scene>& scene, int width, int height, in
 	glm::vec3 rayDirection = Render::calculatePixelRay(scene, width, height, x, y);
 	shared_ptr<Shape> shape = Render::getFirstHit(scene, scene->camera->location, rayDirection, &t);
 	if (shape) {
-		Render::pixelRay(scene, width, height, x, y);
 		cout << setprecision(4);
-		cout << "T = " << t << endl;
-		cout << "Object Type: " << shape->getTypeString() << endl;
+		shared_ptr<Transformation> transform = shape->transform;
+		glm::vec3 transformedOrigin = transform->transformPoint(scene->camera->location);
+		glm::vec3 transformedRay = transform->transformVector(rayDirection);
+/*
+		color = Shading::shadedPixels(scene, shape, transformedRay,
+			transformedRay, t, mode);
+		red = Helper::convertToRgb(color[0]);
+		green = Helper::convertToRgb(color[1]);
+		blue = Helper::convertToRgb(color[2]);
+		cout << "Color: (" << (int)red << ", " << (int)green << ", " << (int)blue << ")" << endl;
+*/
+		Render::pixelRay(scene, width, height, x, y);
+
+		cout << "Transformed Ray: {" << transformedOrigin.x << \
+			" " << transformedOrigin.y << " " << transformedOrigin.z << "} ";
+		cout << "-> {" << transformedRay[0] << " " << transformedRay[1] << " " << transformedRay[2] << "}\n";
+		cout << "Object Type: " << shape->getTypeString() << endl << endl;
 
 		color = Render::getPixelColor(scene, scene->camera->location, rayDirection, mode, 0, true);
 
 		red = Helper::convertToRgb(color[0]);
 		green = Helper::convertToRgb(color[1]);
 		blue = Helper::convertToRgb(color[2]);
-		cout << "Color: (" << (int)red << ", " << (int)green << ", " << (int)blue << ")" << endl;
+		cout << "Final Color: (" << (int)red << ", " << (int)green << ", " << (int)blue << ")" << endl;
 	}
 	else {
 		cout << "No Hit" << endl;
@@ -110,7 +124,7 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, glm::vec3 origin, glm:
 		// beer's law values
 		float ior = shape->finish->ior;
 
-		glm::vec3 transformedV = shape->transform->transformVector(viewRay);
+		//glm::vec3 transformedV = shape->transform->transformVector(viewRay);
 		//origin = shape->transform->transformPoint(origin);
 		glm::vec3 intersectionPt = Helper::getPointOnRay(origin, viewRay, t);
 
@@ -120,7 +134,7 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, glm::vec3 origin, glm:
 
 		local_contrib = (1 - filter) * (1 - reflection);
 		if (fresnel) {
-			float fresnel_reflectance = Shading::getSchlickApproximation(shape->getNormal(intersectionPt), ior, transformedV);
+			float fresnel_reflectance = Shading::getSchlickApproximation(shape->getNormal(intersectionPt), ior, viewRay);
 			reflect_contrib = (1 - filter) * reflection * fresnel_reflectance;
 			transmission_contrib = filter * (1 - fresnel_reflectance);
 		} 
@@ -156,7 +170,7 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, glm::vec3 origin, glm:
 			if (test) {
 				cout << "\nGETTING REFRACTION" << endl;
 			}
-			//transmit_color = Refraction::getRefraction(scene, shape, intersectionPt, viewRay, depth, test);
+			transmit_color = Refraction::getRefraction(scene, shape, intersectionPt, viewRay, depth, test);
 
 		}
 		total_color = local_contrib * local_color + \

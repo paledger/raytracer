@@ -55,5 +55,5 @@ glm::vec3 Triangle::getNormal(glm::vec3 point)
 	glm::vec3 U = b - a;
 	glm::vec3 V = c - a;
 	glm::vec3 normal = glm::normalize(glm::cross(U, V));
-	return transform->getTransformNormal(normal);
+	return transform->transformNormal(normal);
 }

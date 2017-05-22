@@ -21,7 +21,8 @@ int main(int argc, char* argv[])
 		!strcmp(argv[1], "firsthit") ||
 		!strcmp(argv[1], "render") ||
 		!strcmp(argv[1], "pixelcolor") ||
-		!strcmp(argv[1], "pixeltrace")))
+		!strcmp(argv[1], "pixeltrace") ||
+		!strcmp(argv[1], "printrays")))
 	{
 		if (!parser->openFile(argv[2])) {
 			cout << "Cannot open file given: " << argv[2] << ".\n";
@@ -122,6 +123,25 @@ int main(int argc, char* argv[])
 	else if (!strcmp(argv[1], "pixeltrace")) {
 		if (argc < 7) {
 			cout << "Please follow the following format to render: raytrace pixeltrace <input_filename> <width> <height> <x> <y> [-altbrdf]\n";
+		}
+		else {
+			if (argc > 7) {
+				string arg7 = string(argv[7]);
+				if (arg7.find("-altbrdf") != arg7.npos) {
+					Render::pixelcolor(scene, stoi(argv[3]),
+						stoi(argv[4]), stoi(argv[5]), stoi(argv[6]), COOKTORRANCE_MODE);
+				}
+			}
+			else {
+				Render::createOutput(scene, stoi(argv[3]), stoi(argv[4]), BLINNPHONG_MODE);
+				Render::pixelcolor(scene, stoi(argv[3]), stoi(argv[4]),
+					stoi(argv[5]), stoi(argv[6]), BLINNPHONG_MODE);
+			}
+		}
+	}
+	else if (!strcmp(argv[1], "printrays")) {
+		if (argc < 7) {
+			cout << "Please follow the following format to render: raytrace printrays <input_filename> <width> <height> <x> <y> [-altbrdf]\n";
 		}
 		else {
 			if (argc > 7) {

@@ -27,9 +27,9 @@ void Transformation::applyTranslation(glm::vec3 vec) {
 	transformMatrix = glm::translate(glm::mat4x4(1.0f), vec) * transformMatrix;
 }
 
-glm::vec3 Transformation::getTransformNormal(glm::vec3 normal) {
+glm::vec3 Transformation::transformNormal(glm::vec3 normal) {
 	glm::mat4x4 trans = getTransformMatrix();
-	trans = glm::transpose(glm::inverse(trans));
+	trans = glm::inverse(glm::transpose(trans));
 	glm::vec4 transformed = trans * glm::vec4(normal.x, normal.y, normal.z, 0.0f);
 	return glm::vec3(transformed.x, transformed.y, transformed.z);
 }

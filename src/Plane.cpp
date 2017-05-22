@@ -29,5 +29,5 @@ string Plane::getTypeString() {
 }
 
 glm::vec3 Plane::getNormal(glm::vec3 point) {
-	return transform->getTransformNormal(normal);
+	return transform->transformNormal(normal);
 }
