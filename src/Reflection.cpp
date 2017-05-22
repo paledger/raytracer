@@ -10,12 +10,12 @@ glm::vec3 Reflection::getReflection(shared_ptr<Scene> scene, shared_ptr<Shape> s
 	glm::vec3 thisShapeLocal, reflection_color;
 	glm::vec3 incident = glm::normalize(d);
 	float newT;
-	shared_ptr<Transformation> transform = shape->transform;
 
 	if (depth >= 6 || !shape) {
 		return glm::vec3(0.0f, 0.0f, 0.0f);
 	}
 
+	shared_ptr<Transformation> transform = shape->transform;
 	glm::vec3 n = glm::normalize(shape->getNormal(intersectionPt));
 	glm::vec3 epsilonVec = n * 0.001f;
 
@@ -24,7 +24,6 @@ glm::vec3 Reflection::getReflection(shared_ptr<Scene> scene, shared_ptr<Shape> s
 	glm::vec3 reflectionVec = incident - 2 * glm::dot(incident, n) * n;
 	shared_ptr<Shape> newShape = Render::getFirstHit(scene, intersectionPt + epsilonVec,
 		reflectionVec, &newT);
-	
 	glm::vec3 newPoint = Helper::getPointOnRay(intersectionPt, reflectionVec, newT);
 
 	// get reflection to multiply

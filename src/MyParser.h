@@ -44,9 +44,11 @@ private:
 	bool parseTriangle(std::string& stringChunk, std::shared_ptr<Triangle> triangle);
 	float parseFinishKeyword(std::string& str, std::string& keyword);
 	bool parseFinish(std::string& str, std::shared_ptr<Finish>& finish);
-	bool parseTranslate(std::string& str, std::shared_ptr<Shape> shape);
-	bool parseScale(std::string& str, std::shared_ptr<Shape> shape);
-	bool parseRotate(std::string& str, std::shared_ptr<Shape> shape);
+	void parseTransformation(std::string& str, std::shared_ptr<Transformation> transform);
+	int findNextTransformation(std::string& str);
+	bool parseTranslate(std::string& str, std::shared_ptr<Transformation> shape);
+	bool parseScale(std::string& str, std::shared_ptr<Transformation> shape);
+	bool parseRotate(std::string& str, std::shared_ptr<Transformation> shape);
 	void parseKeywordVector(std::string& stringChunk, std::string& currKeyword, glm::vec3& vec);
 	void parsePigmentVector(std::string& stringChunk, std::string& currKeyword, glm::vec3& vec, float& filter);
 	void parse4FloatVector(std::string& vecString, std::vector<float>& ret); 	// should be given a string of floats separated by commas
@@ -57,4 +59,3 @@ private:
 	std::string trim(const std::string& str, const std::string& whitespace = " \t\n\r\v\f");
 	int getNumOccur(const std::string str, const std::string substr);
 };
-

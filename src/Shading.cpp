@@ -4,10 +4,12 @@
 using namespace std;
 
 glm::vec3 Shading::shadedPixels(std::shared_ptr<Scene>& scene,
-	std::shared_ptr<Shape>& shape, glm::vec3 origin, glm::vec3& viewRay, float t,
+	std::shared_ptr<Shape>& shape, glm::vec3 origin, glm::vec3 viewRay, float t,
 	unsigned int mode, bool test)
 {
 	shared_ptr<Finish> finish = shape->finish;
+	shared_ptr<Transformation> transform = shape->transform;
+	//viewRay = transform->transformVector(viewRay);
 	glm::vec3 point = Helper::getPointOnRay(origin, viewRay, t);
 	glm::vec3 view = glm::normalize(-viewRay);
 

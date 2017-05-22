@@ -74,19 +74,30 @@ int main(int argc, char* argv[])
 	/*** PROJECT 2 COMMANDS ***/
 	// raytrace render <input_filename> <width> <height> [-altbrdf]
 	else if (!strcmp(argv[1], "render")) {
+		unsigned int mode = BLINNPHONG_MODE, ss = 1;
+		bool fresnel = false;
 		if (argc < 5) {
 			cout << "Please follow the following format to render: raytrace render <input_filename> <width> <height> [-altbrdf]\n";
 		}
 		else {
 			if (argc >= 6) {
-				string arg5 = string(argv[5]);
-				if (arg5.find("-altbrdf") != arg5.npos) { // -ALTBRDF FOUND
-					Render::createOutput(scene, stoi(argv[3]), stoi(argv[4]), COOKTORRANCE_MODE);
+				for (int i = 5; i < argc; i++) {
+					string arg = string(argv[i]);
+					if (arg.find("-altbrdf") != arg.npos) { // -ALTBRDF FOUND
+						mode = COOKTORRANCE_MODE;
+					}
+					if (arg.find("-fresnel") != arg.npos) { // -ALTBRDF FOUND
+						fresnel = true;
+					}
+					if (arg.find("-ss") != arg.npos) { // -ALTBRDF FOUND
+						string subnum = arg.substr(arg.find("=") + 1, arg.find_first_of(" \n"));
+						unsigned int num = (unsigned int) stoi(subnum.c_str());
+						ss = num;
+					}
 				}
 			}
-			else { // -ALTBRDF NOT FOUND
-				Render::createOutput(scene, stoi(argv[3]), stoi(argv[4]), BLINNPHONG_MODE);
-			}
+
+			Render::createOutput(scene, stoi(argv[3]), stoi(argv[4]), mode, fresnel, ss);
 		}
 	}
 	// raytrace pixelcolor <input_filename> <width> <height> <x> <y> [-altbrdf]

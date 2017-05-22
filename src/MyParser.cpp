@@ -85,9 +85,7 @@ bool MyParser::parseSphere(string& stringChunk, shared_ptr<Sphere> sphere) {
 	parseKeywordVector(stringChunk, sphereStr, sphere->center);
 	parseFloatAfterVec(stringChunk, sphere->radius);
 	parseFinish(stringChunk, sphere->finish);
-	parseTranslate(stringChunk, sphere);
-	parseRotate(stringChunk, sphere);
-	parseScale(stringChunk, sphere);
+	parseTransformation(stringChunk, sphere->transform);
 	return true;
 }
 
@@ -96,9 +94,7 @@ bool MyParser::parsePlane(string& stringChunk, shared_ptr<Plane> plane) {
 	parseKeywordVector(stringChunk, planeStr, plane->normal);
 	parseFloatAfterVec(stringChunk, plane->distance);
 	parseFinish(stringChunk, plane->finish);
-	parseTranslate(stringChunk, plane);
-	parseRotate(stringChunk, plane);
-	parseScale(stringChunk, plane);
+	parseTransformation(stringChunk, plane->transform);
 	return true;
 }
 
@@ -111,9 +107,9 @@ bool MyParser::parseTriangle(string& stringChunk, shared_ptr<Triangle> triangle)
 	substr = substr.substr(substr.find(">") + 1);
 	parseKeywordVector(substr, endVector, triangle->c);
 	parseFinish(stringChunk, triangle->finish);
-	parseTranslate(stringChunk, triangle);
-	parseRotate(stringChunk, triangle);
-	parseScale(stringChunk, triangle);
+	parseTranslate(stringChunk, triangle->transform);
+	parseRotate(stringChunk, triangle->transform);
+	parseScale(stringChunk, triangle->transform);
 	return true;
 }
 
@@ -154,31 +150,72 @@ bool MyParser::parseFinish(string& str, shared_ptr<Finish>& finish) {
 	return true;
 }
 
-bool MyParser::parseTranslate(string& str, shared_ptr<Shape> shape) {
-	shared_ptr<Transformation> transform = shape->transform;
+void MyParser::parseTransformation(string &str, shared_ptr<Transformation> transform) {
+	string stringChunk = str;
+	int transformationType = -1;
+	while ((transformationType = findNextTransformation(stringChunk)) >= 0) {
+		if (transformationType == 0) {
+			parseRotate(stringChunk, transform);
+		}
+		else if (transformationType == 1) {
+			parseScale(stringChunk, transform);
+		}
+		else if (transformationType == 2) {
+			parseTranslate(stringChunk, transform);
+		}
+		stringChunk = stringChunk.substr(10, stringChunk.npos);
+	}
+}
+
+/* 
+**  0: rotate, 1: scale, 2: translate
+**  returns a function pointer defined in MyParser.h
+*/
+int MyParser::findNextTransformation(string& str) {
+	vector<size_t> pos;
+	size_t nextTransformPos = str.npos;
+	int transformation = -1;
+	string rotate("rotate"), scale("scale"), translate("translate");
+	pos.push_back(str.find(rotate));
+	pos.push_back(str.find(scale));
+	pos.push_back(str.find(translate));
+
+	for (unsigned int i = 0; i < pos.size(); i++) {
+		if (pos[i] < nextTransformPos) {
+			nextTransformPos = pos[i];
+			transformation = i;
+		}
+	}
+	if (transformation >= 0) {
+		str = str.substr(pos[transformation]);
+	}
+	return transformation;
+}
+
+bool MyParser::parseTranslate(string& str, shared_ptr<Transformation> transform) {
 	glm::vec3 tempVec(0.0, 0.0, 0.0);
 	string translate("translate");
 	parseKeywordVector(str, translate, tempVec);
-	transform->translate = tempVec;
+	//cout << "translate: " << tempVec.x << " " << tempVec.y << " " << tempVec.z << endl;
+	transform->applyTranslation(tempVec);
 	return true;
 }
 
-bool MyParser::parseScale(string& str, shared_ptr<Shape> shape) {
-	shared_ptr<Transformation> transform = shape->transform;
+bool MyParser::parseScale(string& str, shared_ptr<Transformation> transform) {
 	glm::vec3 tempVec(1.0, 1.0, 1.0);
 	string scale("scale");
 	parseKeywordVector(str, scale, tempVec);
-	transform->scale = tempVec;
+	//cout << "scale: " << tempVec.x << " " << tempVec.y << " " << tempVec.z << endl;
+	transform->applyScale(tempVec);
 	return true;
 }
 
-bool MyParser::parseRotate(string& str, shared_ptr<Shape> shape) {
-	shared_ptr<Transformation> transform = shape->transform;
+bool MyParser::parseRotate(string& str, shared_ptr<Transformation> transform) {
 	glm::vec3 tempVec(0.0, 0.0, 0.0);
 	string rotation("rotate");
 	parseKeywordVector(str, rotation, tempVec);
-	transform->rotateDir = tempVec;
-	transform->setRotation();
+	//cout << "rotate: " << tempVec.x << " " << tempVec.y << " " << tempVec.z << endl;
+	transform->applyRotation(tempVec);
 	return true;
 }
 
