@@ -29,7 +29,7 @@ public:
 	static glm::vec3 blinnPhong(std::shared_ptr<Scene>& scene, std::shared_ptr<LightSource>& currLight,
 		std::shared_ptr<Shape>& shape, glm::vec3 origin, glm::vec3 ray, float t, bool test = false);
 	static glm::vec3 cookTorrance(std::shared_ptr<Scene>& scene, std::shared_ptr<LightSource>& currLight,
-		std::shared_ptr<Shape>& shape, glm::vec3 view, glm::vec3 point);
+		std::shared_ptr<Shape>& shape, glm::vec3 origin, glm::vec3 ray, float t);
 	static glm::vec3 cookTorrance_BlinnPhong(std::shared_ptr<Scene>& scene, std::shared_ptr<LightSource>& currLight,
 		std::shared_ptr<Shape>& shape, glm::vec3 view, glm::vec3 point);
 	static bool notShaded(float t2);

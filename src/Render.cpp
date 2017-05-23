@@ -15,12 +15,13 @@ using namespace std;
 
 /*** PROJECT 2 COMMANDS ***/
 
-void Render::pixelcolor(std::shared_ptr<Scene>& scene, int width, int height, int x, int y, unsigned int mode) {
-	float t, noT;
+void Render::pixelcolor(std::shared_ptr<Scene>& scene, int width, int height, int x, int y,
+	unsigned int mode, bool fresnel) 
+{
+	float t;
 	glm::vec3 color;
 	glm::vec3 rayDirection = Render::calculatePixelRay(scene, width, height, x, y);
 	shared_ptr<Shape> shape = Render::getFirstHit(scene, scene->camera->location, rayDirection, &t);
-	Render::getFirstHit(scene, scene->camera->location, rayDirection, &noT, false);
 	if (shape) {
 		cout << setprecision(4);
 		shared_ptr<Transformation> transform = shape->transform;
@@ -34,7 +35,7 @@ void Render::pixelcolor(std::shared_ptr<Scene>& scene, int width, int height, in
 		cout << "-> {" << transformedRay[0] << " " << transformedRay[1] << " " << transformedRay[2] << "}\n";
 		cout << "Object Type: " << shape->getTypeString() << endl << endl;
 
-		color = Render::getPixelColor(scene, scene->camera->location, rayDirection, mode, 0, true);
+		color = Render::getPixelColor(scene, scene->camera->location, rayDirection, mode, 0, true, true);
 
 		cout << "Final Color: (" << color.r << ", " << color.g << ", " << color.b << ")" << endl;
 	}
@@ -64,24 +65,17 @@ void Render::createOutput(shared_ptr<Scene>& scene, int width, int height, unsig
 			unsigned char red, green, blue;
 			if (ss == 1) {
 				glm::vec3 rayDirection = Render::calculatePixelRay(scene, width, height, x, y);
-				color = Render::getPixelColor(scene, scene->camera->location, rayDirection, mode, 0);
+				color = Render::getPixelColor(scene, scene->camera->location, rayDirection, mode, 0, false, fresnel);
 			}
 			else {
-				if (ss == 1) {
-					glm::vec3 rayDirection = Render::calculatePixelRay(scene, width, height, x, y);
-					color = Render::getPixelColor(scene, scene->camera->location, rayDirection, mode, 0);
-				}
-				else {
-					color = glm::vec3(0.0f);
-					for (unsigned int m = 0; m < ss; m++) {
-						for (unsigned int n = 0; n < ss; n++) {
-							glm::vec3 rayDirection = Render::calculatePixelRay(scene, width, height, x, y, ss, m, n);
-							color += Render::getPixelColor(scene, scene->camera->location, rayDirection, mode, 0, false, fresnel);
-						}
+				color = glm::vec3(0.0f);
+				for (unsigned int m = 0; m < ss; m++) {
+					for (unsigned int n = 0; n < ss; n++) {
+						glm::vec3 rayDirection = Render::calculatePixelRay(scene, width, height, x, y, ss, m, n);
+						color += Render::getPixelColor(scene, scene->camera->location, rayDirection, mode, 0, false, fresnel);
 					}
-					color = color / (float)(supersamples);
 				}
-
+				color = color / (float)(supersamples);
 			}
 
 			red = Helper::convertToRgb(color.r);
@@ -102,9 +96,8 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, glm::vec3 origin, glm:
 	int depth, bool test, bool fresnel)
 {
 	glm::vec3 total_color, reflect_color, transmit_color, local_color;
-	float t, noT, transmission_contrib, local_contrib, reflect_contrib;
+	float t, transmission_contrib, local_contrib, reflect_contrib;
 	shared_ptr<Shape> shape = Render::getFirstHit(scene, origin, viewRay, &t, true);
-	Render::getFirstHit(scene, origin, viewRay, &noT);
 	viewRay = glm::normalize(viewRay);
 
 	if (!shape) {
@@ -112,12 +105,12 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, glm::vec3 origin, glm:
 		total_color = local_color;
 	}
 	else {
-		// beer's law values
 		float ior = shape->finish->ior;
 
 		glm::vec3 tRay = shape->transform->transformVector(viewRay);
 		glm::vec3 tOrigin = shape->transform->transformPoint(origin);
-		glm::vec3 intersectionPt = Helper::getPointOnRay(tOrigin, tRay, t);
+		glm::vec3 wPt = Helper::getPointOnRay(origin, viewRay, t);
+		glm::vec3 oPt = Helper::getPointOnRay(tOrigin, tRay, t);
 
 		// get contribution amounts
 		float filter = shape->finish->filter;
@@ -125,9 +118,14 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, glm::vec3 origin, glm:
 
 		local_contrib = (1 - filter) * (1 - reflection);
 		if (fresnel) {
-			float fresnel_reflectance = Shading::getSchlickApproximation(shape->getNormal(intersectionPt), ior, viewRay);
+			float fresnel_reflectance = Shading::getSchlickApproximation(shape->getNormal(oPt), ior, tRay);
 			reflect_contrib = (1 - filter) * reflection * fresnel_reflectance;
 			transmission_contrib = filter * (1 - fresnel_reflectance);
+			if (test) {
+				cout << "fresnel reflectance! " << fresnel_reflectance << endl;
+				cout << "reflect " << reflect_contrib << endl;
+				cout << "transmission " << transmission_contrib << endl;
+			}
 		} 
 		else {
 			reflect_contrib = (1 - filter) * reflection;
@@ -154,14 +152,14 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, glm::vec3 origin, glm:
 				cout << "local: " << local_color.x << " " << local_color.y << " " << local_color.z << endl;
 				cout << "\nGETTING REFLECTION" << endl;
 			}
-			reflect_color = Reflection::getReflection(scene, shape, intersectionPt, viewRay, depth, test);
+			reflect_color = Reflection::getReflection(scene, shape, oPt, viewRay, depth, test);
 		}
 		if (shape->finish->filter) {
 			// get refraction amount
 			if (test) {
 				cout << "\nGETTING REFRACTION" << endl;
 			}
-			transmit_color = Refraction::getRefraction(scene, shape, intersectionPt, viewRay, depth, test);
+			transmit_color = Refraction::getRefraction(scene, shape, oPt, viewRay, depth, test);
 
 		}
 		total_color = local_contrib * local_color + \

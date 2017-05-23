@@ -47,9 +47,10 @@ glm::vec3 Refraction::getRefraction(shared_ptr<Scene> scene, shared_ptr<Shape> s
 		if (test) {
 			cout << newShape->getTypeString() << " " << depth << endl;
 		}
-		thisShapeLocal = /*Shading::shadedPixels(scene, newShape, intersectionPt - epsilonVec,
-		transmissionVec, newT, BLINNPHONG_MODE, test); */Render::getPixelColor(scene, intersectionPt - epsilonVec,
+		thisShapeLocal = Render::getPixelColor(scene, intersectionPt - epsilonVec,
 			transmissionVec, BLINNPHONG_MODE, depth + 1, test);
+		/*Shading::shadedPixels(scene, newShape, intersectionPt - epsilonVec,
+		transmissionVec, newT, BLINNPHONG_MODE, test); */
 
 		// beer's law
 		float d = newT;

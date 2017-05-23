@@ -8,12 +8,6 @@ glm::vec3 Shading::shadedPixels(std::shared_ptr<Scene>& scene,
 	unsigned int mode, bool test)
 {
 	shared_ptr<Finish> finish = shape->finish;
-	shared_ptr<Transformation> transform = shape->transform;
-	glm::vec3 tRay = shape->transform->transformVector(viewRay);
-	glm::vec3 tOrigin = shape->transform->transformPoint(origin);
-	glm::vec3 point = Helper::getPointOnRay(tOrigin, tRay, t);
-
-	glm::vec3 view = glm::normalize(-viewRay);
 
 	glm::vec3 color;
 	for (unsigned int l = 0; l < scene->lightSources.size(); l++) {
@@ -22,7 +16,7 @@ glm::vec3 Shading::shadedPixels(std::shared_ptr<Scene>& scene,
 			color = Shading::blinnPhong(scene, currLight, shape, origin, viewRay, t, test);
 		}
 		else if (mode == COOKTORRANCE_MODE) {
-			color = Shading::cookTorrance(scene, currLight, shape, view, point);
+			color = Shading::cookTorrance(scene, currLight, shape, origin, viewRay, t);
 		}
 	}
 	return color;
@@ -73,17 +67,24 @@ glm::vec3 Shading::blinnPhong(shared_ptr<Scene>& scene, shared_ptr<LightSource>&
 
 glm::vec3 Shading::cookTorrance(shared_ptr<Scene>& scene,
 	shared_ptr<LightSource>& currLight, shared_ptr<Shape>& shape,
-	glm::vec3 view, glm::vec3 point)
+	glm::vec3 origin, glm::vec3 ray, float t)
 {
 	shared_ptr<Finish> finish = shape->finish;
 	float specular = finish->metallic;
 	float diffuse = 1 - specular;
 	float t2, epsilon = .0001f;
 	glm::vec3 shadingColor;
-	glm::vec3 n = shape->getNormal(point);
-	glm::vec3 l = glm::normalize(currLight->location - point);
+	glm::vec3 tRay = shape->transform->transformVector(ray);
+	glm::vec3 tOrigin = shape->transform->transformPoint(origin);
+	glm::vec3 oPoint = Helper::getPointOnRay(tOrigin, tRay, t);
+	glm::vec3 wPoint = Helper::getPointOnRay(origin, ray, t);
 
-	Render::getFirstHit(scene, point + l*epsilon, l, &t2);
+	glm::vec3 view = (-tRay);
+	glm::vec3 n = shape->getNormal(oPoint);
+	glm::vec3 l = glm::normalize(currLight->location - wPoint);
+	Render::getFirstHit(scene, wPoint + n * 0.001f, l, &t2);
+
+	Render::getFirstHit(scene,wPoint + l*epsilon, l, &t2);
 	if (Shading::notShaded(t2)) {
 		glm::vec3 h = glm::normalize(view + l);
 		glm::vec3 lightColor = currLight->color;
