@@ -13,12 +13,13 @@ glm::vec3 Shading::shadedPixels(std::shared_ptr<Scene>& scene,
 	for (unsigned int l = 0; l < scene->lightSources.size(); l++) {
 		shared_ptr<LightSource> currLight = scene->lightSources[l];
 		if (mode == BLINNPHONG_MODE) {
-			color = Shading::blinnPhong(scene, currLight, shape, origin, viewRay, t, test);
+			color += Shading::blinnPhong(scene, currLight, shape, origin, viewRay, t, test);
 		}
 		else if (mode == COOKTORRANCE_MODE) {
-			color = Shading::cookTorrance(scene, currLight, shape, origin, viewRay, t);
+			color += Shading::cookTorrance(scene, currLight, shape, origin, viewRay, t);
 		}
 	}
+	color = color / (float)scene->lightSources.size();
 	return color;
 }
 

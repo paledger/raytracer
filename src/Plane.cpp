@@ -16,7 +16,8 @@ void Plane::printInfo() {
 vector<float> Plane::getIntersection(const glm::vec3& dir, const glm::vec3& origin) {
 	vector<float> vec;
 	float t, denom;
-	if ((denom = glm::dot(glm::normalize(dir), glm::normalize(normal))) < 0) {
+	denom = glm::dot(glm::normalize(dir), glm::normalize(normal));
+	if (denom < 0) {
 		t = (distance - glm::dot(origin, glm::normalize(normal))) / denom;
 		vec.push_back(t);
 	}
