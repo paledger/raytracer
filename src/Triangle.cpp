@@ -35,7 +35,6 @@ vector<float> Triangle::getIntersection(const glm::vec3& dir, const glm::vec3& o
 			edge3 >= 0 && 
 			t > epsilon) 
 		{
-			//t = transform->getTransformedT(origin, dir, t);
 			vec.push_back(t);
 		}
 	}
