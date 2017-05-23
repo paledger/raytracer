@@ -13,10 +13,10 @@ glm::mat4x4 Transformation::getTransformMatrix() {
 }
 
 void Transformation::applyRotation(glm::vec3 vec) {
-	float rotateAng; 
-	glm::vec3 rotateDir;
-	setRotation(vec, rotateAng, rotateDir);
-	transformMatrix = glm::rotate(glm::mat4x4(1.0f), rotateAng, rotateDir) * transformMatrix;
+	/* Uses Eulers' method in zyx order and translates to radians */
+	transformMatrix = glm::rotate(glm::mat4x4(1.0f), glm::radians(vec.z), glm::vec3(0.0f, 0.0f, 1.0f)) * transformMatrix;
+	transformMatrix = glm::rotate(glm::mat4x4(1.0f), glm::radians(vec.y), glm::vec3(0.0f, 1.0f, 0.0f)) * transformMatrix;
+	transformMatrix = glm::rotate(glm::mat4x4(1.0f), glm::radians(vec.x), glm::vec3(1.0f, 0.0f, 0.0f)) * transformMatrix;
 }
 
 void Transformation::applyScale(glm::vec3 vec) {
