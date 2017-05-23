@@ -27,7 +27,7 @@ public:
 		std::shared_ptr<Shape>& shape, glm::vec3 origin,
 		glm::vec3 viewRay, float t, unsigned int mode, bool test = false);
 	static glm::vec3 blinnPhong(std::shared_ptr<Scene>& scene, std::shared_ptr<LightSource>& currLight,
-		std::shared_ptr<Shape>& shape, glm::vec3 view, glm::vec3 point, bool test = false);
+		std::shared_ptr<Shape>& shape, glm::vec3 origin, glm::vec3 ray, float t, bool test = false);
 	static glm::vec3 cookTorrance(std::shared_ptr<Scene>& scene, std::shared_ptr<LightSource>& currLight,
 		std::shared_ptr<Shape>& shape, glm::vec3 view, glm::vec3 point);
 	static glm::vec3 cookTorrance_BlinnPhong(std::shared_ptr<Scene>& scene, std::shared_ptr<LightSource>& currLight,

@@ -41,7 +41,8 @@ public:
 		int width, int height, int x, int y);
 	static glm::vec3 calculatePixelRay(std::shared_ptr<Scene>& scene, 
 		int width, int height, int x, int y, int s, int m, int n);
-	static std::shared_ptr<Shape> getFirstHit(std::shared_ptr<Scene>& scene, glm::vec3 origin, glm::vec3 rayDirection, float* intersectT = nullptr);
+	static std::shared_ptr<Shape> getFirstHit(std::shared_ptr<Scene>& scene, glm::vec3 origin, glm::vec3 rayDirection, 
+		float* intersectT = nullptr, bool transform = true);
 	static float calculateFirstHit(std::shared_ptr<Scene>& scene, glm::vec3 origin, glm::vec3 rayDirection, const std::shared_ptr<Shape>& shapeToTest);
 
 	/*** PROJECT 2 COMMANDS ***/

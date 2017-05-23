@@ -46,6 +46,6 @@ string Sphere::getTypeString() {
 }
 
 glm::vec3 Sphere::getNormal(glm::vec3 point) {
-	glm::vec3 normal = glm::normalize(point - transform->transformPoint(center));
-	return transform->transformNormal(normal);
+	glm::vec3 normal = glm::normalize(point - center);
+	return glm::normalize(transform->transformNormal(normal));
 }
