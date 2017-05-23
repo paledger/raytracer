@@ -42,7 +42,7 @@ glm::vec3 Shading::blinnPhong(shared_ptr<Scene>& scene, shared_ptr<LightSource>&
 	glm::vec3 oPoint = Helper::getPointOnRay(tOrigin, tRay, t);
 	glm::vec3 wPoint = Helper::getPointOnRay(origin, ray, t);
 
-	glm::vec3 view = glm::normalize(-tRay);
+	glm::vec3 view = (-tRay);
 	glm::vec3 wNormal = shape->getNormal(oPoint);
 	glm::vec3 normalizedL = glm::normalize(currLight->location - wPoint);
 	Render::getFirstHit(scene, wPoint + wNormal * 0.001f, normalizedL, &t2);
