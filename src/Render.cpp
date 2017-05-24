@@ -159,7 +159,13 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, glm::vec3 origin, glm:
 			if (test) {
 				cout << "\nGETTING REFRACTION" << endl;
 			}
-			transmit_color = Refraction::getRefraction(scene, shape, oPt, viewRay, depth, test);
+			// beer's law
+			float d = t;
+			glm::vec3 absorbance = (glm::vec3(1.f, 1.f, 1.f) - shape->finish->pigment)*0.15f*-d;
+			glm::vec3 attenuation = glm::vec3(glm::pow(glm::e<float>(), absorbance.r),
+				glm::pow(glm::e<float>(), absorbance.g),
+				glm::pow(glm::e<float>(), absorbance.b));
+			transmit_color = /*attenuation **/ Refraction::getRefraction(scene, shape, oPt, viewRay, depth, test);
 
 		}
 		total_color = local_contrib * local_color + \
