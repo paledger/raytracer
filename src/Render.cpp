@@ -35,7 +35,7 @@ void Render::pixelcolor(std::shared_ptr<Scene>& scene, int width, int height, in
 		cout << "-> {" << transformedRay[0] << " " << transformedRay[1] << " " << transformedRay[2] << "}\n";
 		cout << "Object Type: " << shape->getTypeString() << endl << endl;
 
-		color = Render::getPixelColor(scene, scene->camera->location, rayDirection, mode, 0, true, true);
+		color = Render::getPixelColor(scene, scene->camera->location, rayDirection, mode, 0, true, fresnel);
 
 		cout << "Final Color: (" << color.r << ", " << color.g << ", " << color.b << ")" << endl;
 	}
@@ -121,11 +121,6 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, glm::vec3 origin, glm:
 			float fresnel_reflectance = Shading::getSchlickApproximation(shape->getNormal(oPt), ior, tRay);
 			reflect_contrib = (1 - filter) * reflection * fresnel_reflectance;
 			transmission_contrib = filter * (1 - fresnel_reflectance);
-			if (test) {
-				cout << "fresnel reflectance! " << fresnel_reflectance << endl;
-				cout << "reflect " << reflect_contrib << endl;
-				cout << "transmission " << transmission_contrib << endl;
-			}
 		} 
 		else {
 			reflect_contrib = (1 - filter) * reflection;

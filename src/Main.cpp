@@ -145,8 +145,8 @@ int main(int argc, char* argv[])
 			cout << "Please follow the following format to render: raytrace printrays <input_filename> <width> <height> <x> <y> [-altbrdf]\n";
 		}
 		else {
-			unsigned int mode, ss;
-			bool fresnel;
+			unsigned int mode = BLINNPHONG_MODE, ss = 1;
+			bool fresnel = false;
 			if (argc >= 8) {
 				for (int i = 5; i < argc; i++) {
 					string arg = string(argv[i]);
