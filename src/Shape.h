@@ -19,6 +19,9 @@ public:
 	virtual std::vector<float> getIntersection(const glm::vec3& dir, const glm::vec3& origin) = 0;
 	virtual std::string getTypeString()  = 0;
 	virtual glm::vec3 getNormal(glm::vec3 point) = 0;
+	virtual glm::vec3 getCenter() = 0;
+	virtual void createBounds(glm::vec3 &min, glm::vec3 &max) = 0;
+
 	std::shared_ptr<Finish> finish = std::make_shared<Finish>();
 	std::shared_ptr<Transformation> transform = std::make_shared<Transformation>();
 };

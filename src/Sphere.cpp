@@ -5,7 +5,8 @@ using namespace std;
 
 /* PUBLIC */
 
-void Sphere::printInfo() {
+void Sphere::printInfo() 
+{
 	cout << std::setprecision(4);
 	cout << "- Type: Sphere\n";
 	cout << "- Center: {" << center[0] << " " << center[1] << " " << center[2] << "}\n";
@@ -13,7 +14,8 @@ void Sphere::printInfo() {
 	Shape::printInfo();
 }
 
-vector<float> Sphere::getIntersection(const glm::vec3& dir, const glm::vec3& origin) {
+vector<float> Sphere::getIntersection(const glm::vec3& dir, const glm::vec3& origin) 
+{
 	vector<float> ret;
 	glm::vec3 normalDir = glm::normalize(origin - center);
 	glm::vec3 d = dir;
@@ -40,12 +42,26 @@ vector<float> Sphere::getIntersection(const glm::vec3& dir, const glm::vec3& ori
 	return ret;
 }
 
-string Sphere::getTypeString() {
+string Sphere::getTypeString() 
+{
 	string sphereStr("Sphere");
 	return sphereStr;
 }
 
-glm::vec3 Sphere::getNormal(glm::vec3 point) {
+glm::vec3 Sphere::getNormal(glm::vec3 point) 
+{
 	glm::vec3 normal = glm::normalize(point - center);
 	return glm::normalize(transform->transformNormal(normal));
+}
+
+glm::vec3 Sphere::getCenter() 
+{
+	return Sphere::center;
+}
+
+
+void Sphere::createBounds(glm::vec3 &min, glm::vec3 &max)
+{
+	min = glm::vec3(this->center - this->radius);
+	max = glm::vec3(this->center + this->radius);
 }

@@ -32,3 +32,15 @@ string Plane::getTypeString() {
 glm::vec3 Plane::getNormal(glm::vec3 point) {
 	return transform->transformNormal(normal);
 }
+
+glm::vec3 Plane::getCenter() {
+	glm::vec3 center = glm::vec3(normal.x * distance, normal.y * distance, normal.z * distance);
+	return center;
+}
+
+
+void Plane::createBounds(glm::vec3 &min, glm::vec3 &max)
+{
+	min = glm::vec3(-100) + glm::vec3(100 - this->distance - 1) * this->normal;
+	max = glm::vec3(100) + glm::vec3(-100 + this->distance + 1) * this->normal;
+}

@@ -325,6 +325,9 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\BoundingBox.h" />
+    <ClInclude Include="..\src\Flags.h" />
+    <ClInclude Include="..\src\Intersection.h" />
     <ClInclude Include="..\src\Transformation.h" />
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Box.h" />
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Camera.h" />
@@ -352,6 +355,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\glm\simd\trigonometric.h" />
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\glm\simd\vector_relational.h" />
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\stb_image_write.h" />
+    <ClCompile Include="..\src\BoundingBox.cpp" />
     <ClCompile Include="..\src\Finish.cpp" />
     <ClCompile Include="..\src\Transformation.cpp" />
     <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Box.cpp" />

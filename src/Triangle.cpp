@@ -56,3 +56,35 @@ glm::vec3 Triangle::getNormal(glm::vec3 point)
 	glm::vec3 normal = glm::normalize(glm::cross(U, V));
 	return transform->transformNormal(normal);
 }
+
+glm::vec3 Triangle::getCenter() {
+	glm::vec3 center;
+	center.x = (a.x + b.x + c.x) / 3.f;
+	center.y = (a.y + b.y + c.y) / 3.f;
+	center.z = (a.z + b.z + c.z) / 3.f;
+	return center;
+}
+
+void Triangle::createBounds(glm::vec3 &min, glm::vec3 &max)
+{
+	for (int i = 0; i < 3; i++) {
+		if (a[i] < min[i]) {
+			min[i] = a[i];
+		}
+		if (b[i] < min[i]) {
+			min[i] = b[i];
+		}
+		if (c[i] < min[i]) {
+			min[i] = c[i];
+		}
+		if (a[i] > max[i]) {
+			max[i] = a[i];
+		}
+		if (b[i] > max[i]) {
+			max[i] = b[i];
+		}
+		if (c[i] > max[i]) {
+			max[i] = c[i];
+		}
+	}
+}

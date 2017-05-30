@@ -41,7 +41,8 @@ private:
 	bool parseLightSource(std::string& stringChunk, std::shared_ptr<LightSource> ls);
 	bool parseSphere(std::string& stringChunk, std::shared_ptr<Sphere> sphere);
 	bool parsePlane(std::string& stringChunk, std::shared_ptr<Plane> plane); 
-	bool parseTriangle(std::string& stringChunk, std::shared_ptr<Triangle> triangle);
+	bool parseTriangle(std::string& stringChunk, std::shared_ptr<Triangle> triangle); 
+	bool parseBox(std::string& stringChunk, std::shared_ptr<Box> box);
 	float parseFinishKeyword(std::string& str, std::string& keyword);
 	bool parseFinish(std::string& str, std::shared_ptr<Finish>& finish);
 	void parseTransformation(std::string& str, std::shared_ptr<Transformation> transform);

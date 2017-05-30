@@ -6,7 +6,7 @@
 using namespace std;
 
 glm::vec3 Refraction::getRefraction(shared_ptr<Scene> scene, shared_ptr<Shape> shape,
-	glm::vec3 intersectionPt, glm::vec3& d, unsigned int depth, bool test)
+	glm::vec3 intersectionPt, glm::vec3& d, unsigned int depth, Flags flags)
 {
 	if (depth == 6 || !shape) {
 		return glm::vec3(0.0f, 0.0f, 0.0f);
@@ -20,13 +20,13 @@ glm::vec3 Refraction::getRefraction(shared_ptr<Scene> scene, shared_ptr<Shape> s
 	glm::vec3 n = glm::normalize(shape->getNormal(intersectionPt));
 
 	if ((dir = glm::dot(d, n)) < 0) { // entering
-		if (test) {
+		if (flags.test) {
 			cout << "entering" << endl;
 		}
 		snellRatio = 1.0f / shape->finish->ior;
 	}
 	else if (dir > 0) { // exiting
-		if (test) {
+		if (flags.test) {
 			cout << "exiting" << endl;
 		}
 		n = -n;
@@ -43,16 +43,22 @@ glm::vec3 Refraction::getRefraction(shared_ptr<Scene> scene, shared_ptr<Shape> s
 	glm::vec3 newPoint = Helper::getPointOnRay(intersectionPt, transmissionVec, newT);
 	if (newShape) {
 		n = newShape->getNormal(newPoint);
-		if (test) {
+		if (flags.test) {
 			cout << newShape->getTypeString() << " " << depth << endl;
 		}
+		// beer's law
+		float d = newT;
+		glm::vec3 absorbance = (glm::vec3(1.f, 1.f, 1.f) - shape->finish->pigment)*0.15f*-d;
+		attenuation = glm::vec3(glm::pow(glm::e<float>(), absorbance.r),
+			glm::pow(glm::e<float>(), absorbance.g),
+			glm::pow(glm::e<float>(), absorbance.b));
 		thisShapeLocal = Render::getPixelColor(scene, intersectionPt - epsilonVec,
-			transmissionVec, BLINNPHONG_MODE, depth + 1, test);
+			transmissionVec, depth + 1, flags);
 		/*Shading::shadedPixels(scene, newShape, intersectionPt - epsilonVec,
 		transmissionVec, newT, BLINNPHONG_MODE, test); */
 
 
-		if (test) {
+		if (flags.test) {
 			cout << "origin: " << intersectionPt.x << " " << intersectionPt.y << " " << intersectionPt.z << endl;
 			cout << "normal: " << n.x << " " << n.y << " " << n.z << endl;
 			cout << "transmVec: " << transmissionVec.x << " " << transmissionVec.y << " " << transmissionVec.z << endl;
@@ -63,7 +69,7 @@ glm::vec3 Refraction::getRefraction(shared_ptr<Scene> scene, shared_ptr<Shape> s
 		}
 	}
 	else {
-		if (test) {
+		if (flags.test) {
 			cout << "end of recursion\n" << endl;
 		}
 	}
@@ -71,5 +77,5 @@ glm::vec3 Refraction::getRefraction(shared_ptr<Scene> scene, shared_ptr<Shape> s
 	transmission_color = thisShapeLocal; /*+ Refraction::getRefraction(scene, newShape,
 		newPoint - epsilonVec, transmissionVec, depth + 1, test);*/
 
-	return transmission * transmission_color;
+	return attenuation * transmission * transmission_color;
 }

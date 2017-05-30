@@ -5,7 +5,7 @@
 using namespace std;
 
 glm::vec3 Reflection::getReflection(shared_ptr<Scene> scene, shared_ptr<Shape> shape,
-	const glm::vec3 intersectionPt, const glm::vec3 d, unsigned int depth, bool test)
+	const glm::vec3 intersectionPt, const glm::vec3 d, unsigned int depth, Flags flags)
 {
 	glm::vec3 thisShapeLocal, reflection_color;
 	glm::vec3 incident = glm::normalize(d);
@@ -28,12 +28,12 @@ glm::vec3 Reflection::getReflection(shared_ptr<Scene> scene, shared_ptr<Shape> s
 
 	// get reflection to multiply
 	if (newShape) {
-		if (test) {
+		if (flags.test) {
 			cout << newShape->getTypeString() << " " << depth << endl;
 		}
-		thisShapeLocal = Shading::shadedPixels(scene, newShape, intersectionPt + epsilonVec, reflectionVec, newT, BLINNPHONG_MODE, test);
+		thisShapeLocal = Shading::shadedPixels(scene, newShape, intersectionPt + epsilonVec, reflectionVec, newT, BLINNPHONG_MODE, flags.test);
 
-		if (test) {
+		if (flags.test) {
 			n = newShape->getNormal(newPoint);
 			cout << "origin: " << intersectionPt.x << " " << intersectionPt.y << " " << intersectionPt.z << endl;
 			cout << "normal: " << n.x << " " << n.y << " " << n.z << endl;
@@ -45,6 +45,6 @@ glm::vec3 Reflection::getReflection(shared_ptr<Scene> scene, shared_ptr<Shape> s
 		}
 	}
 
-	reflection_color = (thisShapeLocal + getReflection(scene, newShape, newPoint + epsilonVec, reflectionVec, depth + 1, test));
+	reflection_color = (thisShapeLocal + getReflection(scene, newShape, newPoint + epsilonVec, reflectionVec, depth + 1, flags));
 	return reflection * reflection_color;
 }

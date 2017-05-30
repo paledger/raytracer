@@ -17,6 +17,8 @@
 #include "Camera.h"
 #include "Finish.h"
 #include "Transformation.h"
+#include "Flags.h"
+#include "Intersection.h"
 
 #ifndef MODES
 #define MODES
@@ -31,21 +33,31 @@
 class Render {
 public:
 	/*** PROJECT 1 COMMANDS ***/
-	static void createOutput(std::shared_ptr<Scene>& scene, int width, int height, unsigned int mode, bool fresnel = false, unsigned int ss = 1);
+
+	static void createOutput(std::shared_ptr<Scene>& scene, int width, int height, Flags flags);
 	static glm::vec3 raycastPixels(std::shared_ptr<Shape>& shape);
 	static glm::vec3 pixelRay(std::shared_ptr<Scene>& scene, int width, int height, int x, int y);
 	static void firstHit(std::shared_ptr<Scene>& scene, int width, int height, int x, int y);
 	static glm::vec3 getPixelColor(std::shared_ptr<Scene>& scene, glm::vec3 origin, 
-		glm::vec3& viewRay, unsigned int mode, int depth, bool test = false, bool fresnel = false);
+		glm::vec3& viewRay, int depth, Flags flags);
 	static glm::vec3 calculatePixelRay(std::shared_ptr<Scene>& scene, 
 		int width, int height, int x, int y);
 	static glm::vec3 calculatePixelRay(std::shared_ptr<Scene>& scene, 
 		int width, int height, int x, int y, int s, int m, int n);
 	static std::shared_ptr<Shape> getFirstHit(std::shared_ptr<Scene>& scene, glm::vec3 origin, glm::vec3 rayDirection, 
 		float* intersectT = nullptr, bool transform = true);
-	static float calculateFirstHit(std::shared_ptr<Scene>& scene, glm::vec3 origin, glm::vec3 rayDirection, const std::shared_ptr<Shape>& shapeToTest);
+	static float calculateFirstHit(glm::vec3 origin, glm::vec3 rayDirection, const std::shared_ptr<Shape>& shapeToTest);
 
 	/*** PROJECT 2 COMMANDS ***/
-	static void pixelcolor(std::shared_ptr<Scene>& scene, int width, int height, int x, int y, unsigned int mode, bool fresnel = false);
 
+	static void pixelcolor(std::shared_ptr<Scene>& scene, int width, int height, int x, int y, Flags flags);
+
+	/*** PROJECT 5 COMMANDS ***/
+
+	static std::shared_ptr<Shape> getFirstHitBVH(std::shared_ptr<Scene>& scene, glm::vec3 origin, glm::vec3 rayDirection,
+		float* intersectT = nullptr, bool test = false);
+
+private: 
+	static void getFirstHitBVHRecurse(std::shared_ptr<BoundingBox> currBoundingBox,
+		glm::vec3 origin, glm::vec3 rayDirection, std::vector<Intersection> &allIntersects, bool test = false);
 };

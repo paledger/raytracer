@@ -58,6 +58,9 @@ void MyParser::handleChunk(string& strChunk, shared_ptr<Scene> scene) {
 	else if (contains(strChunk, "triangle")) {
 		parseTriangle(strChunk, scene->createTriangle());
 	}
+	else if (contains(strChunk, "box")) {
+		parseBox(strChunk, scene->createBox());
+	}
 }
 
 bool MyParser::parseCamera(string& stringChunk, shared_ptr<Camera> cam) {
@@ -107,9 +110,17 @@ bool MyParser::parseTriangle(string& stringChunk, shared_ptr<Triangle> triangle)
 	substr = substr.substr(substr.find(">") + 1);
 	parseKeywordVector(substr, endVector, triangle->c);
 	parseFinish(stringChunk, triangle->finish);
-	parseTranslate(stringChunk, triangle->transform);
-	parseRotate(stringChunk, triangle->transform);
-	parseScale(stringChunk, triangle->transform);
+	parseTransformation(stringChunk, triangle->transform);
+	return true;
+}
+
+bool MyParser::parseBox(string& stringChunk, shared_ptr<Box> box) {
+	string boxStr("box");
+	string nextVecStr(">");
+	parseKeywordVector(stringChunk, boxStr, box->min);
+	parseKeywordVector(stringChunk, nextVecStr, box->max);
+	parseFinish(stringChunk, box->finish);
+	parseTransformation(stringChunk, box->transform);
 	return true;
 }
 
@@ -244,7 +255,7 @@ void MyParser::parsePigmentVector(string& stringChunk, string& currKeyword, glm:
 			parse4FloatVector(subString, rgbfVec);
 			vec.r = rgbfVec[0];
 			vec.g = rgbfVec[1];
-			vec.g = rgbfVec[2];
+			vec.b = rgbfVec[2];
 			filter = rgbfVec[3];
 		}
 		else {

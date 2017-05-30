@@ -1,8 +1,4 @@
 #include "Scene.h"
-#include "Sphere.h"
-#include "Plane.h"
-#include "Camera.h"
-#include "LightSource.h"
 
 using namespace std;
 
@@ -40,6 +36,12 @@ shared_ptr<Triangle> Scene::createTriangle() {
 	auto tri = make_shared<Triangle>();
 	this->shapes.push_back(tri);
 	return tri;
+}
+
+shared_ptr<Box> Scene::createBox() {
+	auto box = make_shared<Box>();
+	this->shapes.push_back(box);
+	return box;
 }
 
 void Scene::printInfo() {

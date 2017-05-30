@@ -43,7 +43,7 @@ plane {<0, 1, 0>, -2
   finish { ambient 0.4 diffuse 0.8 }
 }
 
-plane {<0, 0, 1>, -200
+plane {<0, 0, -1>, 200
   pigment { color rgb <0.6, 0.6, 0.6> }
   finish { ambient 1.0 diffuse 0.0 }
 }

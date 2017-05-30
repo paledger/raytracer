@@ -13,41 +13,142 @@ using namespace std;
 
 /* PUBLIC */
 
+/*** PROJECT 5 COMMANDS ***/
+
+shared_ptr<Shape> Render::getFirstHitBVH(shared_ptr<Scene>& scene,
+	glm::vec3 origin, glm::vec3 rayDirection, float* intersectT, bool test)
+{
+	shared_ptr<Shape> closestShape;
+	float closestT = (float)INT_MAX;
+	vector<Intersection> allIntersects;
+
+	if (test) {
+		cout << "\nGETTING FIRST HITS" << endl;
+	}
+	getFirstHitBVHRecurse(scene->boundingBoxRoot, origin, rayDirection, allIntersects, test);
+
+	if (test) {
+		cout << "num intersections: " << allIntersects.size() << endl;
+	}
+	for (unsigned int i = 0; i < allIntersects.size(); i++) {
+		Intersection curr = allIntersects[i];
+		if (test) {
+			cout << "Closest shape: " << curr.shape->getTypeString() << endl;
+			cout << "Closest t: " << curr.t << endl;
+		}
+		if (curr.t < closestT) {
+			closestT = curr.t;
+			closestShape = curr.shape;
+		}
+	}
+
+	if (intersectT != nullptr) {
+		*intersectT = closestT;
+	}
+	return closestShape;
+}
+
+void Render::getFirstHitBVHRecurse(shared_ptr<BoundingBox> currBoundingBox,
+	glm::vec3 origin, glm::vec3 rayDirection, vector<Intersection> &allIntersects, bool test)
+{
+	vector<float> currTs = currBoundingBox->getIntersection(rayDirection, origin);
+	float t, closestT = INFINITY;
+	shared_ptr<Shape> closestShape;
+	if (!currTs.empty()) {
+		if (test) {
+			cout << "found a bounding box!" << endl;
+			cout << "min: " << currBoundingBox->min.x << " " << currBoundingBox->min.y << " " << currBoundingBox->min.z << endl;
+			cout << "max: " << currBoundingBox->max.x << " " << currBoundingBox->max.y << " " << currBoundingBox->max.z << endl << endl;
+			
+		}
+		if (/*!currBoundingBox->left && !currBoundingBox->right*/ currBoundingBox->objects.size()) {
+			if (test) {
+				cout << "size of end" << currBoundingBox->objects.size() << endl;
+			}
+			for (unsigned int sh = 0; sh < currBoundingBox->objects.size(); sh++) {
+				shared_ptr<Transformation> currTransform = currBoundingBox->objects[sh]->transform;
+				glm::vec3 tOrigin = currTransform->transformPoint(origin);
+				glm::vec3 tRay = currTransform->transformVector(rayDirection);
+				t = calculateFirstHit(tOrigin, tRay, currBoundingBox->objects[sh]);
+				
+				if (t > 0 && t < closestT) {
+					closestT = t;
+					closestShape = currBoundingBox->objects[sh];
+				}
+			}
+			if (test) {
+				cout << "PUSHING!!" << endl;
+			}
+			Intersection intersect = Intersection(closestShape, closestT);
+			allIntersects.push_back(intersect);
+		}
+		else if (currBoundingBox->left) {
+			getFirstHitBVHRecurse(currBoundingBox->left, origin, rayDirection, allIntersects, test);
+		}
+		else if (currBoundingBox->right) {
+			getFirstHitBVHRecurse(currBoundingBox->right, origin, rayDirection, allIntersects, test);
+		}
+	}
+}
+
 /*** PROJECT 2 COMMANDS ***/
 
 void Render::pixelcolor(std::shared_ptr<Scene>& scene, int width, int height, int x, int y,
-	unsigned int mode, bool fresnel) 
+	Flags flags)
 {
-	float t;
-	glm::vec3 color;
-	glm::vec3 rayDirection = Render::calculatePixelRay(scene, width, height, x, y);
-	shared_ptr<Shape> shape = Render::getFirstHit(scene, scene->camera->location, rayDirection, &t);
-	if (shape) {
-		cout << setprecision(4);
-		shared_ptr<Transformation> transform = shape->transform;
-		glm::vec3 transformedOrigin = transform->transformPoint(scene->camera->location);
-		glm::vec3 transformedRay = transform->transformVector(rayDirection);
+	if (flags.bvh && flags.bvhtest) {
+		cout << "BUILD TREE " << endl;
+		scene->boundingBoxRoot->recursiveTreeBuild(scene->shapes, 0, flags.bvhtest);
 
-		Render::pixelRay(scene, width, height, x, y);
+		cout << "\nRECURSE PRINT " << endl;
+		scene->boundingBoxRoot->recursePrint(0);
 
-		cout << "Transformed Ray: {" << transformedOrigin.x << \
-			" " << transformedOrigin.y << " " << transformedOrigin.z << "} ";
-		cout << "-> {" << transformedRay[0] << " " << transformedRay[1] << " " << transformedRay[2] << "}\n";
-		cout << "Object Type: " << shape->getTypeString() << endl << endl;
-
-		color = Render::getPixelColor(scene, scene->camera->location, rayDirection, mode, 0, true, fresnel);
-
-		cout << "Final Color: (" << color.r << ", " << color.g << ", " << color.b << ")" << endl;
+		glm::vec3 rayDirection = Render::calculatePixelRay(scene, width, height, x, y);
+		glm::vec3 color = Render::getPixelColor(scene, scene->camera->location, rayDirection, 0, flags);
+		if (flags.bvhtest) {
+			cout << "\nFinal Color: (" << color.r << ", " << color.g << ", " << color.b << ")" << endl;
+		}
 	}
 	else {
-		cout << "No Hit" << endl;
+		float t;
+		glm::vec3 color;
+		shared_ptr<Shape> shape;
+		glm::vec3 rayDirection = Render::calculatePixelRay(scene, width, height, x, y);
+
+		shape = Render::getFirstHit(scene, scene->camera->location, rayDirection, &t);
+		if (shape) {
+			cout << setprecision(4);
+			shared_ptr<Transformation> transform = shape->transform;
+			glm::vec3 transformedOrigin = transform->transformPoint(scene->camera->location);
+			glm::vec3 transformedRay = transform->transformVector(rayDirection);
+
+			Render::pixelRay(scene, width, height, x, y);
+
+			if (flags.test) {
+				cout << "Transformed Ray: {" << transformedOrigin.x << \
+					" " << transformedOrigin.y << " " << transformedOrigin.z << "} ";
+				cout << "-> {" << transformedRay[0] << " " << transformedRay[1] << " " << transformedRay[2] << "}\n";
+				cout << "Object Type: " << shape->getTypeString() << endl << endl;
+
+			}
+
+			color = Render::getPixelColor(scene, scene->camera->location, rayDirection, 0, flags);
+			if (flags.test) {
+				cout << "Final Color: (" << color.r << ", " << color.g << ", " << color.b << ")" << endl;
+			}
+		}
+		else {
+			if (flags.test) {
+				cout << "No Hit" << endl;
+			}
+		}
 	}
 }
 
 
 /*** PROJECT 1 COMMANDS ***/
-void Render::createOutput(shared_ptr<Scene>& scene, int width, int height, unsigned int mode,
-	bool fresnel, unsigned int ss) 
+
+void Render::createOutput(shared_ptr<Scene>& scene, int width, int height, Flags flags) 
 {
 	const int numChannels = 3;
 	const string fileName = "output.png";
@@ -55,9 +156,12 @@ void Render::createOutput(shared_ptr<Scene>& scene, int width, int height, unsig
 	shared_ptr<Shape> shape;
 	glm::vec3 rayDirection, color;
 	unsigned char *data = new unsigned char[size.x * size.y * numChannels];
+	unsigned int ss = flags.ss;
 	unsigned int supersamples = ss*ss;
 
-	glm::vec3 reflectionColor;
+	if (flags.bvh) {
+		scene->boundingBoxRoot->recursiveTreeBuild(scene->shapes, 0, flags.bvhtest);
+	}
 	for (int y = 0; y < size.y; ++y)
 	{
 		for (int x = 0; x < size.x; ++x)
@@ -65,14 +169,14 @@ void Render::createOutput(shared_ptr<Scene>& scene, int width, int height, unsig
 			unsigned char red, green, blue;
 			if (ss == 1) {
 				glm::vec3 rayDirection = Render::calculatePixelRay(scene, width, height, x, y);
-				color = Render::getPixelColor(scene, scene->camera->location, rayDirection, mode, 0, false, fresnel);
+				color = Render::getPixelColor(scene, scene->camera->location, rayDirection, 0, flags);
 			}
 			else {
 				color = glm::vec3(0.0f);
 				for (unsigned int m = 0; m < ss; m++) {
 					for (unsigned int n = 0; n < ss; n++) {
 						glm::vec3 rayDirection = Render::calculatePixelRay(scene, width, height, x, y, ss, m, n);
-						color += Render::getPixelColor(scene, scene->camera->location, rayDirection, mode, 0, false, fresnel);
+						color += Render::getPixelColor(scene, scene->camera->location, rayDirection, 0, flags);
 					}
 				}
 				color = color / (float)(supersamples);
@@ -92,12 +196,17 @@ void Render::createOutput(shared_ptr<Scene>& scene, int width, int height, unsig
 }
 
 
-glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, glm::vec3 origin, glm::vec3& viewRay, unsigned int mode, 
-	int depth, bool test, bool fresnel)
+glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, glm::vec3 origin, glm::vec3& viewRay, int depth, Flags flags)
 {
 	glm::vec3 total_color, reflect_color, transmit_color, local_color;
 	float t, transmission_contrib, local_contrib, reflect_contrib;
-	shared_ptr<Shape> shape = Render::getFirstHit(scene, origin, viewRay, &t, true);
+	shared_ptr<Shape> shape;
+	if (flags.bvh) {
+		shape = Render::getFirstHitBVH(scene, origin, viewRay, &t, flags.bvhtest);
+	}
+	else {
+		shape = Render::getFirstHit(scene, origin, viewRay, &t, true);
+	}
 	viewRay = glm::normalize(viewRay);
 
 	if (!shape) {
@@ -117,7 +226,7 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, glm::vec3 origin, glm:
 		float reflection = shape->finish->reflection;
 
 		local_contrib = (1 - filter) * (1 - reflection);
-		if (fresnel) {
+		if (flags.fresnel) {
 			float fresnel_reflectance = Shading::getSchlickApproximation(shape->getNormal(oPt), ior, tRay);
 			reflect_contrib = (1 - filter) * reflection * fresnel_reflectance;
 			transmission_contrib = filter * (1 - fresnel_reflectance);
@@ -128,14 +237,14 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, glm::vec3 origin, glm:
 		}
 
 		// get local color
-		if (mode == RAYCAST_MODE) {
+		if (flags.mode == RAYCAST_MODE) {
 			local_color = Render::raycastPixels(shape);
 		}
-		else if (mode == BLINNPHONG_MODE || mode == COOKTORRANCE_MODE) {
-			if (test) {
+		else if (flags.mode == BLINNPHONG_MODE || flags.mode == COOKTORRANCE_MODE) {
+			if (flags.test) {
 				cout << "T: " << t << endl;
 			}
-			local_color = Shading::shadedPixels(scene, shape, origin, viewRay, t, mode, test);
+			local_color = Shading::shadedPixels(scene, shape, origin, viewRay, t, flags.mode, flags.test);
 		}
 		else {
 			local_color = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -143,15 +252,15 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, glm::vec3 origin, glm:
 
 		if (shape->finish->reflection) {
 			// get reflection amount
-			if (test) {
+			if (flags.test) {
 				cout << "local: " << local_color.x << " " << local_color.y << " " << local_color.z << endl;
 				cout << "\nGETTING REFLECTION" << endl;
 			}
-			reflect_color = Reflection::getReflection(scene, shape, oPt, viewRay, depth, test);
+			reflect_color = Reflection::getReflection(scene, shape, oPt, viewRay, depth, flags);
 		}
 		if (shape->finish->filter) {
 			// get refraction amount
-			if (test) {
+			if (flags.test) {
 				cout << "\nGETTING REFRACTION" << endl;
 			}
 			// beer's law
@@ -160,7 +269,7 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, glm::vec3 origin, glm:
 			glm::vec3 attenuation = glm::vec3(glm::pow(glm::e<float>(), absorbance.r),
 				glm::pow(glm::e<float>(), absorbance.g),
 				glm::pow(glm::e<float>(), absorbance.b));
-			transmit_color = /*attenuation **/ Refraction::getRefraction(scene, shape, oPt, viewRay, depth, test);
+			transmit_color = /*attenuation * */Refraction::getRefraction(scene, shape, oPt, viewRay, depth, flags);
 
 		}
 		total_color = local_contrib * local_color + \
@@ -176,7 +285,6 @@ glm::vec3 Render::raycastPixels(std::shared_ptr<Shape>& shape)
 {
 	return shape->finish->pigment;
 }
-
 
 glm::vec3 Render::pixelRay(shared_ptr<Scene>& scene, int width, int height, int x, int y) {
 	glm::vec3 rayDirection = Render::calculatePixelRay(scene, width, height, x, y);
@@ -249,10 +357,10 @@ shared_ptr<Shape> Render::getFirstHit(shared_ptr<Scene>& scene,
 			currTransform = scene->shapes[sh]->transform;
 			glm::vec3 tOrigin = currTransform->transformPoint(origin);
 			glm::vec3 tRay = currTransform->transformVector(rayDirection);
-			t = calculateFirstHit(scene, tOrigin, tRay, scene->shapes[sh]);
+			t = calculateFirstHit(tOrigin, tRay, scene->shapes[sh]);
 		}
 		else {
-			t = calculateFirstHit(scene, origin, rayDirection, scene->shapes[sh]);
+			t = calculateFirstHit(origin, rayDirection, scene->shapes[sh]);
 		}
 		if (t > 0 && t < closestT) {
 			closestT = t;
@@ -265,7 +373,7 @@ shared_ptr<Shape> Render::getFirstHit(shared_ptr<Scene>& scene,
 	return closestShape;
 }
 
-float Render::calculateFirstHit(shared_ptr<Scene>& scene,  glm::vec3 origin, 
+float Render::calculateFirstHit(glm::vec3 origin, 
 	glm::vec3 rayDirection, const shared_ptr<Shape>& shapeToTest) 
 {
 	vector<float> t = shapeToTest->getIntersection(rayDirection, origin);

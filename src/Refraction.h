@@ -17,9 +17,10 @@
 #include "Camera.h"
 #include "Finish.h"
 #include "Transformation.h"
+#include "Flags.h"
 
 class Refraction {
 public:
 	static glm::vec3 getRefraction(std::shared_ptr<Scene> scene, std::shared_ptr<Shape> shape, glm::vec3 point,
-		glm::vec3& d, unsigned int depth, bool test = false);
+		glm::vec3& d, unsigned int depth, Flags flags);
 };
