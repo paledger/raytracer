@@ -24,7 +24,7 @@ public:
 
 private: 
 	bool parallelAndNoIntersections(const glm::vec3 origin, const glm::vec3 dir);
-	void Box::changeTgminForDimension(int dim,
+	void changeTgminForDimension(int dim,
 		const glm::vec3 origin, const glm::vec3 dir,
 		float &tgmin, float &tgmax);
 	int matchDimensionMax(glm::vec3 point);

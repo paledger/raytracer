@@ -38,23 +38,23 @@ glm::vec3 Refraction::getRefraction(shared_ptr<Scene> scene, shared_ptr<Shape> s
 	glm::vec3 n_sqrt = n * (float) glm::sqrt(1.f - (float) glm::pow(snellRatio, 2.0f) * (1.f - (float) glm::pow(d_dot_n, 2.0f)));
 	glm::vec3 transmissionVec = snellRatio * d_dn_n - n_sqrt;
 	glm::vec3 epsilonVec = n * 0.001f;
-	shared_ptr<Shape> newShape = Render::getFirstHit(scene, intersectionPt - epsilonVec,
-		transmissionVec, &newT);
+	shared_ptr<Shape> newShape;
+	if (flags.bvh) {
+		newShape = Render::getFirstHitBVH(scene, intersectionPt - epsilonVec,
+			transmissionVec, &newT);
+	}
+	else {
+		newShape = Render::getFirstHit(scene, intersectionPt - epsilonVec,
+			transmissionVec, &newT);
+	}
 	glm::vec3 newPoint = Helper::getPointOnRay(intersectionPt, transmissionVec, newT);
 	if (newShape) {
 		n = newShape->getNormal(newPoint);
 		if (flags.test) {
 			cout << newShape->getTypeString() << " " << depth << endl;
 		}
-		// beer's law
-		float d = newT;
-		glm::vec3 absorbance = (glm::vec3(1.f, 1.f, 1.f) - shape->finish->pigment)*0.15f*-d;
-		attenuation = glm::vec3(glm::pow(glm::e<float>(), absorbance.r),
-			glm::pow(glm::e<float>(), absorbance.g),
-			glm::pow(glm::e<float>(), absorbance.b));
 		thisShapeLocal = Render::getPixelColor(scene, intersectionPt - epsilonVec,
 			transmissionVec, depth + 1, flags);
-
 
 		if (flags.test) {
 			cout << "origin: " << intersectionPt.x << " " << intersectionPt.y << " " << intersectionPt.z << endl;

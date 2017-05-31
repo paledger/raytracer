@@ -32,7 +32,7 @@ private:
 	static std::vector<std::shared_ptr<Shape>> rightHalfArray(std::vector<std::shared_ptr<Shape>>, bool test = false);
 
 	void makeParentBoundingBox(glm::vec3 &min, glm::vec3 &max, bool test = false);
-	void BoundingBox::transformBoundingBox(std::shared_ptr<Transformation> transform, bool test = false);
+	void transformBoundingBox(std::shared_ptr<Transformation> transform, bool test = false);
 
 };
 

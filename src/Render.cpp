@@ -208,7 +208,7 @@ void Render::createOutput(shared_ptr<Scene>& scene, int width, int height, Flags
 
 glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, glm::vec3 origin, glm::vec3& viewRay, int depth, Flags flags)
 {
-	glm::vec3 total_color, reflect_color, transmit_color, local_color, attenuation = glm::vec3(1.0f);
+	glm::vec3 total_color, reflect_color, transmit_color, local_color;
 	float t, transmission_contrib, local_contrib, reflect_contrib;
 	shared_ptr<Shape> shape;
 	if (flags.bvh) {
@@ -240,7 +240,7 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, glm::vec3 origin, glm:
 			float fresnel_reflectance = Shading::getSchlickApproximation(shape->getNormal(oPt), ior, tRay);
 			reflect_contrib = (1 - filter) * reflection * fresnel_reflectance;
 			transmission_contrib = filter * (1 - fresnel_reflectance);
-		} 
+		}
 		else {
 			reflect_contrib = (1 - filter) * reflection;
 			transmission_contrib = filter;
@@ -280,7 +280,6 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, glm::vec3 origin, glm:
 				glm::pow(glm::e<float>(), absorbance.g),
 				glm::pow(glm::e<float>(), absorbance.b));
 			transmit_color = attenuation * Refraction::getRefraction(scene, shape, oPt, viewRay, depth, flags);
-
 		}
 		total_color = local_contrib * local_color + \
 			reflect_contrib * reflect_color + \
