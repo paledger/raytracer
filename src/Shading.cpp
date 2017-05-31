@@ -5,17 +5,17 @@ using namespace std;
 
 glm::vec3 Shading::shadedPixels(std::shared_ptr<Scene>& scene,
 	std::shared_ptr<Shape>& shape, glm::vec3 origin, glm::vec3 viewRay, float t,
-	unsigned int mode, bool test)
+	Flags flags)
 {
 	shared_ptr<Finish> finish = shape->finish;
 
 	glm::vec3 color;
 	for (unsigned int l = 0; l < scene->lightSources.size(); l++) {
 		shared_ptr<LightSource> currLight = scene->lightSources[l];
-		if (mode == BLINNPHONG_MODE) {
-			color += Shading::blinnPhong(scene, currLight, shape, origin, viewRay, t, test);
+		if (flags.mode == BLINNPHONG_MODE) {
+			color += Shading::blinnPhong(scene, currLight, shape, origin, viewRay, t, flags);
 		}
-		else if (mode == COOKTORRANCE_MODE) {
+		else if (flags.mode == COOKTORRANCE_MODE) {
 			color += Shading::cookTorrance(scene, currLight, shape, origin, viewRay, t);
 		}
 	}
@@ -24,7 +24,7 @@ glm::vec3 Shading::shadedPixels(std::shared_ptr<Scene>& scene,
 }
 
 glm::vec3 Shading::blinnPhong(shared_ptr<Scene>& scene, shared_ptr<LightSource>& currLight,
-	shared_ptr<Shape>& shape, glm::vec3 origin, glm::vec3 ray, float t, bool test)
+	shared_ptr<Shape>& shape, glm::vec3 origin, glm::vec3 ray, float t, Flags flags)
 {
 	shared_ptr<Finish> finish = shape->finish;
 	shared_ptr<Transformation> transform = shape->transform;
@@ -40,7 +40,12 @@ glm::vec3 Shading::blinnPhong(shared_ptr<Scene>& scene, shared_ptr<LightSource>&
 	glm::vec3 view = (-tRay);
 	glm::vec3 wNormal = shape->getNormal(oPoint);
 	glm::vec3 normalizedL = glm::normalize(currLight->location - wPoint);
-	Render::getFirstHit(scene, wPoint + wNormal * 0.001f, normalizedL, &t2);
+	if (flags.bvh) {
+		Render::getFirstHitBVH(scene, wPoint + wNormal * 0.001f, normalizedL, &t2);
+	}
+	else {
+		Render::getFirstHit(scene, wPoint + wNormal * 0.001f, normalizedL, &t2);
+	}
 
 	ambient = finish->pigment * finish->ambient;
 	if (Shading::notShaded(t2)) {
@@ -52,7 +57,7 @@ glm::vec3 Shading::blinnPhong(shared_ptr<Scene>& scene, shared_ptr<LightSource>&
 		spec = finish->pigment * finish->specular * lightColor * \
 					glm::pow(glm::max(glm::dot(halfVec, wNormal), 0.0f), power);
 	}
-	if (test) {
+	if (flags.test) {
 		if (!Shading::notShaded(t2)) {
 			cout << "note ----> is shaded" << endl;
 		}
@@ -83,7 +88,6 @@ glm::vec3 Shading::cookTorrance(shared_ptr<Scene>& scene,
 	glm::vec3 view = (-tRay);
 	glm::vec3 n = shape->getNormal(oPoint);
 	glm::vec3 l = glm::normalize(currLight->location - wPoint);
-	Render::getFirstHit(scene, wPoint + n * 0.001f, l, &t2);
 
 	Render::getFirstHit(scene,wPoint + l*epsilon, l, &t2);
 	if (Shading::notShaded(t2)) {

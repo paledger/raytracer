@@ -40,6 +40,12 @@ glm::vec3 Transformation::transformPoint(glm::vec3 point) {
 	return glm::vec3(transformed.x, transformed.y, transformed.z);
 }
 
+glm::vec3 Transformation::transformPointbyModel(glm::vec3 point) {
+	glm::mat4x4 trans = getTransformMatrix();
+	glm::vec4 transformed = trans * glm::vec4(point.x, point.y, point.z, 1.0f);
+	return glm::vec3(transformed.x, transformed.y, transformed.z);
+}
+
 glm::vec3 Transformation::transformVector(glm::vec3 vec) {
 	glm::mat4x4 trans = getTransformMatrix();
 	glm::vec4 transformed = glm::inverse(trans) * glm::vec4(vec.x, vec.y, vec.z, 0.0f);

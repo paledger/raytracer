@@ -23,6 +23,7 @@ public:
 	void applyTranslation(glm::vec3 vec);
 	glm::vec3 transformNormal(glm::vec3 normal);
 	glm::vec3 transformPoint(glm::vec3 point);
+	glm::vec3 transformPointbyModel(glm::vec3 point);
 	glm::vec3 transformVector(glm::vec3 vec);
 	float getTransformedT(glm::vec3 origin, glm::vec3 dir, float t);
 	void setRotation(glm::vec3 rotationVec, float& angle, glm::vec3& dir);

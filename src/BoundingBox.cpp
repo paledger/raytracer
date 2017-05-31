@@ -15,6 +15,11 @@ void BoundingBox::recursiveTreeBuild(vector<shared_ptr<Shape>> inObjects, const 
 		}
 		this->objects = inObjects;
 		this->calculateBoundingBox(test);
+		if (test) {
+			for (unsigned int sh = 0; sh < this->objects.size(); sh++) {
+				cout << "me shape:" << this->objects[sh]->getTypeString().c_str() << endl;
+			}
+		}
 		return;
 	}
 
@@ -47,7 +52,7 @@ void BoundingBox::calculateBoundingBox(bool test)
 			this->objects[0]->createBounds(newMin, newMax);
 			this->min = newMin;
 			this->max = newMax;
-			this->transformBoundingBox(this->objects[0]->transform);
+			this->transformBoundingBox(this->objects[0]->transform, test);
 		}
 	}
 	if (test) {
@@ -146,10 +151,6 @@ void BoundingBox::makeParentBoundingBox(glm::vec3 &min, glm::vec3 &max, bool tes
 		}
 	}
 
-	if (test) {
-		cout << "pre min: " << min.x << " " << min.y << " " << min.z << endl;
-		cout << "pre max: " << max.x << " " << max.y << " " << max.z << endl;
-	}
 	min = newMin;
 	max = newMax;
 	this->min = newMin;
@@ -163,9 +164,18 @@ void BoundingBox::makeParentBoundingBox(glm::vec3 &min, glm::vec3 &max, bool tes
 
 void BoundingBox::transformBoundingBox(shared_ptr<Transformation> transform, bool test)
 {
-	glm::vec3 tMin = transform->transformPoint(this->min);
-	glm::vec3 tMax = transform->transformPoint(this->max);
+	if (test) {
+		cout << "TRANSFORMING BB" << endl;
+		cout << "----" << endl;
+	}
+	glm::vec3 tMin = this->min;
+	glm::vec3 tMax = this->max;
 
+	if (test) {
+		cout << transform->getTransformMatrix()[3][0] << endl;
+		cout << "pre min: " << min.x << " " << min.y << " " << min.z << endl;
+		cout << "pre max: " << max.x << " " << max.y << " " << max.z << endl;
+	}
 	vector<glm::vec3> points = vector<glm::vec3>();
 	points.push_back(glm::vec3(tMin.x, tMin.y, tMin.z));
 	points.push_back(glm::vec3(tMin.x, tMax.y, tMin.z));
@@ -176,6 +186,9 @@ void BoundingBox::transformBoundingBox(shared_ptr<Transformation> transform, boo
 	points.push_back(glm::vec3(tMax.x, tMin.y, tMax.z));
 	points.push_back(glm::vec3(tMax.x, tMax.y, tMax.z));
 
+	for (unsigned int p = 0; p < points.size(); p++) {
+		points[p] = transform->transformPointbyModel(points[p]);
+	}
 	tMin = glm::vec3(INFINITY);
 	tMax = glm::vec3(-INFINITY);
 	for (int p = 0; p < 8; p++) {
@@ -183,7 +196,7 @@ void BoundingBox::transformBoundingBox(shared_ptr<Transformation> transform, boo
 			if (points[p][d] < tMin[d]) {
 				tMin[d] = points[p][d];
 			}
-			else if (points[p][d] > tMax[d]) {
+			if (points[p][d] > tMax[d]) {
 				tMax[d] = points[p][d];
 			}
 		}
@@ -191,6 +204,12 @@ void BoundingBox::transformBoundingBox(shared_ptr<Transformation> transform, boo
 
 	this->min = tMin;
 	this->max = tMax;
+
+	if (test) {
+		cout << "post min: " << min.x << " " << min.y << " " << min.z << endl;
+		cout << "post max: " << max.x << " " << max.y << " " << max.z << endl;
+		cout << "----" << endl;
+	}
 }
 
 bool compareXAxis(std::shared_ptr<Shape> s1, std::shared_ptr<Shape> s2) {

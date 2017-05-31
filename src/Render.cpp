@@ -45,6 +45,9 @@ shared_ptr<Shape> Render::getFirstHitBVH(shared_ptr<Scene>& scene,
 	if (intersectT != nullptr) {
 		*intersectT = closestT;
 	}
+	if (test) {
+		cout << "OUTTY" << endl;
+	}
 	return closestShape;
 }
 
@@ -59,13 +62,16 @@ void Render::getFirstHitBVHRecurse(shared_ptr<BoundingBox> currBoundingBox,
 			cout << "found a bounding box!" << endl;
 			cout << "min: " << currBoundingBox->min.x << " " << currBoundingBox->min.y << " " << currBoundingBox->min.z << endl;
 			cout << "max: " << currBoundingBox->max.x << " " << currBoundingBox->max.y << " " << currBoundingBox->max.z << endl << endl;
-			
 		}
-		if (/*!currBoundingBox->left && !currBoundingBox->right*/ currBoundingBox->objects.size()) {
+		if (!currBoundingBox->left && !currBoundingBox->right) {
 			if (test) {
-				cout << "size of end" << currBoundingBox->objects.size() << endl;
+				cout << "size of objects list " << currBoundingBox->objects.size() << endl;
 			}
 			for (unsigned int sh = 0; sh < currBoundingBox->objects.size(); sh++) {
+				shared_ptr<Shape> currShape = currBoundingBox->objects[sh];
+				if (test) {
+					cout << "intersected shape: " << currShape->getTypeString() << endl;
+				}
 				shared_ptr<Transformation> currTransform = currBoundingBox->objects[sh]->transform;
 				glm::vec3 tOrigin = currTransform->transformPoint(origin);
 				glm::vec3 tRay = currTransform->transformVector(rayDirection);
@@ -76,17 +82,21 @@ void Render::getFirstHitBVHRecurse(shared_ptr<BoundingBox> currBoundingBox,
 					closestShape = currBoundingBox->objects[sh];
 				}
 			}
-			if (test) {
-				cout << "PUSHING!!" << endl;
+			if (closestT != INFINITY) {
+				if (test) {
+					cout << "PUSHING!!" << endl;
+				}
+				Intersection intersect = Intersection(closestShape, closestT);
+				allIntersects.push_back(intersect);
 			}
-			Intersection intersect = Intersection(closestShape, closestT);
-			allIntersects.push_back(intersect);
 		}
-		else if (currBoundingBox->left) {
-			getFirstHitBVHRecurse(currBoundingBox->left, origin, rayDirection, allIntersects, test);
-		}
-		else if (currBoundingBox->right) {
-			getFirstHitBVHRecurse(currBoundingBox->right, origin, rayDirection, allIntersects, test);
+		else {
+			if (currBoundingBox->left) {
+				getFirstHitBVHRecurse(currBoundingBox->left, origin, rayDirection, allIntersects, test);
+			}
+			if (currBoundingBox->right) {
+				getFirstHitBVHRecurse(currBoundingBox->right, origin, rayDirection, allIntersects, test);
+			}
 		}
 	}
 }
@@ -244,7 +254,7 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, glm::vec3 origin, glm:
 			if (flags.test) {
 				cout << "T: " << t << endl;
 			}
-			local_color = Shading::shadedPixels(scene, shape, origin, viewRay, t, flags.mode, flags.test);
+			local_color = Shading::shadedPixels(scene, shape, origin, viewRay, t, flags);
 		}
 		else {
 			local_color = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -269,7 +279,7 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, glm::vec3 origin, glm:
 			glm::vec3 attenuation = glm::vec3(glm::pow(glm::e<float>(), absorbance.r),
 				glm::pow(glm::e<float>(), absorbance.g),
 				glm::pow(glm::e<float>(), absorbance.b));
-			transmit_color = /*attenuation * */Refraction::getRefraction(scene, shape, oPt, viewRay, depth, flags);
+			transmit_color = attenuation * Refraction::getRefraction(scene, shape, oPt, viewRay, depth, flags);
 
 		}
 		total_color = local_contrib * local_color + \

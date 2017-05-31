@@ -10,6 +10,7 @@
 #include "LightSource.h"
 #include "Camera.h"
 #include "Finish.h"
+#include "Flags.h"
 
 #ifndef MODES
 #define MODES
@@ -25,9 +26,9 @@ class Shading {
 public:
 	static glm::vec3 shadedPixels(std::shared_ptr<Scene>& scene,
 		std::shared_ptr<Shape>& shape, glm::vec3 origin,
-		glm::vec3 viewRay, float t, unsigned int mode, bool test = false);
+		glm::vec3 viewRay, float t, Flags flags);
 	static glm::vec3 blinnPhong(std::shared_ptr<Scene>& scene, std::shared_ptr<LightSource>& currLight,
-		std::shared_ptr<Shape>& shape, glm::vec3 origin, glm::vec3 ray, float t, bool test = false);
+		std::shared_ptr<Shape>& shape, glm::vec3 origin, glm::vec3 ray, float t, Flags flags);
 	static glm::vec3 cookTorrance(std::shared_ptr<Scene>& scene, std::shared_ptr<LightSource>& currLight,
 		std::shared_ptr<Shape>& shape, glm::vec3 origin, glm::vec3 ray, float t);
 	static glm::vec3 cookTorrance_BlinnPhong(std::shared_ptr<Scene>& scene, std::shared_ptr<LightSource>& currLight,

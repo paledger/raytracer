@@ -93,6 +93,10 @@ int main(int argc, char* argv[])
 						cout << "FRESNEL ON" << endl;
 						flags.fresnel = true;
 					}
+					if (arg.find("-sds") != arg.npos) { // -SDS FOUND
+						cout << "BVH ON" << endl;
+						flags.bvh = true;
+					}
 					if (arg.find("-ss") != arg.npos) { // -SS found and calculated
 						string subnum = arg.substr(arg.find("=") + 1, arg.find_first_of(" \n"));
 						unsigned int num = (unsigned int) stoi(subnum.c_str());
@@ -194,6 +198,7 @@ int main(int argc, char* argv[])
 					}
 				}
 			}
+			flags.bvh = true;
 			flags.bvhtest = true;
 			Render::pixelcolor(scene, stoi(argv[3]), stoi(argv[4]),
 				stoi(argv[5]), stoi(argv[6]), flags);

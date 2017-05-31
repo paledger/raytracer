@@ -22,8 +22,15 @@ glm::vec3 Reflection::getReflection(shared_ptr<Scene> scene, shared_ptr<Shape> s
 	// find new reflection information 
 	float reflection = shape->finish->reflection;
 	glm::vec3 reflectionVec = incident - 2 * glm::dot(incident, n) * n;
-	shared_ptr<Shape> newShape = Render::getFirstHit(scene, intersectionPt + epsilonVec,
-		reflectionVec, &newT);
+	shared_ptr<Shape> newShape;
+	if (flags.bvh) {
+		newShape = Render::getFirstHitBVH(scene, intersectionPt + epsilonVec,
+			reflectionVec, &newT);
+	}
+	else {
+		newShape = Render::getFirstHit(scene, intersectionPt + epsilonVec,
+			reflectionVec, &newT);
+	}
 	glm::vec3 newPoint = Helper::getPointOnRay(intersectionPt, reflectionVec, newT);
 
 	// get reflection to multiply
@@ -31,7 +38,7 @@ glm::vec3 Reflection::getReflection(shared_ptr<Scene> scene, shared_ptr<Shape> s
 		if (flags.test) {
 			cout << newShape->getTypeString() << " " << depth << endl;
 		}
-		thisShapeLocal = Shading::shadedPixels(scene, newShape, intersectionPt + epsilonVec, reflectionVec, newT, BLINNPHONG_MODE, flags.test);
+		thisShapeLocal = Shading::shadedPixels(scene, newShape, intersectionPt + epsilonVec, reflectionVec, newT, flags);
 
 		if (flags.test) {
 			n = newShape->getNormal(newPoint);
