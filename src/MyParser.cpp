@@ -244,7 +244,7 @@ void MyParser::parsePigmentVector(string& stringChunk, string& currKeyword, glm:
 			parse4FloatVector(subString, rgbfVec);
 			vec.r = rgbfVec[0];
 			vec.g = rgbfVec[1];
-			vec.g = rgbfVec[2];
+			vec.b = rgbfVec[2];
 			filter = rgbfVec[3];
 		}
 		else {
