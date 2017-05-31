@@ -53,7 +53,8 @@ glm::vec3 Box::getNormal(glm::vec3 point)
 		otherSide[dimMatched] = min[dimMatched];
 	}
 
-	return glm::normalize(point - otherSide);
+	glm::vec3 normal = glm::normalize(point - otherSide);
+	return glm::normalize(transform->transformNormal(normal));
 }
 
 glm::vec3 Box::getCenter() {

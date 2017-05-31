@@ -208,7 +208,7 @@ void Render::createOutput(shared_ptr<Scene>& scene, int width, int height, Flags
 
 glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, glm::vec3 origin, glm::vec3& viewRay, int depth, Flags flags)
 {
-	glm::vec3 total_color, reflect_color, transmit_color, local_color;
+	glm::vec3 total_color, reflect_color, transmit_color, local_color, attenuation = glm::vec3(1.0f);
 	float t, transmission_contrib, local_contrib, reflect_contrib;
 	shared_ptr<Shape> shape;
 	if (flags.bvh) {

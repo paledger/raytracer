@@ -54,8 +54,6 @@ glm::vec3 Refraction::getRefraction(shared_ptr<Scene> scene, shared_ptr<Shape> s
 			glm::pow(glm::e<float>(), absorbance.b));
 		thisShapeLocal = Render::getPixelColor(scene, intersectionPt - epsilonVec,
 			transmissionVec, depth + 1, flags);
-		/*Shading::shadedPixels(scene, newShape, intersectionPt - epsilonVec,
-		transmissionVec, newT, BLINNPHONG_MODE, test); */
 
 
 		if (flags.test) {
@@ -74,8 +72,7 @@ glm::vec3 Refraction::getRefraction(shared_ptr<Scene> scene, shared_ptr<Shape> s
 		}
 	}
 
-	transmission_color = thisShapeLocal; /*+ Refraction::getRefraction(scene, newShape,
-		newPoint - epsilonVec, transmissionVec, depth + 1, test);*/
+	transmission_color = thisShapeLocal;
 
-	return attenuation * transmission * transmission_color;
+	return transmission * transmission_color;
 }
