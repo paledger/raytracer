@@ -24,6 +24,6 @@ public:
 	static glm::vec3 getRefraction(std::shared_ptr<Scene> scene, std::shared_ptr<Shape> shape, glm::vec3 point,
 		glm::vec3& d, unsigned int depth, Flags flags);
 
-	static glm::vec3 Refraction::getBeersAttenuation(const glm::vec3 pigment, const float t);
+	static glm::vec3 getBeersAttenuation(const glm::vec3 pigment, const float t);
 
 };
