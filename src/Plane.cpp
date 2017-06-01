@@ -41,6 +41,6 @@ glm::vec3 Plane::getCenter() {
 
 void Plane::createBounds(glm::vec3 &min, glm::vec3 &max)
 {
-	min = glm::vec3(-100000) + glm::vec3(100000 - this->distance) * this->normal;
-	max = glm::vec3(100000) + glm::vec3(-100000 + this->distance) * this->normal;
+	min = glm::vec3(-100) + glm::vec3(100 - this->distance) * this->normal;
+	max = glm::vec3(100) + glm::vec3(-100 + this->distance) * this->normal;
 }
