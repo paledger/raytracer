@@ -33,7 +33,7 @@ public:
 		std::shared_ptr<Shape>& shape, glm::vec3 origin, glm::vec3 ray, float t);
 	static glm::vec3 cookTorrance_BlinnPhong(std::shared_ptr<Scene>& scene, std::shared_ptr<LightSource>& currLight,
 		std::shared_ptr<Shape>& shape, glm::vec3 view, glm::vec3 point);
-	static bool notShaded(float t2);
+	static bool notShaded(float s, float t2);
 	static float chiGGX(float v);
 	static float GGX_Distribution(glm::vec3 n, glm::vec3 h, float alpha);
 	static float GGX_Geometry(glm::vec3 v, glm::vec3 n, glm::vec3 h, float alpha);

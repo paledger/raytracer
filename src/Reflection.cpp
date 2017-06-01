@@ -11,10 +11,6 @@ glm::vec3 Reflection::getReflection(shared_ptr<Scene> scene, shared_ptr<Shape> s
 	glm::vec3 incident = glm::normalize(d);
 	float newT;
 
-	if (depth >= 6 || !shape) {
-		return glm::vec3(0.0f, 0.0f, 0.0f);
-	}
-
 	shared_ptr<Transformation> transform = shape->transform;
 	glm::vec3 n = glm::normalize(shape->getNormal(intersectionPt));
 	glm::vec3 epsilonVec = n * 0.001f;
@@ -38,7 +34,9 @@ glm::vec3 Reflection::getReflection(shared_ptr<Scene> scene, shared_ptr<Shape> s
 		if (flags.test) {
 			cout << newShape->getTypeString() << " " << depth << endl;
 		}
-		thisShapeLocal = Shading::shadedPixels(scene, newShape, intersectionPt + epsilonVec, reflectionVec, newT, flags);
+		if (depth <= 6) {
+			thisShapeLocal = Render::getPixelColor(scene, intersectionPt + epsilonVec, reflectionVec, depth + 1, flags);
+		}
 
 		if (flags.test) {
 			n = newShape->getNormal(newPoint);
@@ -52,6 +50,6 @@ glm::vec3 Reflection::getReflection(shared_ptr<Scene> scene, shared_ptr<Shape> s
 		}
 	}
 
-	reflection_color = (thisShapeLocal + getReflection(scene, newShape, newPoint + epsilonVec, reflectionVec, depth + 1, flags));
+	reflection_color = thisShapeLocal;
 	return reflection * reflection_color;
 }

@@ -40,15 +40,17 @@ glm::vec3 Shading::blinnPhong(shared_ptr<Scene>& scene, shared_ptr<LightSource>&
 	glm::vec3 view = (-tRay);
 	glm::vec3 wNormal = shape->getNormal(oPoint);
 	glm::vec3 normalizedL = glm::normalize(currLight->location - wPoint);
+	
+	shared_ptr<Shape> shader;
 	if (flags.bvh) {
 		Render::getFirstHitBVH(scene, wPoint + wNormal * 0.001f, normalizedL, &t2);
 	}
 	else {
-		Render::getFirstHit(scene, wPoint + wNormal * 0.001f, normalizedL, &t2);
+		shader = Render::getFirstHit(scene, wPoint + wNormal * 0.001f, normalizedL, &t2);
 	}
 
 	ambient = finish->pigment * finish->ambient;
-	if (Shading::notShaded(t2)) {
+	if (Shading::notShaded(glm::length(currLight->location - wPoint), t2)) {
 		ambient = finish->pigment * finish->ambient;
 		glm::vec3 halfVec = glm::normalize(view + normalizedL);
 		glm::vec3 lightColor = currLight->color;
@@ -58,9 +60,11 @@ glm::vec3 Shading::blinnPhong(shared_ptr<Scene>& scene, shared_ptr<LightSource>&
 					glm::pow(glm::max(glm::dot(halfVec, wNormal), 0.0f), power);
 	}
 	if (flags.test) {
-		if (!Shading::notShaded(t2)) {
-			cout << "note ----> is shaded" << endl;
+		if (!Shading::notShaded(glm::length(currLight->location - wPoint), t2)) {
+			cout << "note ----> is shaded at " << t2 << " " << glm::length(currLight->location - wPoint) << endl;
+			shader->printInfo();
 		}
+		cout << "normalized L: " << normalizedL.x << " " << normalizedL.y << " " << normalizedL.z << endl;
 		cout << "intersects AT: " << wPoint.x << " " << wPoint.y << " " << wPoint.z << endl;
 		cout << "normal: " << wNormal.x << " " << wNormal.y << " " << wNormal.z << endl;
 		cout << finish->ambient << " * ambient: " << ambient.x << " " << ambient.y << " " << ambient.z << endl;
@@ -90,7 +94,7 @@ glm::vec3 Shading::cookTorrance(shared_ptr<Scene>& scene,
 	glm::vec3 l = glm::normalize(currLight->location - wPoint);
 
 	Render::getFirstHit(scene,wPoint + l*epsilon, l, &t2);
-	if (Shading::notShaded(t2)) {
+	if (Shading::notShaded(glm::length(currLight->location - wPoint), t2)) {
 		glm::vec3 h = glm::normalize(view + l);
 		glm::vec3 lightColor = currLight->color;
 		float alpha = finish->shininess*finish->shininess;
@@ -119,7 +123,7 @@ glm::vec3 Shading::cookTorrance_BlinnPhong(shared_ptr<Scene>& scene,
 	glm::vec3 l = glm::normalize(currLight->location - point);
 
 	Render::getFirstHit(scene, point + l*epsilon, l, &t2);
-	if (Shading::notShaded(t2)) {
+	if (Shading::notShaded(glm::length(currLight->location - point), t2)) {
 		glm::vec3 h = glm::normalize(view + l);
 		glm::vec3 lightColor = currLight->color;
 		float HoN = glm::dot(h, n);
@@ -141,8 +145,8 @@ glm::vec3 Shading::cookTorrance_BlinnPhong(shared_ptr<Scene>& scene,
 	return shadingColor;
 }
 
-bool Shading::notShaded(float t2) {
-	return t2 == INT_MAX;
+bool Shading::notShaded(float s, float t2) {
+	return t2 == INT_MAX || t2 > s;
 }
 
 float Shading::chiGGX(float v)

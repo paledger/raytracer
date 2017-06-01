@@ -114,6 +114,7 @@ int main(int argc, char* argv[])
 			cout << "Please follow the following format to render: raytrace pixelcolor <input_filename> <width> <height> <x> <y> [-altbrdf]\n";
 		}
 		else {
+			flags.test = true;
 			if (argc > 7) {
 				string arg7 = string(argv[7]);
 				if (arg7.find("-altbrdf") != arg7.npos) {
@@ -133,6 +134,7 @@ int main(int argc, char* argv[])
 			cout << "Please follow the following format to render: raytrace pixeltrace <input_filename> <width> <height> <x> <y> [-altbrdf]\n";
 		}
 		else {
+			flags.test = true;
 			if (argc > 7) {
 				string arg7 = string(argv[7]);
 				if (arg7.find("-altbrdf") != arg7.npos) {
@@ -153,6 +155,7 @@ int main(int argc, char* argv[])
 			cout << "Please follow the following format to render: raytrace printrays <input_filename> <width> <height> <x> <y> [-altbrdf]\n";
 		}
 		else {
+			flags.test = true;
 			if (argc >= 8) {
 				for (int i = 5; i < argc; i++) {
 					string arg = string(argv[i]);
@@ -173,7 +176,6 @@ int main(int argc, char* argv[])
 
 			Render::pixelcolor(scene, stoi(argv[3]), stoi(argv[4]),
 				stoi(argv[5]), stoi(argv[6]), flags);
-			//Render::createOutput(scene, stoi(argv[3]), stoi(argv[4]), mode, fresnel, ss);
 		}
 	}
 	else if (!strcmp(argv[1], "bvhtest")) {

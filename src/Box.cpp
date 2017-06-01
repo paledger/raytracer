@@ -9,8 +9,8 @@ void Box::printInfo()
 {
 	cout << std::setprecision(4);
 	cout << "- Type: Box\n";
-	cout << "- min: " << Box::min.x << Box::min.y << Box::min.z << endl;
-	cout << "- max: " << Box::max.x << Box::max.y << Box::max.z << endl;
+	cout << "- min: " << Box::min.x << " " << Box::min.y << " " << Box::min.z << endl;
+	cout << "- max: " << Box::max.x << " " << Box::max.y << " " << Box::max.z << endl;
 	Shape::printInfo();
 }
 
@@ -43,18 +43,16 @@ string Box::getTypeString() {
 
 glm::vec3 Box::getNormal(glm::vec3 point) 
 {
-	glm::vec3 otherSide = point;
+	glm::vec3 normal = glm::vec3(0.0f);
 	int dimMatched;
 	if ((dimMatched = Box::matchDimensionMin(point)) >= 0) {
-		otherSide[dimMatched] = max[dimMatched];
+		normal[dimMatched] = -1;
 	}
-
 	if ((dimMatched = Box::matchDimensionMax(point)) >= 0) {
-		otherSide[dimMatched] = min[dimMatched];
+		normal[dimMatched] = 1;
 	}
 
-	glm::vec3 normal = glm::normalize(point - otherSide);
-	return glm::normalize(transform->transformNormal(normal));
+	return glm::normalize(this->transform->transformNormal(normal));
 }
 
 glm::vec3 Box::getCenter() {
@@ -110,13 +108,13 @@ void Box::changeTgminForDimension(int dim,
 
 int Box::matchDimensionMax(glm::vec3 point) {
 	float ep = 0.001f;
-	if ((point.x < max.x + ep) && (point.x > max.x - ep)) {
+	if (glm::abs(point.x - max.x) < ep) {
 		return 0;
 	}
-	if ((point.y < max.y + ep) && (point.y > max.y - ep)) {
+	if (glm::abs(point.y - max.y) < ep) {
 		return 1;
 	}
-	if ((point.z < max.z + ep) && (point.z > max.z - ep)) {
+	if (glm::abs(point.z - max.z) < ep) {
 		return 2;
 	}
 	return -1;
@@ -125,13 +123,13 @@ int Box::matchDimensionMax(glm::vec3 point) {
 
 int Box::matchDimensionMin(glm::vec3 point) {
 	float ep = 0.001f;
-	if ((point.x < min.x + ep) && (point.x > min.x - ep)) {
+	if (glm::abs(point.x - min.x) < ep) {
 		return 0;
 	}
-	if ((point.y < min.y + ep) && (point.y > min.y - ep)) {
+	if (glm::abs(point.y - min.y) < ep) {
 		return 1;
 	}
-	if ((point.z < min.z + ep) && (point.z > min.z - ep)) {
+	if (glm::abs(point.z - min.z) < ep) {
 		return 2;
 	}
 	return -1;

@@ -59,7 +59,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\Users\paled\Documents\calpoly\cpe473\raytracer\build\Debug\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\Users\paled\Documents\calpoly\cpe473\raytracer\build\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">raytrace.dir\Debug\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">raytrace</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.exe</TargetExt>
@@ -147,7 +147,6 @@
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <DebugInformationFormat>
       </DebugInformationFormat>
-      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -325,14 +324,13 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\BoundingBox.h" />
-    <ClInclude Include="..\src\Flags.h" />
-    <ClInclude Include="..\src\Intersection.h" />
-    <ClInclude Include="..\src\Transformation.h" />
+    <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\BoundingBox.h" />
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Box.h" />
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Camera.h" />
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Finish.h" />
+    <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Flags.h" />
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Helper.h" />
+    <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Intersection.h" />
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\LightSource.h" />
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Main.h" />
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\MyParser.h" />
@@ -344,6 +342,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Shading.h" />
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Shape.h" />
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Sphere.h" />
+    <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Transformation.h" />
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Triangle.h" />
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\glm\simd\common.h" />
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\glm\simd\exponential.h" />
@@ -355,12 +354,11 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\glm\simd\trigonometric.h" />
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\glm\simd\vector_relational.h" />
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\stb_image_write.h" />
-    <ClCompile Include="..\src\BoundingBox.cpp" />
-    <ClCompile Include="..\src\Finish.cpp" />
-    <ClCompile Include="..\src\Transformation.cpp" />
+    <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\BoundingBox.cpp" />
     <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Box.cpp" />
     <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Camera.cpp" />
     <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Cone.cpp" />
+    <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Finish.cpp" />
     <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Helper.cpp" />
     <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\LightSource.cpp" />
     <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Main.cpp" />
@@ -373,6 +371,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Shading.cpp" />
     <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Shape.cpp" />
     <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Sphere.cpp" />
+    <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Transformation.cpp" />
     <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Triangle.cpp" />
   </ItemGroup>
   <ItemGroup>

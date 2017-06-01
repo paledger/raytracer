@@ -266,7 +266,9 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, glm::vec3 origin, glm:
 				cout << "local: " << local_color.x << " " << local_color.y << " " << local_color.z << endl;
 				cout << "\nGETTING REFLECTION" << endl;
 			}
-			reflect_color = Reflection::getReflection(scene, shape, oPt, viewRay, depth, flags);
+			glm::vec3 n = shape->getNormal(oPt);
+			glm::vec3 reflectionVec = viewRay - 2 * glm::dot(viewRay, n) * n;
+			reflect_color = getPixelColor(scene, wPt + n * 0.001f, reflectionVec, depth + 1, flags);  //Reflection::getReflection(scene, shape, oPt, viewRay, depth, flags);
 		}
 		if (shape->finish->filter) {
 			// get refraction amount
@@ -279,6 +281,7 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, glm::vec3 origin, glm:
 			glm::vec3 attenuation = glm::vec3(glm::pow(glm::e<float>(), absorbance.r),
 				glm::pow(glm::e<float>(), absorbance.g),
 				glm::pow(glm::e<float>(), absorbance.b));
+
 			transmit_color = attenuation * Refraction::getRefraction(scene, shape, oPt, viewRay, depth, flags);
 		}
 		total_color = local_contrib * local_color + \
