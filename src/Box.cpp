@@ -31,8 +31,9 @@ vector<float> Box::getIntersection(const glm::vec3& dir, const glm::vec3& origin
 	if (tgmin > tgmax || tgmax < 0) {
 		return ret;
 	}
-
-	ret.push_back(tgmin);
+	if (tgmin > 0) {
+		ret.push_back(tgmin);
+	}
 	return ret;
 }
 

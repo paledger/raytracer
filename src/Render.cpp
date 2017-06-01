@@ -231,6 +231,8 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, glm::vec3 origin, glm:
 		glm::vec3 wPt = Helper::getPointOnRay(origin, viewRay, t);
 		glm::vec3 oPt = Helper::getPointOnRay(tOrigin, tRay, t);
 
+		glm::vec3 n = shape->getNormal(oPt);
+
 		// get contribution amounts
 		float filter = shape->finish->filter;
 		float reflection = shape->finish->reflection;
@@ -260,7 +262,7 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, glm::vec3 origin, glm:
 			local_color = glm::vec3(0.0f, 0.0f, 0.0f);
 		}
 
-		if (shape->finish->reflection) {
+		if (shape->finish->reflection && depth <= 6) {
 			// get reflection amount
 			if (flags.test) {
 				cout << "local: " << local_color.x << " " << local_color.y << " " << local_color.z << endl;
@@ -270,19 +272,40 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, glm::vec3 origin, glm:
 			glm::vec3 reflectionVec = viewRay - 2 * glm::dot(viewRay, n) * n;
 			reflect_color = getPixelColor(scene, wPt + n * 0.001f, reflectionVec, depth + 1, flags);  //Reflection::getReflection(scene, shape, oPt, viewRay, depth, flags);
 		}
-		if (shape->finish->filter) {
+		if (shape->finish->filter && depth <= 6) {
 			// get refraction amount
 			if (flags.test) {
 				cout << "\nGETTING REFRACTION" << endl;
 			}
-			// beer's law
-			float d = t;
-			glm::vec3 absorbance = (glm::vec3(1.f, 1.f, 1.f) - shape->finish->pigment)*0.15f*-d;
-			glm::vec3 attenuation = glm::vec3(glm::pow(glm::e<float>(), absorbance.r),
-				glm::pow(glm::e<float>(), absorbance.g),
-				glm::pow(glm::e<float>(), absorbance.b));
 
-			transmit_color = attenuation * Refraction::getRefraction(scene, shape, oPt, viewRay, depth, flags);
+			glm::vec3 attenuation = Refraction::getBeersAttenuation(shape->finish->pigment, t);
+
+			float dir, snellRatio;
+			float transmission = shape->finish->filter;
+
+
+			if ((dir = glm::dot(tRay, n)) < 0) { // entering
+				if (flags.test) {
+					cout << "entering" << endl;
+				}
+				snellRatio = 1.0f / shape->finish->ior;
+			}
+			else if (dir > 0) { // exiting
+				if (flags.test) {
+					cout << "exiting" << endl;
+				}
+				n = -n;
+				snellRatio = shape->finish->ior;
+			}
+
+			float d_dot_n = glm::dot(tRay, n);
+			glm::vec3 d_dn_n = tRay - d_dot_n * n;
+			glm::vec3 n_sqrt = n * (float)glm::sqrt(1.f - (float)glm::pow(snellRatio, 2.0f) * (1.f - (float)glm::pow(d_dot_n, 2.0f)));
+			glm::vec3 transmissionVec = snellRatio * d_dn_n - n_sqrt;
+			glm::vec3 epsilonVec = n * 0.001f;
+
+			transmit_color = attenuation * Render::getPixelColor(scene, wPt + transmissionVec * 0.001f, transmissionVec, depth + 1, flags); 
+			// Refraction::getRefraction(scene, shape, oPt, viewRay, depth, flags);
 		}
 		total_color = local_contrib * local_color + \
 			reflect_contrib * reflect_color + \

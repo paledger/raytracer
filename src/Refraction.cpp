@@ -76,3 +76,15 @@ glm::vec3 Refraction::getRefraction(shared_ptr<Scene> scene, shared_ptr<Shape> s
 
 	return transmission * transmission_color;
 }
+
+
+glm::vec3 Refraction::getBeersAttenuation(const glm::vec3 pigment, const float t) {
+	// beer's law
+	float d = t;
+	glm::vec3 absorbance = (glm::vec3(1.f, 1.f, 1.f) - pigment)*0.15f*-d;
+	glm::vec3 attenuation = glm::vec3(glm::pow(glm::e<float>(), absorbance.r),
+		glm::pow(glm::e<float>(), absorbance.g),
+		glm::pow(glm::e<float>(), absorbance.b));
+
+	return attenuation;
+}
