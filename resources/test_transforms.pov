@@ -30,8 +30,10 @@ triangle {
   <-1, 0, 0>,
   <0, 2, 0>,
   <1, 0, 0>
+  rotate <0, -10, 0>
   scale <4, 4, 4>
   translate <-8, -4.9999, -12>
+  rotate <-5, 0, 0>
   pigment {color rgb <1.0, 1.0, 1.0>}
   finish {ambient 0.4 diffuse 0.5}
 }

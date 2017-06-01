@@ -324,8 +324,10 @@ __pycache__/
 *.xsd.cs
 
 # povray files, pngs, and executables
-.pov
-.png
-.exe
+*/*.pov
+*/*.png
+*/*.exe
+./build
+./build/*
 
 # End of https://www.gitignore.io/api/cmake,windows,visualstudio
