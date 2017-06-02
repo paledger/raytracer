@@ -28,7 +28,7 @@ vector<float> Box::getIntersection(const glm::vec3& dir, const glm::vec3& origin
 			}
 		}
 		else {
-			changeTgminForDimension(i, origin, dir, tgmin, tgmax);
+			this->changeTgminForDimension(i, origin, dir, tgmin, tgmax);
 		}
 	}
 

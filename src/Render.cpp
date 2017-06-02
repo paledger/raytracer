@@ -283,7 +283,7 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, glm::vec3 origin, glm:
 			float dir, snellRatio;
 			float transmission = shape->finish->filter;
 
-			if ((dir = glm::dot(tRay, n)) < 0) { // entering
+			if ((dir = glm::dot(viewRay, n)) < 0) { // entering
 				if (flags.test) {
 					cout << "entering" << endl;
 				}
@@ -305,10 +305,14 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, glm::vec3 origin, glm:
 
 			if (flags.test) {
 				cout << "intersectionPt: " << wPt.x << " " << wPt.y << " " << wPt.z << endl;
+				cout << "d_dot_n: " << d_dot_n << endl;
+				cout << "d_dn_n: " << d_dn_n.x << " " << d_dn_n.y << " " << d_dn_n.z << endl;
+				cout << "n_sqrt: " << n_sqrt.x << " " << n_sqrt.y << " " << n_sqrt.z << endl;
 				cout << "refractionVec: " << transmissionVec.x << " " << transmissionVec.y << " " << transmissionVec.z << endl;
 			}
 
-			transmit_color = attenuation * Render::getPixelColor(scene, wPt + transmissionVec * 0.001f, transmissionVec, depth + 1, flags); 
+			transmit_color = Render::getPixelColor(scene, wPt + transmissionVec * 0.001f, transmissionVec, depth + 1, flags); 
+			transmit_color = attenuation * transmit_color;
 			// Refraction::getRefraction(scene, shape, oPt, viewRay, depth, flags);
 		}
 		total_color = local_contrib * local_color + \
