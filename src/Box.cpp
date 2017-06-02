@@ -19,14 +19,18 @@ vector<float> Box::getIntersection(const glm::vec3& dir, const glm::vec3& origin
 	vector<float> ret;
 	float tgmin = -INFINITY; // max of mins
 	float tgmax = INFINITY;  // min of maxes
-
-	if (Box::parallelAndNoIntersections(origin, dir)) {
-		return ret;
+	
+	// for x, y, z
+	for (int i = 0; i < 3; i++) {
+		if (dir[i] == 0) {
+			if (this->isParallelAndNoIntersect(origin, dir, i)) {
+				return ret;
+			}
+		}
+		else {
+			changeTgminForDimension(i, origin, dir, tgmin, tgmax);
+		}
 	}
-
-	changeTgminForDimension(0, origin, dir, tgmin, tgmax); // x
-	changeTgminForDimension(1, origin, dir, tgmin, tgmax); // y
-	changeTgminForDimension(2, origin, dir, tgmin, tgmax); // z
 
 	if (tgmin > tgmax || tgmax < 0) {
 		return ret;
@@ -69,23 +73,11 @@ glm::vec3 Box::getCenter() {
 
 /** PRIVATE **/
 
-bool Box::parallelAndNoIntersections(const glm::vec3 origin, const glm::vec3 dir) 
+bool Box::isParallelAndNoIntersect(const glm::vec3 origin, const glm::vec3 dir, const int dim) 
 {
-	if (dir.x == 0) {
-		if (origin.x >= Box::min.x || origin.x <= Box::max.x) {
-			return true;
-		}
-	}
-	if (dir.y == 0) {
-		if (origin.y >= Box::min.y || origin.y <= Box::max.y) {
-			return true;
-		}
-	}
-	if (dir.z == 0) {
-		if (origin.z >= Box::min.z || origin.z <= Box::max.z) {
-			return true;
-		}
-	}
+	if (origin[dim] >= this->min[dim] || origin[dim] <= this->max[dim]) {
+		return true;
+	}	
 	return false;
 }
 

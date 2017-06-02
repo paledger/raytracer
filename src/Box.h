@@ -23,13 +23,12 @@ public:
 	glm::vec3 max = glm::vec3(0.0f);
 
 private: 
-	bool parallelAndNoIntersections(const glm::vec3 origin, const glm::vec3 dir);
+	bool isParallelAndNoIntersect(const glm::vec3 origin, const glm::vec3 dir, const int dim);
 	void changeTgminForDimension(int dim,
 		const glm::vec3 origin, const glm::vec3 dir,
 		float &tgmin, float &tgmax);
 	int matchDimensionMax(glm::vec3 point);
 	int matchDimensionMin(glm::vec3 point);
-
 
 };
 

@@ -258,10 +258,8 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, glm::vec3 origin, glm:
 			}
 			local_color = Shading::shadedPixels(scene, shape, origin, viewRay, t, flags);
 		}
-		else {
-			local_color = glm::vec3(0.0f, 0.0f, 0.0f);
-		}
 
+		// reflection
 		if (shape->finish->reflection && depth <= 6) {
 			// get reflection amount
 			if (flags.test) {
@@ -272,17 +270,18 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, glm::vec3 origin, glm:
 			glm::vec3 reflectionVec = viewRay - 2 * glm::dot(viewRay, n) * n;
 			reflect_color = getPixelColor(scene, wPt + n * 0.001f, reflectionVec, depth + 1, flags);  //Reflection::getReflection(scene, shape, oPt, viewRay, depth, flags);
 		}
+
+		// refraction
 		if (shape->finish->filter && depth <= 6) {
 			// get refraction amount
 			if (flags.test) {
-				cout << "\nGETTING REFRACTION" << endl;
+				cout << "\nGETTING REFRACTION " << depth << endl;
 			}
 
 			glm::vec3 attenuation = Refraction::getBeersAttenuation(shape->finish->pigment, t);
 
 			float dir, snellRatio;
 			float transmission = shape->finish->filter;
-
 
 			if ((dir = glm::dot(tRay, n)) < 0) { // entering
 				if (flags.test) {
@@ -298,11 +297,16 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, glm::vec3 origin, glm:
 				snellRatio = shape->finish->ior;
 			}
 
-			float d_dot_n = glm::dot(tRay, n);
-			glm::vec3 d_dn_n = tRay - d_dot_n * n;
+			float d_dot_n = glm::dot(viewRay, n);
+			glm::vec3 d_dn_n = viewRay - d_dot_n * n;
 			glm::vec3 n_sqrt = n * (float)glm::sqrt(1.f - (float)glm::pow(snellRatio, 2.0f) * (1.f - (float)glm::pow(d_dot_n, 2.0f)));
 			glm::vec3 transmissionVec = snellRatio * d_dn_n - n_sqrt;
 			glm::vec3 epsilonVec = n * 0.001f;
+
+			if (flags.test) {
+				cout << "intersectionPt: " << wPt.x << " " << wPt.y << " " << wPt.z << endl;
+				cout << "refractionVec: " << transmissionVec.x << " " << transmissionVec.y << " " << transmissionVec.z << endl;
+			}
 
 			transmit_color = attenuation * Render::getPixelColor(scene, wPt + transmissionVec * 0.001f, transmissionVec, depth + 1, flags); 
 			// Refraction::getRefraction(scene, shape, oPt, viewRay, depth, flags);

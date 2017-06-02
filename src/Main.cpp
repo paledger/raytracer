@@ -155,6 +155,7 @@ int main(int argc, char* argv[])
 			cout << "Please follow the following format to render: raytrace printrays <input_filename> <width> <height> <x> <y> [-altbrdf]\n";
 		}
 		else {
+			Render::createOutput(scene, stoi(argv[3]), stoi(argv[4]), flags);
 			flags.test = true;
 			if (argc >= 8) {
 				for (int i = 5; i < argc; i++) {
