@@ -242,6 +242,9 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, glm::vec3 origin, glm:
 			float fresnel_reflectance = Shading::getSchlickApproximation(shape->getNormal(oPt), ior, tRay);
 			reflect_contrib = (1 - filter) * reflection * fresnel_reflectance;
 			transmission_contrib = filter * (1 - fresnel_reflectance);
+			if (flags.test) {
+				cout << "fresnel " << fresnel_reflectance << endl;
+			}
 		}
 		else {
 			reflect_contrib = (1 - filter) * reflection;
@@ -263,11 +266,14 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, glm::vec3 origin, glm:
 		if (shape->finish->reflection && depth <= 6) {
 			// get reflection amount
 			if (flags.test) {
-				cout << "local: " << local_color.x << " " << local_color.y << " " << local_color.z << endl;
 				cout << "\nGETTING REFLECTION" << endl;
 			}
-			glm::vec3 n = shape->getNormal(oPt);
 			glm::vec3 reflectionVec = viewRay - 2 * glm::dot(viewRay, n) * n;
+
+
+			if (flags.test) {
+				cout << "reflectionVec: " << reflectionVec.x << " " << reflectionVec.y << " " << reflectionVec.z << endl;
+			}
 			reflect_color = getPixelColor(scene, wPt + n * 0.001f, reflectionVec, depth + 1, flags);  //Reflection::getReflection(scene, shape, oPt, viewRay, depth, flags);
 		}
 
@@ -283,7 +289,7 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, glm::vec3 origin, glm:
 			float dir, snellRatio;
 			float transmission = shape->finish->filter;
 
-			if ((dir = glm::dot(viewRay, n)) < 0) { // entering
+			if ((dir = glm::dot(viewRay, n)) <= 0) { // entering
 				if (flags.test) {
 					cout << "entering" << endl;
 				}
@@ -299,25 +305,40 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, glm::vec3 origin, glm:
 
 			float d_dot_n = glm::dot(viewRay, n);
 			glm::vec3 d_dn_n = viewRay - d_dot_n * n;
-			glm::vec3 n_sqrt = n * (float)glm::sqrt(1.f - (float)glm::pow(snellRatio, 2.0f) * (1.f - (float)glm::pow(d_dot_n, 2.0f)));
+			float insideSqrt = (float)glm::pow(snellRatio, 2.0f) * (1.f - (float)glm::pow(d_dot_n, 2.0f));
+			glm::vec3 n_sqrt = n * (float)glm::sqrt(1 - insideSqrt);
 			glm::vec3 transmissionVec = snellRatio * d_dn_n - n_sqrt;
 			glm::vec3 epsilonVec = n * 0.001f;
+			glm::vec3 intersectionPt = wPt - epsilonVec;
 
 			if (flags.test) {
-				cout << "intersectionPt: " << wPt.x << " " << wPt.y << " " << wPt.z << endl;
+				cout << "intersectionPt: " << intersectionPt.x << " " << intersectionPt.y << " " << intersectionPt.z << endl;
+				cout << "normal: " << n.x << " " << n.y << " " << n.z << endl;
 				cout << "d_dot_n: " << d_dot_n << endl;
 				cout << "d_dn_n: " << d_dn_n.x << " " << d_dn_n.y << " " << d_dn_n.z << endl;
+				cout << "insideSqrt" << insideSqrt << endl;
 				cout << "n_sqrt: " << n_sqrt.x << " " << n_sqrt.y << " " << n_sqrt.z << endl;
 				cout << "refractionVec: " << transmissionVec.x << " " << transmissionVec.y << " " << transmissionVec.z << endl;
 			}
 
-			transmit_color = Render::getPixelColor(scene, wPt + transmissionVec * 0.001f, transmissionVec, depth + 1, flags); 
+			transmit_color = Render::getPixelColor(scene, intersectionPt, transmissionVec, depth + 1, flags); 
 			transmit_color = attenuation * transmit_color;
-			// Refraction::getRefraction(scene, shape, oPt, viewRay, depth, flags);
 		}
+
 		total_color = local_contrib * local_color + \
 			reflect_contrib * reflect_color + \
 			transmission_contrib * transmit_color;
+
+		if (flags.test) {
+			cout << endl;
+			cout << "local: " << local_contrib << " * " <<
+				local_color.x << " " << local_color.y << " " << local_color.z << endl;
+			cout << "reflect: " << reflect_contrib << " * " <<
+				reflect_color.x << " " << reflect_color.y << " " << reflect_color.z << endl;
+			cout << "refract: " << transmission_contrib << " * " <<
+				transmit_color.x << " " << transmit_color.y << " " << transmit_color.z << endl;
+			cout << endl;
+		}
 	}
 
 	return total_color;

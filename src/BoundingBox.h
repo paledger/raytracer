@@ -24,6 +24,7 @@ public:
 	void recursePrint(int depth);
 
 	std::vector<std::shared_ptr<Shape>> objects;
+	std::vector<std::shared_ptr<BoundingBox>> childBoxes;
 	std::shared_ptr<BoundingBox> left = nullptr;
 	std::shared_ptr<BoundingBox> right = nullptr;	
 
@@ -31,7 +32,7 @@ private:
 	static std::vector<std::shared_ptr<Shape>> leftHalfArray(std::vector<std::shared_ptr<Shape>>, bool test = false);
 	static std::vector<std::shared_ptr<Shape>> rightHalfArray(std::vector<std::shared_ptr<Shape>>, bool test = false);
 
-	void makeParentBoundingBox(glm::vec3 &min, glm::vec3 &max, bool test = false);
+	void makeParentBoundingBox(bool test = false);
 	void transformBoundingBox(std::shared_ptr<Transformation> transform, bool test = false);
 
 };

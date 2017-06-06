@@ -4,10 +4,8 @@ using namespace std;
 
 void Finish::printInfo() {
 	cout << setprecision(4);
+	cout << "  - Filter: " << filter << "\n";
 
-	if (filter) {
-		cout << "  - Filter: " << filter << "\n";
-	}
 	if (specular) {
 		cout << "  - Specular: " << specular << "\n";
 	}

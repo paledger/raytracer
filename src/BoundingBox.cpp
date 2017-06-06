@@ -43,8 +43,10 @@ void BoundingBox::calculateBoundingBox(bool test)
 		cout << "calculating bounding box..." << endl;
 	}
 	if (this->left != nullptr && this->right != nullptr) {
-		/* use left and right child bounding boxes to create new bounding box */
-		this->makeParentBoundingBox(newMin, newMax, test);
+		/* use left and right child bounding boxes as objects to create new bounding box */
+		this->childBoxes.push_back(this->left);
+		this->childBoxes.push_back(this->right);
+		this->makeParentBoundingBox(test);
 	}
 	else {
 		/* if we are here, this means there should only be one object so this should always happen */
@@ -123,38 +125,29 @@ vector<shared_ptr<Shape>> BoundingBox::rightHalfArray(vector<shared_ptr<Shape>> 
 	return newVec;
 }
 
-void BoundingBox::makeParentBoundingBox(glm::vec3 &min, glm::vec3 &max, bool test)
+void BoundingBox::makeParentBoundingBox(bool test)
 {
 	if (test) {
 		cout << "----" << endl;
 		cout << "MAKING PARENT BOX" << endl;
 	}
-	glm::vec3 newMin = glm::vec3(INFINITY);
-	glm::vec3 newMax = glm::vec3(-INFINITY);
-	glm::vec3 leftMin = this->left->min;
-	glm::vec3 leftMax = this->left->max;
-	glm::vec3 rightMin = this->right->min;
-	glm::vec3 rightMax = this->right->max;
+	glm::vec3 objMin, objMax;
+	shared_ptr<BoundingBox> objectBox;
 
-	for (int i = 0; i < 3; i++) {
-		if (leftMin[i] < newMin[i]) {
-			newMin[i] = leftMin[i];
-		}
-		if (leftMax[i] > newMax[i]) {
-			newMax[i] = leftMax[i];
-		}
-		if (rightMin[i] < newMin[i]) {
-			newMin[i] = rightMin[i];
-		}
-		if (rightMax[i] > newMax[i]) {
-			newMax[i] = rightMax[i];
+	for (unsigned int obj = 0; obj < this->childBoxes.size(); obj++) {
+		objectBox = this->childBoxes[obj];
+		objMin = objectBox->min;
+		objMax = objectBox->max;
+		for (int i = 0; i < 3; i++) {
+			if (objMin[i] < this->min[i]) {
+				this->min[i] = objMin[i];
+			}
+			if (objMax[i] > this->max[i]) {
+				this->max[i] = objMax[i];
+			}
 		}
 	}
 
-	min = newMin;
-	max = newMax;
-	this->min = newMin;
-	this->max = newMax;
 	if (test) {
 		cout << "post min: " << min.x << " " << min.y << " " << min.z << endl;
 		cout << "post max: " << max.x << " " << max.y << " " << max.z << endl;

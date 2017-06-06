@@ -8,9 +8,14 @@ glm::vec3 Shading::shadedPixels(std::shared_ptr<Scene>& scene,
 	Flags flags)
 {
 	shared_ptr<Finish> finish = shape->finish;
-
-	glm::vec3 color;
+	glm::vec3 ambient = finish->pigment * finish->ambient;
+	glm::vec3 color = ambient;
 	for (unsigned int l = 0; l < scene->lightSources.size(); l++) {
+		if (flags.test) {
+			cout << "\nLight " << l << ":";
+			cout << "\n" << finish->ambient << " * ambient: " << ambient.x << " " << ambient.y << " " << ambient.z << endl;
+		}
+
 		shared_ptr<LightSource> currLight = scene->lightSources[l];
 		if (flags.mode == BLINNPHONG_MODE) {
 			color += Shading::blinnPhong(scene, currLight, shape, origin, viewRay, t, flags);
@@ -19,7 +24,6 @@ glm::vec3 Shading::shadedPixels(std::shared_ptr<Scene>& scene,
 			color += Shading::cookTorrance(scene, currLight, shape, origin, viewRay, t);
 		}
 	}
-	color = color / (float)scene->lightSources.size();
 	return color;
 }
 
@@ -30,7 +34,7 @@ glm::vec3 Shading::blinnPhong(shared_ptr<Scene>& scene, shared_ptr<LightSource>&
 	shared_ptr<Transformation> transform = shape->transform;
 	float t2;
 	float power = (2 / (finish->shininess*finish->shininess) - 2);
-	glm::vec3 color, ambient, diffuse, spec;
+	glm::vec3 color, diffuse, spec;
 
 	glm::vec3 tRay = shape->transform->transformVector(ray);
 	glm::vec3 tOrigin = shape->transform->transformPoint(origin);
@@ -49,9 +53,7 @@ glm::vec3 Shading::blinnPhong(shared_ptr<Scene>& scene, shared_ptr<LightSource>&
 		shader = Render::getFirstHit(scene, wPoint + wNormal * 0.001f, normalizedL, &t2);
 	}
 
-	ambient = finish->pigment * finish->ambient;
 	if (Shading::notShaded(glm::length(currLight->location - wPoint), t2)) {
-		ambient = finish->pigment * finish->ambient;
 		glm::vec3 halfVec = glm::normalize(view + normalizedL);
 		glm::vec3 lightColor = currLight->color;
 		diffuse = finish->pigment * finish->diffuse * lightColor * \
@@ -67,11 +69,10 @@ glm::vec3 Shading::blinnPhong(shared_ptr<Scene>& scene, shared_ptr<LightSource>&
 		cout << "normalized L: " << normalizedL.x << " " << normalizedL.y << " " << normalizedL.z << endl;
 		cout << "intersects AT: " << wPoint.x << " " << wPoint.y << " " << wPoint.z << endl;
 		cout << "normal: " << wNormal.x << " " << wNormal.y << " " << wNormal.z << endl;
-		cout << finish->ambient << " * ambient: " << ambient.x << " " << ambient.y << " " << ambient.z << endl;
 		cout << finish->diffuse << " * diffuse: " << diffuse.x << " " << diffuse.y << " " << diffuse.z << endl;
 		cout << finish->specular << " * spec: " << spec.x << " " << spec.y << " " << spec.z << endl;
 	}
-	color = ambient + diffuse + spec;
+	color = diffuse + spec;
 	return color;
 }
 
@@ -175,6 +176,6 @@ float Shading::GGX_Geometry(glm::vec3 v, glm::vec3 n, glm::vec3 h, float alpha)
 
 float Shading::getSchlickApproximation(const glm::vec3 n, const float ior, const glm::vec3 v) {
 	float F_0 = glm::pow(ior - 1, 2) / glm::pow(ior + 1, 2);
-	float F = F_0 + (1 - F_0) * glm::pow(1 - glm::dot(-n, v), 5);
+	float F = F_0 + (1 - F_0) * glm::pow(glm::clamp(1 - glm::dot(-n, v), 0.0f, 1.0f), 5);
 	return F;
 }
