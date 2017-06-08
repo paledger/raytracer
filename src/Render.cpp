@@ -3,6 +3,7 @@
 #include "Shading.h"
 #include "Reflection.h"
 #include "Refraction.h"
+#include "Contribution.h"
 
 #ifndef STB_IMAGE_WRITE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -12,6 +13,28 @@
 using namespace std;
 
 /* PUBLIC */
+
+/*** PROJECT 6 COMMANDS ***/
+shared_ptr<Intersection> Render::getFirstHitAsIntersectionObject(shared_ptr<Scene>& scene,
+	glm::vec3 origin, glm::vec3 rayDirection, float* intersectT, Flags flags) 
+{
+	shared_ptr<Shape> shape;
+	shared_ptr<Intersection> intersect = nullptr;
+
+	if (flags.bvh) {
+		shape = getFirstHitBVH(scene, origin, rayDirection, intersectT, flags.bvhtest);
+	}
+	else {
+		shape = getFirstHit(scene, origin, rayDirection, intersectT, true);
+	}
+
+	if (shape) {
+		intersect = make_shared<Intersection>(shape, *intersectT);
+		intersect->setTransformedInfo(origin, rayDirection);
+	}
+	return intersect;
+}
+
 
 /*** PROJECT 5 COMMANDS ***/
 
@@ -209,49 +232,34 @@ void Render::createOutput(shared_ptr<Scene>& scene, int width, int height, Flags
 glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, glm::vec3 origin, glm::vec3& viewRay, int depth, Flags flags)
 {
 	glm::vec3 total_color, reflect_color, transmit_color, local_color;
-	float t, transmission_contrib, local_contrib, reflect_contrib;
-	shared_ptr<Shape> shape;
-	if (flags.bvh) {
-		shape = Render::getFirstHitBVH(scene, origin, viewRay, &t, flags.bvhtest);
+	float t;
+
+	if (flags.test) {
+		cout << "TESTING GET PIXEL COLOR " << endl;
 	}
-	else {
-		shape = Render::getFirstHit(scene, origin, viewRay, &t, true);
-	}
+
+	shared_ptr<Intersection> intersect = Render::getFirstHitAsIntersectionObject(scene, origin, viewRay, &t, flags);
 	viewRay = glm::normalize(viewRay);
 
-	if (!shape) {
+	if (!intersect) {
 		local_color = glm::vec3(0.0f, 0.0f, 0.0f); // set to all black
 		total_color = local_color;
 	}
 	else {
-		float ior = shape->finish->ior;
-
-		glm::vec3 tRay = shape->transform->transformVector(viewRay);
-		glm::vec3 tOrigin = shape->transform->transformPoint(origin);
-		glm::vec3 wPt = Helper::getPointOnRay(origin, viewRay, t);
-		glm::vec3 oPt = Helper::getPointOnRay(tOrigin, tRay, t);
-
-		glm::vec3 n = shape->getNormal(oPt);
+		shared_ptr<Shape> shape = intersect->shape;
+		glm::vec3 tRay = intersect->tRay;
+		glm::vec3 tOrigin = intersect->tOrigin;
+		glm::vec3 wPt = intersect->wPt;
+		glm::vec3 oPt = intersect->oPt;
+		glm::vec3 n = intersect->n;
 
 		// get contribution amounts
-		float filter = shape->finish->filter;
-		float reflection = shape->finish->reflection;
-
-		local_contrib = (1 - filter) * (1 - reflection);
-		if (flags.fresnel) {
-			float fresnel_reflectance = Shading::getSchlickApproximation(shape->getNormal(oPt), ior, tRay);
-			reflect_contrib = (1 - filter) * reflection * fresnel_reflectance;
-			transmission_contrib = filter * (1 - fresnel_reflectance);
-			if (flags.test) {
-				cout << "fresnel " << fresnel_reflectance << endl;
-			}
-		}
-		else {
-			reflect_contrib = (1 - filter) * reflection;
-			transmission_contrib = filter;
-		}
+		Contribution contrib = Contribution(intersect, flags);
 
 		// get local color
+		if (flags.test) {
+			cout << "GETTING LOCAL" << endl;
+		}
 		if (flags.mode == RAYCAST_MODE) {
 			local_color = Render::raycastPixels(shape);
 		}
@@ -259,19 +267,14 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, glm::vec3 origin, glm:
 			if (flags.test) {
 				cout << "T: " << t << endl;
 			}
-			local_color = Shading::shadedPixels(scene, shape, origin, viewRay, t, flags);
+			local_color = Shading::shadedPixels(scene, intersect, depth, flags);
 		}
 
 		// reflection
 		if (shape->finish->reflection && depth <= 6) {
-			// get reflection amount
+			glm::vec3 reflectionVec = viewRay - 2 * glm::dot(viewRay, n) * n;
 			if (flags.test) {
 				cout << "\nGETTING REFLECTION" << endl;
-			}
-			glm::vec3 reflectionVec = viewRay - 2 * glm::dot(viewRay, n) * n;
-
-
-			if (flags.test) {
 				cout << "reflectionVec: " << reflectionVec.x << " " << reflectionVec.y << " " << reflectionVec.z << endl;
 			}
 			reflect_color = getPixelColor(scene, wPt + n * 0.001f, reflectionVec, depth + 1, flags);  //Reflection::getReflection(scene, shape, oPt, viewRay, depth, flags);
@@ -325,17 +328,17 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, glm::vec3 origin, glm:
 			transmit_color = attenuation * transmit_color;
 		}
 
-		total_color = local_contrib * local_color + \
-			reflect_contrib * reflect_color + \
-			transmission_contrib * transmit_color;
+		total_color = contrib.local * local_color + \
+			contrib.reflection * reflect_color + \
+			contrib.refraction * transmit_color;
 
-		if (flags.test) {
+		if (flags.test || (flags.gitest && depth == 0)) {
 			cout << endl;
-			cout << "local: " << local_contrib << " * " <<
+			cout << "local: " << contrib.local << " * " <<
 				local_color.x << " " << local_color.y << " " << local_color.z << endl;
-			cout << "reflect: " << reflect_contrib << " * " <<
+			cout << "reflect: " << contrib.reflection << " * " <<
 				reflect_color.x << " " << reflect_color.y << " " << reflect_color.z << endl;
-			cout << "refract: " << transmission_contrib << " * " <<
+			cout << "refract: " << contrib.refraction << " * " <<
 				transmit_color.x << " " << transmit_color.y << " " << transmit_color.z << endl;
 			cout << endl;
 		}

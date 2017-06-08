@@ -25,7 +25,8 @@ int main(int argc, char* argv[])
 		!strcmp(argv[1], "pixelcolor") ||
 		!strcmp(argv[1], "pixeltrace") ||
 		!strcmp(argv[1], "printrays") ||
-		!strcmp(argv[1], "bvhtest")))
+		!strcmp(argv[1], "bvhtest") ||
+		!strcmp(argv[1], "gitest")))
 	{
 		if (!parser->openFile(argv[2])) {
 			cout << "Cannot open file given: " << argv[2] << ".\n";
@@ -101,6 +102,10 @@ int main(int argc, char* argv[])
 						string subnum = arg.substr(arg.find("=") + 1, arg.find_first_of(" \n"));
 						unsigned int num = (unsigned int) stoi(subnum.c_str());
 						flags.ss = num;
+					} 
+					if (arg.find("-gi") != arg.npos) {
+						cout << "GI ON" << endl;
+						flags.gi = true;
 					}
 				}
 			}
@@ -144,9 +149,9 @@ int main(int argc, char* argv[])
 				}
 			}
 			else {
-				Render::createOutput(scene, stoi(argv[3]), stoi(argv[4]), flags);
 				Render::pixelcolor(scene, stoi(argv[3]), stoi(argv[4]),
 					stoi(argv[5]), stoi(argv[6]), flags);
+				Render::createOutput(scene, stoi(argv[3]), stoi(argv[4]), flags);
 			}
 		}
 	}
@@ -209,6 +214,37 @@ int main(int argc, char* argv[])
 			Render::createOutput(scene, stoi(argv[3]), stoi(argv[4]), flags);
 		}
 	}
+	else if (!strcmp(argv[1], "gitest")) {
+		if (argc < 7) {
+			cout << "Please follow the following format to render: raytrace printrays <input_filename> <width> <height> <x> <y> [-altbrdf]\n";
+		}
+		else {
+			if (argc >= 8) {
+				for (int i = 5; i < argc; i++) {
+					string arg = string(argv[i]);
+					if (arg.find("-altbrdf") != arg.npos) { // -ALTBRDF FOUND
+						flags.mode = COOKTORRANCE_MODE;
+					}
+					if (arg.find("-fresnel") != arg.npos) { // -FRESNEL FOUND
+						cout << "FRESNEL ON\n";
+						flags.fresnel = true;
+					}
+					if (arg.find("-ss") != arg.npos) { // -SS FOUND
+						string subnum = arg.substr(arg.find("=") + 1, arg.find_first_of(" \n"));
+						unsigned int num = (unsigned int)stoi(subnum.c_str());
+						flags.ss = num;
+					}
+				}
+			}
+			flags.gi = true;
+			flags.gitest = true;
+			Render::pixelcolor(scene, stoi(argv[3]), stoi(argv[4]),
+				stoi(argv[5]), stoi(argv[6]), flags);
+			flags.gitest = false;
+			Render::createOutput(scene, stoi(argv[3]), stoi(argv[4]), flags);
+		}
+	}
+
   
 	return 0;
 }

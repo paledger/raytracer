@@ -1,14 +1,18 @@
 #include "Shading.h"
 #include "Render.h"
+#include "Ambient.h"
 
 using namespace std;
 
-glm::vec3 Shading::shadedPixels(std::shared_ptr<Scene>& scene,
-	std::shared_ptr<Shape>& shape, glm::vec3 origin, glm::vec3 viewRay, float t,
-	Flags flags)
+glm::vec3 Shading::shadedPixels(shared_ptr<Scene>& scene, shared_ptr<Intersection> intersect, int depth, Flags flags)
 {
+	shared_ptr<Shape> shape = intersect->shape;
 	shared_ptr<Finish> finish = shape->finish;
-	glm::vec3 ambient = finish->pigment * finish->ambient;
+	glm::vec3 origin = intersect->oOrigin;
+	glm::vec3 viewRay = intersect->oRay;
+	float t = intersect->t;
+
+	glm::vec3 ambient = Ambient::getAmbient(scene, intersect, depth, flags);
 	glm::vec3 color = ambient;
 	for (unsigned int l = 0; l < scene->lightSources.size(); l++) {
 		if (flags.test) {
@@ -47,7 +51,7 @@ glm::vec3 Shading::blinnPhong(shared_ptr<Scene>& scene, shared_ptr<LightSource>&
 	
 	shared_ptr<Shape> shader;
 	if (flags.bvh) {
-		Render::getFirstHitBVH(scene, wPoint + wNormal * 0.001f, normalizedL, &t2);
+		shader = Render::getFirstHitBVH(scene, wPoint + wNormal * 0.001f, normalizedL, &t2);
 	}
 	else {
 		shader = Render::getFirstHit(scene, wPoint + wNormal * 0.001f, normalizedL, &t2);

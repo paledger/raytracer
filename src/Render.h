@@ -57,6 +57,10 @@ public:
 	static std::shared_ptr<Shape> getFirstHitBVH(std::shared_ptr<Scene>& scene, glm::vec3 origin, glm::vec3 rayDirection,
 		float* intersectT = nullptr, bool test = false);
 
+	/*** PROJECT 6 COMMANDS ***/
+	static std::shared_ptr<Intersection> getFirstHitAsIntersectionObject(std::shared_ptr<Scene>& scene,
+		glm::vec3 origin, glm::vec3 rayDirection, float* intersectT, Flags flags);
+
 private: 
 	static void getFirstHitBVHRecurse(std::shared_ptr<BoundingBox> currBoundingBox,
 		glm::vec3 origin, glm::vec3 rayDirection, std::vector<Intersection> &allIntersects, bool test = false);
