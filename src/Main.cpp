@@ -241,7 +241,7 @@ int main(int argc, char* argv[])
 			Render::pixelcolor(scene, stoi(argv[3]), stoi(argv[4]),
 				stoi(argv[5]), stoi(argv[6]), flags);
 			flags.gitest = false;
-			Render::createOutput(scene, stoi(argv[3]), stoi(argv[4]), flags);
+			//Render::createOutput(scene, stoi(argv[3]), stoi(argv[4]), flags);
 		}
 	}
 

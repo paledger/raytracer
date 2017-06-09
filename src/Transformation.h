@@ -14,6 +14,7 @@
 
 class Transformation {
 public:
+	glm::mat4x4 modelMatrix = glm::mat4x4(1.0f);
 	glm::mat4x4 transformMatrix = glm::mat4x4(1.0f);
 
 	void printInfo();

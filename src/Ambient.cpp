@@ -22,7 +22,7 @@ glm::vec3 Ambient::getMonteCarloAmbient(shared_ptr<Scene> scene, shared_ptr<Inte
 {
 	glm::vec3 ambient, gi, intersectPt, viewRay, normal, currPt, currGI;
 	glm::vec2 randUV;
-	int initialN = 128, ratio = 8;
+	int initialN = 128, ratio = 8; // 128, 8
 	int N = (ratio * initialN) / (int) glm::pow(ratio, depth + 1);
 	if (intersect && intersect->shape && N >= 0 && depth <= 2) {
 		shared_ptr<Shape> shape = intersect->shape;
@@ -61,7 +61,7 @@ glm::vec3 Ambient::generateHemisphereSamplePoint(glm::vec3 up, glm::vec3 normal,
 
 	glm::vec2 randUV = Ambient::generateRandomUV();
 	glm::vec3 currPt = generateCosineWeightedPoint(randUV[0], randUV[1], flags);
-	glm::vec3 viewRay = Ambient::alignSampleVector(currPt, up, normal);
+	glm::vec3 viewRay = Ambient::alignSampleVector(currPt, up, normal, flags);
 	return viewRay;
 }
 
@@ -72,19 +72,35 @@ glm::vec3 Ambient::generateCosineWeightedPoint(float u, float v, Flags flags) {
 	float x = radial * glm::cos(theta);
 	float y = radial * glm::sin(theta);
 	if (flags.gitest) {
-		//cout << "x " << x << "y " << y << "z " << glm::sqrt(1 - u) << endl;
+		// cout << "x " << x << "y " << y << "z " << glm::sqrt(1 - u) << endl;
 	}
 
 	return glm::vec3(x, y, glm::sqrt(1 - u));
 
 }
 
-glm::vec3 Ambient::alignSampleVector(glm::vec3 sample, glm::vec3 up, glm::vec3 normal) {
+glm::vec3 Ambient::alignSampleVector(glm::vec3 sample, glm::vec3 up, glm::vec3 normal, Flags flags) {
 	float angle = glm::acos(glm::dot(up, normal));
-	glm::vec3 axis = glm::cross(up, normal);
+	glm::vec3 axis;
+	if (angle) {
+		axis = glm::cross(up, normal);
+	}
+	else {
+		axis = normal;
+	}
+	
 
+	if (flags.gitest) {
+		cout << "up " << up.x << " " << up.y << " " << up.z << endl;
+		cout << "n " << normal.x << " " << normal.y << " " << normal.z << endl;
+		cout << "angle " << angle << " axis " << axis.x << " " << axis.y << " " << axis.z << endl;
+		cout << "sample " << sample.x << " " << sample.y << " " << sample.z << endl;
+	}
 	glm::mat4x4 matrix = glm::rotate(glm::mat4x4(1.0f), angle, axis);
-	glm::vec4 ret = matrix * glm::vec4(sample.x, sample.y, sample.z, 1.0f);
+	if (flags.gitest) {
+		cout << "mat " << matrix[0][0] << " " << matrix[0][1] << " " << matrix[0][2] << " " << matrix[0][3] << endl;
+	}
+	glm::vec4 ret = matrix * glm::vec4(sample.x, sample.y, sample.z, 0.0f);
 
 	return glm::vec3(ret.x, ret.y, ret.z);
 }

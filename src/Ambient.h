@@ -21,6 +21,6 @@ public:
 private: 
 	static glm::vec3 generateHemisphereSamplePoint(glm::vec3 up, glm::vec3 normal, Flags flags);
 	static glm::vec3 generateCosineWeightedPoint(float u, float v, Flags flags);
-	static glm::vec3 alignSampleVector(glm::vec3 sample, glm::vec3 up, glm::vec3 normal);
+	static glm::vec3 alignSampleVector(glm::vec3 sample, glm::vec3 up, glm::vec3 normal, Flags flags);
 	static glm::vec2 generateRandomUV();
 };
