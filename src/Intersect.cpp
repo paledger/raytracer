@@ -38,11 +38,18 @@ std::vector<float> Intersect::getIntersection(const glm::vec3& dir, const glm::v
 	float minA, maxA;
 	float minB, maxB;
 	Flags flags = Flags();
-
-	minA = Helper::calculateFirstHit(origin, dir, this->objects[0], flags);
-	maxA = Helper::calculateLastHit(origin, dir, this->objects[0], flags);
-	minB = Helper::calculateFirstHit(origin, dir, this->objects[1], flags);
-	maxB = Helper::calculateLastHit(origin, dir, this->objects[1], flags);
+	shared_ptr<Shape> currObject;
+	glm::vec3 tRay, tOrigin;
+	currObject = this->objects[0];
+	tRay = currObject->transform->transformVector(dir);
+	tOrigin = currObject->transform->transformPoint(origin);
+	minA = Helper::calculateFirstHit(tOrigin, tRay, currObject, flags);
+	maxA = Helper::calculateLastHit(tOrigin, tRay, currObject, flags);
+	currObject = this->objects[1];
+	tRay = currObject->transform->transformVector(dir);
+	tOrigin = currObject->transform->transformPoint(origin);
+	minB = Helper::calculateFirstHit(tOrigin, tRay, currObject, flags);
+	maxB = Helper::calculateLastHit(tOrigin, tRay, currObject, flags);
 
 	if (minA < minB && maxA > minB) {
 		this->mostRecentIntersection = this->objects[1];

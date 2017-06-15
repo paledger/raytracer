@@ -24,14 +24,16 @@ std::vector<float> Union::getIntersection(const glm::vec3& dir, const glm::vec3&
 	vector<float> ret;
 	float minT = INFINITY, currT;
 	shared_ptr<Shape> currObject;
+	glm::vec3 tRay, tOrigin;
 	Flags flags = Flags();
 	for (unsigned int o = 0; o < this->objects.size(); o++) {
 		currObject = this->objects[o];
-		currT = Helper::calculateFirstHit(origin, dir, currObject, flags);
+		tRay = currObject->transform->transformVector(dir);
+		tOrigin = currObject->transform->transformPoint(origin);
+		currT = Helper::calculateFirstHit(tOrigin, tRay, currObject, flags);
 		if (currT > 0 && currT < minT) {
 			minT = currT;
 			this->mostRecentIntersection = currObject;
-			//cout << "new most recent: " << currObject->getTypeString().c_str() << endl;
 		}
 	}
 	ret.push_back(minT);
