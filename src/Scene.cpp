@@ -44,6 +44,24 @@ shared_ptr<Box> Scene::createBox() {
 	return box;
 }
 
+shared_ptr<Union> Scene::createUnion() {
+	auto un = make_shared<Union>();
+	this->shapes.push_back(un);
+	return un;
+}
+
+shared_ptr<Intersect> Scene::createIntersect() {
+	auto op = make_shared<Intersect>();
+	this->shapes.push_back(op);
+	return op;
+}
+
+shared_ptr<Difference> Scene::createDiff() {
+	auto op = make_shared<Difference>();
+	this->shapes.push_back(op);
+	return op;
+}
+
 void Scene::printInfo() {
 	this->camera->printInfo();
 	this->printSeparators();

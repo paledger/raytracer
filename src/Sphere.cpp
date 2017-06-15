@@ -14,6 +14,11 @@ void Sphere::printInfo()
 	Shape::printInfo();
 }
 
+
+vector<float> Sphere::getIntersection(const glm::vec3& dir, const glm::vec3& origin, Flags flags) {
+	return this->getIntersection(dir, origin);
+}
+
 vector<float> Sphere::getIntersection(const glm::vec3& dir, const glm::vec3& origin) 
 {
 	vector<float> ret;
@@ -51,7 +56,7 @@ string Sphere::getTypeString()
 glm::vec3 Sphere::getNormal(glm::vec3 point) 
 {
 	glm::vec3 normal = glm::normalize(point - center);
-	return glm::normalize(transform->transformNormal(normal));
+	return glm::normalize(this->getTransformation()->transformNormal(normal));
 }
 
 glm::vec3 Sphere::getCenter() 
@@ -64,4 +69,9 @@ void Sphere::createBounds(glm::vec3 &min, glm::vec3 &max)
 {
 	min = glm::vec3(this->center - this->radius);
 	max = glm::vec3(this->center + this->radius);
+}
+
+shared_ptr<Finish> Sphere::getFinish()
+{
+	return this->finish;
 }

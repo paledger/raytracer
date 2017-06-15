@@ -54,7 +54,7 @@ void BoundingBox::calculateBoundingBox(bool test)
 			this->objects[0]->createBounds(newMin, newMax);
 			this->min = newMin;
 			this->max = newMax;
-			this->transformBoundingBox(this->objects[0]->transform, test);
+			this->transformBoundingBox(this->objects[0]->getTransformation(), test);
 		}
 	}
 	if (test) {

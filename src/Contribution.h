@@ -13,15 +13,17 @@
 #include "Shading.h"
 
 #include "glm/glm.hpp"
+#include <iostream>
 
 
 class Contribution {
 public: 
 	Contribution(std::shared_ptr<Intersection> intersect, Flags flags) {
 		std::shared_ptr<Shape> shape = intersect->shape;
-		float filter = shape->finish->filter;
-		float reflection = shape->finish->reflection;
-		float ior = shape->finish->ior;
+		std::shared_ptr<Finish> finish = shape->getFinish();
+		float filter = finish->filter;
+		float reflection = finish->reflection;
+		float ior = finish->ior;
 
 		glm::vec3 n = intersect->n;
 		glm::vec3 tRay = intersect->tRay;
@@ -37,8 +39,11 @@ public:
 			}
 		}
 		else {
-			reflection = (1 - filter) * reflection;
-			refraction = filter;
+			this->reflection = (1 - filter) * reflection;
+			if (flags.test) {
+				std::cout << reflection << " REFLECT" << std::endl;
+			}
+			this->refraction = filter;
 		}
 	}
 

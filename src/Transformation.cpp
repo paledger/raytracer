@@ -8,6 +8,10 @@ void Transformation::printInfo() {
 	cout << "Transformations:" << endl;
 }
 
+glm::mat4x4 Transformation::getModelMatrix() {
+	return modelMatrix;
+}
+
 glm::mat4x4 Transformation::getTransformMatrix() {
 	return transformMatrix;
 }

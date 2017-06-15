@@ -10,7 +10,7 @@
 class Finish
 {
 public:
-	glm::vec3 pigment = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 pigment = glm::vec3(0.0f);
 	float finish = 0.0f;
 	float ambient = 0.0f;
 	float diffuse = 0.0f;

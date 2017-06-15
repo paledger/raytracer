@@ -13,3 +13,8 @@ void Shape::printInfo()
 	cout << "  - Diffuse: " << Shape::finish->diffuse << "\n";
 	Shape::finish->printInfo();
 }
+
+std::shared_ptr<Transformation> Shape::getTransformation()
+{
+	return this->transform;
+}

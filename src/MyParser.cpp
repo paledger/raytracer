@@ -14,13 +14,23 @@ bool MyParser::openFile(const string &fileName) {
 
 int MyParser::parseFileToScene(shared_ptr<Scene>  scene) {
 	stringstream buffer;
-	string strBuffer, tempStr;
+	string strBuffer;
 	size_t chunkStart = 0, chunkEnd = 0;
 
 	buffer << this->sceneFile.rdbuf();
 	strBuffer = buffer.str();
 	removeComments(strBuffer);
+	iterateThroughChunks(strBuffer, scene);
 
+	return 0;
+}
+
+/* PRIVATE */
+
+void MyParser::iterateThroughChunks(string& strBuffer, shared_ptr<Scene> scene)
+{
+	string tempStr;
+	size_t chunkStart = 0, chunkEnd = 0;
 	while ((chunkEnd = strBuffer.find("}", chunkEnd + 1)) != strBuffer.npos) {
 		tempStr = strBuffer.substr(chunkStart, chunkEnd - chunkStart + 1);
 		if (count(tempStr.begin(), tempStr.end(), '{') == count(tempStr.begin(), tempStr.end(), '}')) {
@@ -29,10 +39,26 @@ int MyParser::parseFileToScene(shared_ptr<Scene>  scene) {
 			chunkStart = chunkEnd + 1;
 		}
 	}
-	return 0;
 }
 
-/* PRIVATE */
+void MyParser::iterateThroughShapes(string& strBuffer, vector<shared_ptr<Shape>>& shapes)
+{
+	string tempStr;
+	size_t chunkStart = 0, chunkEnd = 0;
+	bool shapeFound;
+	while ((chunkEnd = strBuffer.find("}", chunkEnd + 1)) != strBuffer.npos) {
+		tempStr = strBuffer.substr(chunkStart, chunkEnd - chunkStart + 1);
+		if (count(tempStr.begin(), tempStr.end(), '{') == count(tempStr.begin(), tempStr.end(), '}')) {
+			// hand chunk over!!
+			shapeFound = handleShape(tempStr, shapes);
+			if (!shapeFound) {
+				break;
+			}
+			chunkStart = chunkEnd + 1;
+		}
+	}
+	strBuffer = strBuffer.substr(chunkStart);
+}
 
 void MyParser::removeComments(string& strBuffer) {
 	size_t commStart = 0, commEnd = 0;
@@ -42,25 +68,64 @@ void MyParser::removeComments(string& strBuffer) {
 	}
 }
 
-void MyParser::handleChunk(string& strChunk, shared_ptr<Scene> scene) {
+bool MyParser::handleChunk(string& strChunk, shared_ptr<Scene> scene) {
 	if (contains(strChunk, "camera")) {
 		parseCamera(strChunk, scene->createCamera());
+		return true;
 	}
 	else if (contains(strChunk, "light_source")) {
 		parseLightSource(strChunk, scene->createLightSource());
+		return true;
+	}
+	else {
+		return handleShape(strChunk, scene->shapes);
+	}
+}
+
+bool MyParser::handleShape(string& strChunk, vector<shared_ptr<Shape>>& shapes) {
+	if (contains(strChunk, "union")) {
+		auto sh = make_shared<Union>();
+		shapes.push_back(sh);
+		parseUnion(strChunk, sh);
+		return true;
+	}
+	else if (contains(strChunk, "intersect")) {
+		auto sh = make_shared<Intersect>();
+		shapes.push_back(sh);
+		parseIntersect(strChunk, sh);
+		return true;
+	}
+	else if (contains(strChunk, "difference")) {
+		auto sh = make_shared<Difference>();
+		shapes.push_back(sh);
+		parseDifference(strChunk, sh);
+		return true;
 	}
 	else if (contains(strChunk, "sphere")) {
-		parseSphere(strChunk, scene->createSphere());
+		auto sh = make_shared<Sphere>();
+		shapes.push_back(sh);
+		parseSphere(strChunk, sh);
+		return true;
 	}
 	else if (contains(strChunk, "plane")) {
-		parsePlane(strChunk, scene->createPlane());
+		auto sh = make_shared<Plane>();
+		shapes.push_back(sh);
+		parsePlane(strChunk, sh);
+		return true;
 	}
 	else if (contains(strChunk, "triangle")) {
-		parseTriangle(strChunk, scene->createTriangle());
+		auto sh = make_shared<Triangle>();
+		shapes.push_back(sh);
+		parseTriangle(strChunk, sh);
+		return true;
 	}
 	else if (contains(strChunk, "box")) {
-		parseBox(strChunk, scene->createBox());
+		auto sh = make_shared<Box>();
+		shapes.push_back(sh);
+		parseBox(strChunk, sh);
+		return true;
 	}
+	return false;
 }
 
 bool MyParser::parseCamera(string& stringChunk, shared_ptr<Camera> cam) {
@@ -87,8 +152,8 @@ bool MyParser::parseSphere(string& stringChunk, shared_ptr<Sphere> sphere) {
 	string sphereStr("sphere");
 	parseKeywordVector(stringChunk, sphereStr, sphere->center);
 	parseFloatAfterVec(stringChunk, sphere->radius);
-	parseFinish(stringChunk, sphere->finish);
-	parseTransformation(stringChunk, sphere->transform);
+	parseFinish(stringChunk, sphere->getFinish());
+	parseTransformation(stringChunk, sphere->getTransformation());
 	return true;
 }
 
@@ -96,8 +161,8 @@ bool MyParser::parsePlane(string& stringChunk, shared_ptr<Plane> plane) {
 	string planeStr("plane");
 	parseKeywordVector(stringChunk, planeStr, plane->normal);
 	parseFloatAfterVec(stringChunk, plane->distance);
-	parseFinish(stringChunk, plane->finish);
-	parseTransformation(stringChunk, plane->transform);
+	parseFinish(stringChunk, plane->getFinish());
+	parseTransformation(stringChunk, plane->getTransformation());
 	return true;
 }
 
@@ -109,8 +174,8 @@ bool MyParser::parseTriangle(string& stringChunk, shared_ptr<Triangle> triangle)
 	parseKeywordVector(substr, endVector, triangle->b);
 	substr = substr.substr(substr.find(">") + 1);
 	parseKeywordVector(substr, endVector, triangle->c);
-	parseFinish(stringChunk, triangle->finish);
-	parseTransformation(stringChunk, triangle->transform);
+	parseFinish(stringChunk, triangle->getFinish());
+	parseTransformation(stringChunk, triangle->getTransformation());
 	return true;
 }
 
@@ -119,8 +184,8 @@ bool MyParser::parseBox(string& stringChunk, shared_ptr<Box> box) {
 	string nextVecStr(">");
 	parseKeywordVector(stringChunk, boxStr, box->min);
 	parseKeywordVector(stringChunk, nextVecStr, box->max);
-	parseFinish(stringChunk, box->finish);
-	parseTransformation(stringChunk, box->transform);
+	parseFinish(stringChunk, box->getFinish());
+	parseTransformation(stringChunk, box->getTransformation());
 	return true;
 }
 
@@ -135,9 +200,6 @@ float MyParser::parseFinishKeyword(string& str, string& keyword) {
 }
 
 bool MyParser::parseFinish(string& str, shared_ptr<Finish>& finish) {
-	if (str.find("finish") == str.npos) {
-		return false;
-	}
 	string pigment("pigment");
 	string ambient("ambient");
 	string diffuse("diffuse");
@@ -225,9 +287,42 @@ bool MyParser::parseRotate(string& str, shared_ptr<Transformation> transform) {
 	glm::vec3 tempVec(0.0, 0.0, 0.0);
 	string rotation("rotate");
 	parseKeywordVector(str, rotation, tempVec);
-	//cout << "rotate: " << tempVec.x << " " << tempVec.y << " " << tempVec.z << endl;
 	transform->applyRotation(tempVec);
 	return true;
+}
+
+
+void MyParser::parseUnion(std::string& str, std::shared_ptr<Union> boolOp)
+{
+	size_t start = str.find_first_of("{") + 1; 
+	size_t end = str.find_last_of("}") - 1;
+	string stringChunk = str.substr(start, end);
+
+	iterateThroughShapes(stringChunk, boolOp->objects);
+	parseTransformation(stringChunk, boolOp->getTransformation());
+	parseFinish(stringChunk, boolOp->getFinish());
+}
+
+void MyParser::parseIntersect(std::string& str, std::shared_ptr<Intersect> boolOp)
+{
+	size_t start = str.find_first_of("{") + 1;
+	size_t end = str.find_last_of("}") - 1;
+	string stringChunk = str.substr(start, end);
+
+	iterateThroughShapes(stringChunk, boolOp->objects);
+	parseTransformation(stringChunk, boolOp->getTransformation());
+	parseFinish(stringChunk, boolOp->getFinish());
+}
+
+void MyParser::parseDifference(std::string& str, std::shared_ptr<Difference> boolOp)
+{
+	size_t start = str.find_first_of("{") + 1;
+	size_t end = str.find_last_of("}") - 1;
+	string stringChunk = str.substr(start, end);
+
+	iterateThroughShapes(stringChunk, boolOp->objects);
+	parseTransformation(stringChunk, boolOp->getTransformation());
+	parseFinish(stringChunk, boolOp->getFinish());
 }
 
 void MyParser::parseKeywordVector(string& stringChunk, string& currKeyword, glm::vec3& vec) {

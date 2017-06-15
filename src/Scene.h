@@ -13,6 +13,10 @@
 #include "Triangle.h"
 #include "Box.h"
 #include "BoundingBox.h"
+#include "BooleanOperator.h"
+#include "Union.h"
+#include "Intersect.h"
+#include "Difference.h"
 
 class Scene
 {
@@ -27,6 +31,10 @@ public:
 	std::shared_ptr<Plane> createPlane();
 	std::shared_ptr<Triangle> createTriangle();
 	std::shared_ptr<Box> createBox();
+	std::shared_ptr<Union> createUnion();
+	std::shared_ptr<Intersect> createIntersect();
+	std::shared_ptr<Difference> createDiff();
+
 	void printInfo();
 
 	std::vector<std::shared_ptr<Shape>> shapes;

@@ -13,6 +13,11 @@ void Plane::printInfo() {
 	Shape::printInfo();
 }
 
+
+vector<float> Plane::getIntersection(const glm::vec3& dir, const glm::vec3& origin, Flags flags) {
+	return this->getIntersection(dir, origin);
+}
+
 vector<float> Plane::getIntersection(const glm::vec3& dir, const glm::vec3& origin) {
 	vector<float> vec;
 	float t, denom;
@@ -30,7 +35,7 @@ string Plane::getTypeString() {
 }
 
 glm::vec3 Plane::getNormal(glm::vec3 point) {
-	return transform->transformNormal(normal);
+	return this->getTransformation()->transformNormal(normal);
 }
 
 glm::vec3 Plane::getCenter() {
@@ -43,4 +48,9 @@ void Plane::createBounds(glm::vec3 &min, glm::vec3 &max)
 {
 	min = glm::vec3(-100) + glm::vec3(100 - this->distance) * this->normal;
 	max = glm::vec3(100) + glm::vec3(-100 + this->distance) * this->normal;
+}
+
+shared_ptr<Finish> Plane::getFinish()
+{
+	return this->finish;
 }

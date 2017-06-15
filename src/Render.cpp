@@ -25,7 +25,7 @@ shared_ptr<Intersection> Render::getFirstHitAsIntersectionObject(shared_ptr<Scen
 		shape = getFirstHitBVH(scene, origin, rayDirection, intersectT, flags.bvhtest);
 	}
 	else {
-		shape = getFirstHit(scene, origin, rayDirection, intersectT, true);
+		shape = getFirstHit(scene, origin, rayDirection, flags, intersectT);
 	}
 
 	if (shape) {
@@ -80,6 +80,7 @@ void Render::getFirstHitBVHRecurse(shared_ptr<BoundingBox> currBoundingBox,
 	vector<float> currTs = currBoundingBox->getIntersection(rayDirection, origin);
 	float t, closestT = INFINITY;
 	shared_ptr<Shape> closestShape;
+	Flags flags = Flags();
 	if (!currTs.empty()) {
 		if (test) {
 			cout << "found a bounding box!" << endl;
@@ -95,10 +96,10 @@ void Render::getFirstHitBVHRecurse(shared_ptr<BoundingBox> currBoundingBox,
 				if (test) {
 					cout << "intersected shape: " << currShape->getTypeString() << endl;
 				}
-				shared_ptr<Transformation> currTransform = currBoundingBox->objects[sh]->transform;
+				shared_ptr<Transformation> currTransform = currBoundingBox->objects[sh]->getTransformation();
 				glm::vec3 tOrigin = currTransform->transformPoint(origin);
 				glm::vec3 tRay = currTransform->transformVector(rayDirection);
-				t = calculateFirstHit(tOrigin, tRay, currBoundingBox->objects[sh]);
+				t = Helper::calculateFirstHit(tOrigin, tRay, currBoundingBox->objects[sh], flags);
 				
 				if (t > 0 && t < closestT) {
 					closestT = t;
@@ -148,25 +149,28 @@ void Render::pixelcolor(std::shared_ptr<Scene>& scene, int width, int height, in
 		shared_ptr<Shape> shape;
 		glm::vec3 rayDirection = Render::calculatePixelRay(scene, width, height, x, y);
 
-		shape = Render::getFirstHit(scene, scene->camera->location, rayDirection, &t);
+		shape = Render::getFirstHit(scene, scene->camera->location, rayDirection, flags, &t);
 		if (shape) {
 			cout << setprecision(4);
-			shared_ptr<Transformation> transform = shape->transform;
+			shared_ptr<Transformation> transform = shape->getTransformation();
 			glm::vec3 transformedOrigin = transform->transformPoint(scene->camera->location);
 			glm::vec3 transformedRay = transform->transformVector(rayDirection);
 
-			Render::pixelRay(scene, width, height, x, y);
-
 			if (flags.test) {
+				Render::pixelRay(scene, width, height, x, y);
+
 				cout << "Transformed Ray: {" << transformedOrigin.x << \
 					" " << transformedOrigin.y << " " << transformedOrigin.z << "} ";
 				cout << "-> {" << transformedRay[0] << " " << transformedRay[1] << " " << transformedRay[2] << "}\n";
 				cout << "Object Type: " << shape->getTypeString() << endl << endl;
 
 			}
-
+			if (flags.csgtest) {
+				cout << "Object Type: " << shape->getTypeString() << endl << endl;
+			}
 			color = Render::getPixelColor(scene, scene->camera->location, rayDirection, 0, flags);
-			if (flags.test) {
+			if (flags.test || flags.csgtest) {
+				color = Helper::convertToRgb(color);
 				cout << "Final Color: (" << color.r << ", " << color.g << ", " << color.b << ")" << endl;
 			}
 		}
@@ -271,7 +275,7 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, glm::vec3 origin, glm:
 		}
 
 		// reflection
-		if (shape->finish->reflection && depth <= 6) {
+		if (shape->getFinish()->reflection && depth <= 6) {
 			glm::vec3 reflectionVec = viewRay - 2 * glm::dot(viewRay, n) * n;
 			if (flags.test) {
 				cout << "\nGETTING REFLECTION" << endl;
@@ -281,29 +285,29 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, glm::vec3 origin, glm:
 		}
 
 		// refraction
-		if (shape->finish->filter && depth <= 6) {
+		if (shape->getFinish()->filter && depth <= 6) {
 			// get refraction amount
 			if (flags.test) {
 				cout << "\nGETTING REFRACTION " << depth << endl;
 			}
 
-			glm::vec3 attenuation = Refraction::getBeersAttenuation(shape->finish->pigment, t);
+			glm::vec3 attenuation = Refraction::getBeersAttenuation(shape->getFinish()->pigment, t);
 
 			float dir, snellRatio;
-			float transmission = shape->finish->filter;
+			float transmission = shape->getFinish()->filter;
 
 			if ((dir = glm::dot(viewRay, n)) <= 0) { // entering
 				if (flags.test) {
 					cout << "entering" << endl;
 				}
-				snellRatio = 1.0f / shape->finish->ior;
+				snellRatio = 1.0f / shape->getFinish()->ior;
 			}
 			else if (dir > 0) { // exiting
 				if (flags.test) {
 					cout << "exiting" << endl;
 				}
 				n = -n;
-				snellRatio = shape->finish->ior;
+				snellRatio = shape->getFinish()->ior;
 			}
 
 			float d_dot_n = glm::dot(viewRay, n);
@@ -332,10 +336,10 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, glm::vec3 origin, glm:
 			contrib.reflection * reflect_color + \
 			contrib.refraction * transmit_color;
 
-		if (flags.test || (flags.gitest && depth == 0)) {
+		if (flags.test || (flags.gitest && depth == 0) || flags.csgtest) {
 			cout << endl;
 			cout << "local: " << contrib.local << " * " <<
-				local_color.x << " " << local_color.y << " " << local_color.z << endl;
+				Helper::convertToRgb(local_color.x) << " " << Helper::convertToRgb(local_color.y) << " " << Helper::convertToRgb(local_color.z) << endl;
 			cout << "reflect: " << contrib.reflection << " * " <<
 				reflect_color.x << " " << reflect_color.y << " " << reflect_color.z << endl;
 			cout << "refract: " << contrib.refraction << " * " <<
@@ -350,7 +354,7 @@ glm::vec3 Render::getPixelColor(shared_ptr<Scene>& scene, glm::vec3 origin, glm:
 
 glm::vec3 Render::raycastPixels(std::shared_ptr<Shape>& shape) 
 {
-	return shape->finish->pigment;
+	return shape->getFinish()->pigment;
 }
 
 glm::vec3 Render::pixelRay(shared_ptr<Scene>& scene, int width, int height, int x, int y) {
@@ -363,11 +367,11 @@ glm::vec3 Render::pixelRay(shared_ptr<Scene>& scene, int width, int height, int 
 	return rayDirection;
 }
 
-void Render::firstHit(shared_ptr<Scene>& scene, int width, int height, int x, int y) {
+void Render::firstHit(shared_ptr<Scene>& scene, int width, int height, int x, int y, Flags flags) {
 	float t;
 	glm::vec3 rayDirection = Render::pixelRay(scene, width, height, x, y);
-	shared_ptr<Shape> firstHit = Render::getFirstHit(scene, scene->camera->location, rayDirection, &t);
-	shared_ptr<Finish> finish = firstHit->finish;
+	shared_ptr<Shape> firstHit = Render::getFirstHit(scene, scene->camera->location, rayDirection, flags, &t);
+	shared_ptr<Finish> finish = firstHit->getFinish();
 	cout << setprecision(4);
 	if (t == INT_MAX) {
 		cout << "No Hit\n";
@@ -414,20 +418,20 @@ glm::vec3 Render::calculatePixelRay(shared_ptr<Scene>& scene, int width, int hei
 }
 
 shared_ptr<Shape> Render::getFirstHit(shared_ptr<Scene>& scene, 
-	glm::vec3 origin, glm::vec3 rayDirection, float* intersectT, bool transform)
+	glm::vec3 origin, glm::vec3 rayDirection, Flags flags, float* intersectT)
 {
 	shared_ptr<Shape> closestShape;
 	shared_ptr<Transformation> currTransform;
 	float closestT = (float)INT_MAX, t = -1;
 	for (unsigned int sh = 0; sh < scene->shapes.size(); sh++) {
-		if (transform) {
-			currTransform = scene->shapes[sh]->transform;
+		if (flags.transform) {
+			currTransform = scene->shapes[sh]->getTransformation();
 			glm::vec3 tOrigin = currTransform->transformPoint(origin);
 			glm::vec3 tRay = currTransform->transformVector(rayDirection);
-			t = calculateFirstHit(tOrigin, tRay, scene->shapes[sh]);
+			t = Helper::calculateFirstHit(tOrigin, tRay, scene->shapes[sh], flags);
 		}
 		else {
-			t = calculateFirstHit(origin, rayDirection, scene->shapes[sh]);
+			t = Helper::calculateFirstHit(origin, rayDirection, scene->shapes[sh], flags);
 		}
 		if (t > 0 && t < closestT) {
 			closestT = t;
@@ -440,13 +444,3 @@ shared_ptr<Shape> Render::getFirstHit(shared_ptr<Scene>& scene,
 	return closestShape;
 }
 
-float Render::calculateFirstHit(glm::vec3 origin, 
-	glm::vec3 rayDirection, const shared_ptr<Shape>& shapeToTest) 
-{
-	vector<float> t = shapeToTest->getIntersection(rayDirection, origin);
-	if (!t.empty()) {
-		sort(t.begin(), t.end());
-		return t[0];
-	}
-	return -1;
-}

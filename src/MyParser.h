@@ -35,8 +35,11 @@ public:
 	int parseFileToScene(std::shared_ptr<Scene>  scene);
 
 private:
+	void iterateThroughChunks(std::string& strBuffer, std::shared_ptr<Scene> scene);
+	void iterateThroughShapes(std::string& strBuffer, std::vector<std::shared_ptr<Shape>>& shapes);
 	void removeComments(std::string& strBuffer);
-	void handleChunk(std::string& strChunk, std::shared_ptr<Scene> scene);
+	bool handleChunk(std::string& strChunk, std::shared_ptr<Scene> scene);
+	bool handleShape(std::string& strChunk, std::vector<std::shared_ptr<Shape>>& shapes);
 	bool parseCamera(std::string& stringChunk, std::shared_ptr<Camera> cam);
 	bool parseLightSource(std::string& stringChunk, std::shared_ptr<LightSource> ls);
 	bool parseSphere(std::string& stringChunk, std::shared_ptr<Sphere> sphere);
@@ -50,6 +53,11 @@ private:
 	bool parseTranslate(std::string& str, std::shared_ptr<Transformation> shape);
 	bool parseScale(std::string& str, std::shared_ptr<Transformation> shape);
 	bool parseRotate(std::string& str, std::shared_ptr<Transformation> shape);
+
+	void parseUnion(std::string& str, std::shared_ptr<Union> boolOp);
+	void parseIntersect(std::string& str, std::shared_ptr<Intersect> boolOp);
+	void parseDifference(std::string& str, std::shared_ptr<Difference> boolOp);
+
 	void parseKeywordVector(std::string& stringChunk, std::string& currKeyword, glm::vec3& vec);
 	void parsePigmentVector(std::string& stringChunk, std::string& currKeyword, glm::vec3& vec, float& filter);
 	void parse4FloatVector(std::string& vecString, std::vector<float>& ret); 	// should be given a string of floats separated by commas

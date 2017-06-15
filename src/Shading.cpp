@@ -7,7 +7,7 @@ using namespace std;
 glm::vec3 Shading::shadedPixels(shared_ptr<Scene>& scene, shared_ptr<Intersection> intersect, int depth, Flags flags)
 {
 	shared_ptr<Shape> shape = intersect->shape;
-	shared_ptr<Finish> finish = shape->finish;
+	shared_ptr<Finish> finish = shape->getFinish();
 	glm::vec3 origin = intersect->oOrigin;
 	glm::vec3 viewRay = intersect->oRay;
 	float t = intersect->t;
@@ -25,7 +25,7 @@ glm::vec3 Shading::shadedPixels(shared_ptr<Scene>& scene, shared_ptr<Intersectio
 			color += Shading::blinnPhong(scene, currLight, shape, origin, viewRay, t, flags);
 		}
 		else if (flags.mode == COOKTORRANCE_MODE) {
-			color += Shading::cookTorrance(scene, currLight, shape, origin, viewRay, t);
+			color += Shading::cookTorrance(scene, currLight, shape, origin, viewRay, t, flags);
 		}
 	}
 	return color;
@@ -34,27 +34,31 @@ glm::vec3 Shading::shadedPixels(shared_ptr<Scene>& scene, shared_ptr<Intersectio
 glm::vec3 Shading::blinnPhong(shared_ptr<Scene>& scene, shared_ptr<LightSource>& currLight,
 	shared_ptr<Shape>& shape, glm::vec3 origin, glm::vec3 ray, float t, Flags flags)
 {
-	shared_ptr<Finish> finish = shape->finish;
-	shared_ptr<Transformation> transform = shape->transform;
+	shared_ptr<Finish> finish = shape->getFinish();
+	shared_ptr<Transformation> transform = shape->getTransformation();
 	float t2;
 	float power = (2 / (finish->shininess*finish->shininess) - 2);
 	glm::vec3 color, diffuse, spec;
 
-	glm::vec3 tRay = shape->transform->transformVector(ray);
-	glm::vec3 tOrigin = shape->transform->transformPoint(origin);
+	glm::vec3 tRay = shape->getTransformation()->transformVector(ray);
+	glm::vec3 tOrigin = shape->getTransformation()->transformPoint(origin);
 	glm::vec3 oPoint = Helper::getPointOnRay(tOrigin, tRay, t);
 	glm::vec3 wPoint = Helper::getPointOnRay(origin, ray, t);
-
 	glm::vec3 view = (-tRay);
+	shape->getIntersection(tRay, tOrigin);
 	glm::vec3 wNormal = shape->getNormal(oPoint);
+
 	glm::vec3 normalizedL = glm::normalize(currLight->location - wPoint);
-	
+
+	if (flags.test || flags.csgtest) {
+		cout << "GETTING SHADE" << endl;
+	}
 	shared_ptr<Shape> shader;
 	if (flags.bvh) {
 		shader = Render::getFirstHitBVH(scene, wPoint + wNormal * 0.001f, normalizedL, &t2);
 	}
 	else {
-		shader = Render::getFirstHit(scene, wPoint + wNormal * 0.001f, normalizedL, &t2);
+		shader = Render::getFirstHit(scene, wPoint + wNormal * 0.001f, normalizedL, flags, &t2);
 	}
 
 	if (Shading::notShaded(glm::length(currLight->location - wPoint), t2)) {
@@ -65,7 +69,7 @@ glm::vec3 Shading::blinnPhong(shared_ptr<Scene>& scene, shared_ptr<LightSource>&
 		spec = finish->pigment * finish->specular * lightColor * \
 					glm::pow(glm::max(glm::dot(halfVec, wNormal), 0.0f), power);
 	}
-	if (flags.test) {
+	if (flags.test || flags.csgtest) {
 		if (!Shading::notShaded(glm::length(currLight->location - wPoint), t2)) {
 			cout << "note ----> is shaded at " << t2 << " " << glm::length(currLight->location - wPoint) << endl;
 			shader->printInfo();
@@ -82,15 +86,15 @@ glm::vec3 Shading::blinnPhong(shared_ptr<Scene>& scene, shared_ptr<LightSource>&
 
 glm::vec3 Shading::cookTorrance(shared_ptr<Scene>& scene,
 	shared_ptr<LightSource>& currLight, shared_ptr<Shape>& shape,
-	glm::vec3 origin, glm::vec3 ray, float t)
+	glm::vec3 origin, glm::vec3 ray, float t, Flags flags)
 {
-	shared_ptr<Finish> finish = shape->finish;
+	shared_ptr<Finish> finish = shape->getFinish();
 	float specular = finish->metallic;
 	float diffuse = 1 - specular;
 	float t2, epsilon = .0001f;
 	glm::vec3 shadingColor;
-	glm::vec3 tRay = shape->transform->transformVector(ray);
-	glm::vec3 tOrigin = shape->transform->transformPoint(origin);
+	glm::vec3 tRay = shape->getTransformation()->transformVector(ray);
+	glm::vec3 tOrigin = shape->getTransformation()->transformPoint(origin);
 	glm::vec3 oPoint = Helper::getPointOnRay(tOrigin, tRay, t);
 	glm::vec3 wPoint = Helper::getPointOnRay(origin, ray, t);
 
@@ -98,7 +102,7 @@ glm::vec3 Shading::cookTorrance(shared_ptr<Scene>& scene,
 	glm::vec3 n = shape->getNormal(oPoint);
 	glm::vec3 l = glm::normalize(currLight->location - wPoint);
 
-	Render::getFirstHit(scene,wPoint + l*epsilon, l, &t2);
+	Render::getFirstHit(scene,wPoint + l*epsilon, l, flags, &t2);
 	if (Shading::notShaded(glm::length(currLight->location - wPoint), t2)) {
 		glm::vec3 h = glm::normalize(view + l);
 		glm::vec3 lightColor = currLight->color;
@@ -117,9 +121,9 @@ glm::vec3 Shading::cookTorrance(shared_ptr<Scene>& scene,
 
 glm::vec3 Shading::cookTorrance_BlinnPhong(shared_ptr<Scene>& scene,
 	shared_ptr<LightSource>& currLight, shared_ptr<Shape>& shape,
-	glm::vec3 view, glm::vec3 point)
+	glm::vec3 view, glm::vec3 point, Flags flags)
 {
-	shared_ptr<Finish> finish = shape->finish;
+	shared_ptr<Finish> finish = shape->getFinish();
 	float specular = finish->metallic;
 	float diffuse = 1 - specular;
 	float t2, epsilon = .0001f;
@@ -127,7 +131,7 @@ glm::vec3 Shading::cookTorrance_BlinnPhong(shared_ptr<Scene>& scene,
 	glm::vec3 n = shape->getNormal(point);
 	glm::vec3 l = glm::normalize(currLight->location - point);
 
-	Render::getFirstHit(scene, point + l*epsilon, l, &t2);
+	Render::getFirstHit(scene, point + l*epsilon, l, flags, &t2);
 	if (Shading::notShaded(glm::length(currLight->location - point), t2)) {
 		glm::vec3 h = glm::normalize(view + l);
 		glm::vec3 lightColor = currLight->color;

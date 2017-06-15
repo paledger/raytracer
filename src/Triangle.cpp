@@ -13,6 +13,12 @@ void Triangle::printInfo()
 	Shape::printInfo();
 }
 
+
+vector<float> Triangle::getIntersection(const glm::vec3& dir, const glm::vec3& origin, Flags flags) 
+{
+	return this->getIntersection(dir, origin);
+}
+
 // returns a vector of floats of the "t" value of intersection
 vector<float> Triangle::getIntersection(const glm::vec3& dir, const glm::vec3& origin)
 {
@@ -54,7 +60,7 @@ glm::vec3 Triangle::getNormal(glm::vec3 point)
 	glm::vec3 U = b - a;
 	glm::vec3 V = c - a;
 	glm::vec3 normal = glm::normalize(glm::cross(U, V));
-	return transform->transformNormal(normal);
+	return this->getTransformation()->transformNormal(normal);
 }
 
 glm::vec3 Triangle::getCenter() {
@@ -87,4 +93,9 @@ void Triangle::createBounds(glm::vec3 &min, glm::vec3 &max)
 			max[i] = c[i];
 		}
 	}
+}
+
+shared_ptr<Finish> Triangle::getFinish()
+{
+	return this->finish;
 }

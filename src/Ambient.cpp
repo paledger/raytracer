@@ -15,7 +15,7 @@ glm::vec3 Ambient::getAmbient(shared_ptr<Scene> scene, shared_ptr<Intersection> 
 }
 
 glm::vec3 Ambient::getNormalAmbient(shared_ptr<Shape> shape) {
-	return shape->finish->pigment * shape->finish->ambient;
+	return shape->getFinish()->pigment * shape->getFinish()->ambient;
 }
 
 glm::vec3 Ambient::getMonteCarloAmbient(shared_ptr<Scene> scene, shared_ptr<Intersection> intersect, int depth, Flags flags)
@@ -46,7 +46,7 @@ glm::vec3 Ambient::getMonteCarloAmbient(shared_ptr<Scene> scene, shared_ptr<Inte
 			currGI = Render::getPixelColor(scene, intersectPt + viewRay * 0.001f, viewRay, depth + 1, flags) * glm::dot(viewRay, normal);
 			gi += currGI;
 		}
-		ambient = shape->finish->pigment  *  2.f * gi / (float)N;
+		ambient = shape->getFinish()->pigment  *  2.f * gi / (float)N;
 		if (flags.gitest && depth == 0) {
 			cout << N << " - ambient: " << Helper::convertToRgb(ambient.r) << " " << Helper::convertToRgb(ambient.g) << " " << Helper::convertToRgb(ambient.b) << endl;
 		}

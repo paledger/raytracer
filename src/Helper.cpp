@@ -37,3 +37,35 @@ glm::vec3 Helper::getPointOnRay(const shared_ptr<Transformation> transform, glm:
 glm::vec3 Helper::getReverseVec(glm::vec3 vec) {
 	return -1.0f * vec;
 }
+
+float Helper::calculateFirstHit(glm::vec3 origin,
+	glm::vec3 rayDirection, const shared_ptr<Shape>& shapeToTest, Flags flags)
+{
+	vector<float> t;
+	if (flags.csgtest && 
+		(shapeToTest->getTypeString() == "Difference" ||
+		 shapeToTest->getTypeString() == "Intersection" ||
+		 shapeToTest->getTypeString() == "Union"))
+	{
+		t = shapeToTest->getIntersection(rayDirection, origin, flags);
+	}
+	else {
+		t = shapeToTest->getIntersection(rayDirection, origin);
+	}
+	if (!t.empty()) {
+		sort(t.begin(), t.end());
+		return t[0];
+	}
+	return -1;
+}
+
+float Helper::calculateLastHit(glm::vec3 origin,
+	glm::vec3 rayDirection, const shared_ptr<Shape>& shapeToTest, Flags flags)
+{
+	vector<float> t = shapeToTest->getIntersection(rayDirection, origin);
+	if (!t.empty()) {
+		sort(t.begin(), t.end());
+		return t[t.size() - 1];
+	}
+	return -1;
+}

@@ -3,11 +3,13 @@
 #include <vector>
 #include <memory>
 #include <math.h>
+#include <algorithm>
 
 #include "glm/glm.hpp"
 
 #include "Transformation.h"
-
+#include "Shape.h"
+#include "Flags.h"
 
 class Helper {
 public:
@@ -17,4 +19,7 @@ public:
 	static glm::vec3 getPointOnRay(glm::vec3 origin, glm::vec3 direction, float t);
 	static glm::vec3 getPointOnRay(const std::shared_ptr<Transformation> transform, glm::vec3 origin, glm::vec3 direction, float t);
 	static glm::vec3 getReverseVec(glm::vec3 vec);
+	static float calculateFirstHit(glm::vec3 origin, glm::vec3 rayDirection, const std::shared_ptr<Shape>& shapeToTest, Flags flags);
+	static float calculateLastHit(glm::vec3 origin, glm::vec3 rayDirection, const std::shared_ptr<Shape>& shapeToTest, Flags flags);
+
 };

@@ -18,6 +18,7 @@ public:
 	glm::mat4x4 transformMatrix = glm::mat4x4(1.0f);
 
 	void printInfo();
+	glm::mat4x4 getModelMatrix();
 	glm::mat4x4 getTransformMatrix();
 	void applyRotation(glm::vec3 vec);
 	void applyScale(glm::vec3 vec);

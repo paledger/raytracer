@@ -325,7 +325,11 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\Ambient.h" />
+    <ClInclude Include="..\src\BooleanOperator.h" />
     <ClInclude Include="..\src\Contribution.h" />
+    <ClInclude Include="..\src\Difference.h" />
+    <ClInclude Include="..\src\Intersect.h" />
+    <ClInclude Include="..\src\Union.h" />
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\BoundingBox.h" />
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Box.h" />
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Camera.h" />
@@ -357,8 +361,12 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\glm\simd\vector_relational.h" />
     <ClInclude Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\stb_image_write.h" />
     <ClCompile Include="..\src\Ambient.cpp" />
+    <ClCompile Include="..\src\BooleanOperator.cpp" />
     <ClCompile Include="..\src\Contribution.cpp" />
+    <ClCompile Include="..\src\Difference.cpp" />
+    <ClCompile Include="..\src\Intersect.cpp" />
     <ClCompile Include="..\src\Intersection.cpp" />
+    <ClCompile Include="..\src\Union.cpp" />
     <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\BoundingBox.cpp" />
     <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Box.cpp" />
     <ClCompile Include="C:\Users\paled\Documents\calpoly\cpe473\raytracer\src\Camera.cpp" />

@@ -14,7 +14,7 @@ glm::vec3 Refraction::getRefraction(shared_ptr<Scene> scene, shared_ptr<Shape> s
 
 	glm::vec3 transmission_color, thisShapeLocal, attenuation = glm::vec3(1.0f);
 	float dir, snellRatio, newT;
-	float transmission = shape->finish->filter;
+	float transmission = shape->getFinish()->filter;
 	d = glm::normalize(d);
 
 	glm::vec3 n = glm::normalize(shape->getNormal(intersectionPt));
@@ -23,14 +23,14 @@ glm::vec3 Refraction::getRefraction(shared_ptr<Scene> scene, shared_ptr<Shape> s
 		if (flags.test) {
 			cout << "entering" << endl;
 		}
-		snellRatio = 1.0f / shape->finish->ior;
+		snellRatio = 1.0f / shape->getFinish()->ior;
 	}
 	else if (dir > 0) { // exiting
 		if (flags.test) {
 			cout << "exiting" << endl;
 		}
 		n = -n;
-		snellRatio = shape->finish->ior;
+		snellRatio = shape->getFinish()->ior;
 	}
 
 	float d_dot_n = glm::dot(d, n);
@@ -45,7 +45,7 @@ glm::vec3 Refraction::getRefraction(shared_ptr<Scene> scene, shared_ptr<Shape> s
 	}
 	else {
 		newShape = Render::getFirstHit(scene, intersectionPt - epsilonVec,
-			transmissionVec, &newT);
+			transmissionVec, flags, &newT);
 	}
 	glm::vec3 newPoint = Helper::getPointOnRay(intersectionPt, transmissionVec, newT);
 	if (newShape) {

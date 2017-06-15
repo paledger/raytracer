@@ -11,12 +11,12 @@ glm::vec3 Reflection::getReflection(shared_ptr<Scene> scene, shared_ptr<Shape> s
 	glm::vec3 incident = glm::normalize(d);
 	float newT;
 
-	shared_ptr<Transformation> transform = shape->transform;
+	shared_ptr<Transformation> transform = shape->getTransformation();
 	glm::vec3 n = glm::normalize(shape->getNormal(intersectionPt));
 	glm::vec3 epsilonVec = n * 0.001f;
 
 	// find new reflection information 
-	float reflection = shape->finish->reflection;
+	float reflection = shape->getFinish()->reflection;
 	glm::vec3 reflectionVec = incident - 2 * glm::dot(incident, n) * n;
 	shared_ptr<Shape> newShape;
 	if (flags.bvh) {
@@ -25,7 +25,7 @@ glm::vec3 Reflection::getReflection(shared_ptr<Scene> scene, shared_ptr<Shape> s
 	}
 	else {
 		newShape = Render::getFirstHit(scene, intersectionPt + epsilonVec,
-			reflectionVec, &newT);
+			reflectionVec, flags, &newT);
 	}
 	glm::vec3 newPoint = Helper::getPointOnRay(intersectionPt, reflectionVec, newT);
 

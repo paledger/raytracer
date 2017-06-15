@@ -14,6 +14,41 @@ void Box::printInfo()
 	Shape::printInfo();
 }
 
+
+vector<float> Box::getIntersection(const glm::vec3& dir, const glm::vec3& origin, Flags flags) 
+{
+	float tgmin = -INFINITY; // max of mins
+	float tgmax = INFINITY;  // min of maxes
+
+							 // for x, y, z
+	if (flags.csgtest) {
+		cout << "IN BOX INTERSECT" << endl;
+ 		for (int i = 0; i < 3; i++) {
+			if (dir[i] == 0) {
+				if (this->isParallelAndNoIntersect(origin, dir, i)) {
+					cout << "NO INTERSECTION " << endl;
+				}
+			}
+			else {
+				this->changeTgminForDimension(i, origin, dir, tgmin, tgmax);
+			}
+		}
+
+		if (tgmin > tgmax || tgmax < 0) {
+			cout << "NO INTERSECTION " << endl;
+		}
+		if (tgmin > 0 && tgmin != INFINITY) {
+			cout << "TGMIN: " << tgmin << endl;
+		}
+		if (tgmax > 0 && tgmax != -INFINITY) {
+			cout << "TGMAX: " << tgmax << endl;
+		}
+		cout << endl;
+	}
+
+	return this->getIntersection(dir, origin);
+}
+
 vector<float> Box::getIntersection(const glm::vec3& dir, const glm::vec3& origin) 
 {
 	vector<float> ret;
@@ -35,12 +70,18 @@ vector<float> Box::getIntersection(const glm::vec3& dir, const glm::vec3& origin
 	if (tgmin > tgmax || tgmax < 0) {
 		return ret;
 	}
-	if (tgmin > 0) {
+	if (tgmin > 0 && tgmin != INFINITY) {
+		ret.push_back(tgmin);
+	}
+	if (tgmax > 0 && tgmax != -INFINITY) {
+		ret.push_back(tgmax);
+	}
+	/*if (tgmin > 0) {
 		ret.push_back(tgmin);
 	}
 	else {
 		ret.push_back(tgmax);
-	}
+	}*/
 	return ret;
 }
 
@@ -60,7 +101,7 @@ glm::vec3 Box::getNormal(glm::vec3 point)
 		normal[dimMatched] = 1;
 	}
 
-	return glm::normalize(this->transform->transformNormal(normal));
+	return glm::normalize(this->getTransformation()->transformNormal(normal));
 }
 
 glm::vec3 Box::getCenter() {
@@ -136,4 +177,9 @@ void Box::createBounds(glm::vec3 &min, glm::vec3 &max)
 {
 	min = this->min;
 	max = this->max;
+}
+
+shared_ptr<Finish> Box::getFinish()
+{
+	return this->finish;
 }
