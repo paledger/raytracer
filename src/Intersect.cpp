@@ -36,28 +36,36 @@ std::vector<float> Intersect::getIntersection(const glm::vec3& dir, const glm::v
 std::vector<float> Intersect::getIntersection(const glm::vec3& dir, const glm::vec3& origin) {
 	vector<float> ret;
 	float minA, maxA;
-	float minB, maxB;
+	float minOfMax = INFINITY, maxOfMin = -INFINITY;
 	Flags flags = Flags();
-	shared_ptr<Shape> currObject;
+	shared_ptr<Shape> currObject, minObj, maxObj;
+	shared_ptr<Transformation> transform = this->getTransformation();
 	glm::vec3 tRay, tOrigin;
-	currObject = this->objects[0];
-	tRay = currObject->transform->transformVector(dir);
-	tOrigin = currObject->transform->transformPoint(origin);
-	minA = Helper::calculateFirstHit(tOrigin, tRay, currObject, flags);
-	maxA = Helper::calculateLastHit(tOrigin, tRay, currObject, flags);
-	currObject = this->objects[1];
-	tRay = currObject->transform->transformVector(dir);
-	tOrigin = currObject->transform->transformPoint(origin);
-	minB = Helper::calculateFirstHit(tOrigin, tRay, currObject, flags);
-	maxB = Helper::calculateLastHit(tOrigin, tRay, currObject, flags);
 
-	if (minA < minB && maxA > minB) {
-		this->mostRecentIntersection = this->objects[1];
-		ret.push_back(minB);
+	for (unsigned int o = 0; o < this->objects.size(); o++) {
+		currObject = this->objects[o];
+		tRay = currObject->transform->transformVector(dir);
+		tOrigin = currObject->transform->transformPoint(origin);
+
+		minA = Helper::calculateFirstHit(tOrigin, tRay, currObject, flags);
+		maxA = Helper::calculateLastHit(tOrigin, tRay, currObject, flags);
+		if (minA > maxOfMin) {
+			maxOfMin = minA;
+			maxObj = currObject;
+		}
+		if (maxA < minOfMax) {
+			minOfMax = maxA;
+			minObj = currObject;
+		}
 	}
-	else if (minB < minA && maxB > minA) {
-		this->mostRecentIntersection = this->objects[0];
-		ret.push_back(minA);
+
+	if (minOfMax < maxOfMin && minOfMax != INFINITY) {
+		this->mostRecentIntersection = minObj;
+		ret.push_back(minOfMax);
+	}
+	else if (maxOfMin < minOfMax && maxOfMin != -INFINITY) {
+		this->mostRecentIntersection = maxObj;
+		ret.push_back(maxOfMin);
 	}
 	else {
 		this->mostRecentIntersection = nullptr;

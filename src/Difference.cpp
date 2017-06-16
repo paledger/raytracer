@@ -6,33 +6,47 @@ using namespace std;
 std::vector<float> Difference::getIntersection(const glm::vec3& dir, const glm::vec3& origin) {
 	vector<float> ret;
 	float minA, maxA;
-	float minB, maxB;
+	float mainMin, mainMax, newMin = INFINITY, newMax = -INFINITY;
 	Flags flags = Flags();
-	shared_ptr<Shape> currObject;
+	shared_ptr<Shape> mainObject, currObject, minObject, maxObject;
 	glm::vec3 tRay, tOrigin;
-	currObject = this->objects[0];
-	tRay = currObject->transform->transformVector(dir);
-	tOrigin = currObject->transform->transformPoint(origin);
-	minA = Helper::calculateFirstHit(tOrigin, tRay, currObject, flags);
-	maxA = Helper::calculateLastHit(tOrigin, tRay, currObject, flags);
-	currObject = this->objects[1];
-	tRay = currObject->transform->transformVector(dir);
-	tOrigin = currObject->transform->transformPoint(origin);
-	minB = Helper::calculateFirstHit(tOrigin, tRay, currObject, flags);
-	maxB = Helper::calculateLastHit(tOrigin, tRay, currObject, flags);
+	shared_ptr<Transformation> transform = this->getTransformation();
 
-	if (minB < 0 && maxB < 0 && minA > 0.002) {
-		this->mostRecentIntersection = this->objects[0];
-		ret.push_back(minA);
+	for (unsigned int o = 0; o < this->objects.size(); o++) {
+		currObject = this->objects[o];
+		tRay = transform->transformVector(currObject->transform->transformVector(dir));
+		tOrigin = transform->transformPoint(currObject->transform->transformPoint(origin));
+		minA = Helper::calculateFirstHit(tOrigin, tRay, currObject, flags);
+		maxA = Helper::calculateLastHit(tOrigin, tRay, currObject, flags);
+		if (o == 0) {
+			mainObject = currObject;
+			mainMin = minA;
+			mainMax = maxA;
+		}
+		else {
+			if (minA < newMin) {
+				newMin = minA;
+				minObject = currObject;
+			}
+			if (maxA > newMax) {
+				newMax = maxA;
+				maxObject = currObject;
+			}
+		}
+	}
+
+	if (newMin < 0 && newMax < 0 && mainMin > 0.002) {
+		this->mostRecentIntersection = mainObject;
+		ret.push_back(mainMin);
 	}
 	else {
-		if (minA < minB && minA > 0) {
-			this->mostRecentIntersection = this->objects[0];
-			ret.push_back(minA);
+		if (mainMin < newMin) {
+			this->mostRecentIntersection = mainObject;
+			ret.push_back(mainMin);
 		}
-		else if (maxB < maxA && maxB > 0) {
-			this->mostRecentIntersection = this->objects[1];
-			ret.push_back(maxB);
+		else if (mainMax > newMax) {
+			this->mostRecentIntersection = maxObject;
+			ret.push_back(newMax);
 		}
 		else {
 			this->mostRecentIntersection = nullptr;

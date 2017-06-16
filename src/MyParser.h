@@ -54,6 +54,7 @@ private:
 	bool parseScale(std::string& str, std::shared_ptr<Transformation> shape);
 	bool parseRotate(std::string& str, std::shared_ptr<Transformation> shape);
 
+	bool parseBoolean(std::string& str, std::vector<std::shared_ptr<Shape>>& shapes);
 	void parseUnion(std::string& str, std::shared_ptr<Union> boolOp);
 	void parseIntersect(std::string& str, std::shared_ptr<Intersect> boolOp);
 	void parseDifference(std::string& str, std::shared_ptr<Difference> boolOp);

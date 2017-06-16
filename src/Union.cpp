@@ -26,6 +26,7 @@ std::vector<float> Union::getIntersection(const glm::vec3& dir, const glm::vec3&
 	shared_ptr<Shape> currObject;
 	glm::vec3 tRay, tOrigin;
 	Flags flags = Flags();
+	shared_ptr<Transformation> transform = this->getTransformation();
 	for (unsigned int o = 0; o < this->objects.size(); o++) {
 		currObject = this->objects[o];
 		tRay = currObject->transform->transformVector(dir);

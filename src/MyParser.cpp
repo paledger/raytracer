@@ -83,22 +83,7 @@ bool MyParser::handleChunk(string& strChunk, shared_ptr<Scene> scene) {
 }
 
 bool MyParser::handleShape(string& strChunk, vector<shared_ptr<Shape>>& shapes) {
-	if (contains(strChunk, "union")) {
-		auto sh = make_shared<Union>();
-		shapes.push_back(sh);
-		parseUnion(strChunk, sh);
-		return true;
-	}
-	else if (contains(strChunk, "intersect")) {
-		auto sh = make_shared<Intersect>();
-		shapes.push_back(sh);
-		parseIntersect(strChunk, sh);
-		return true;
-	}
-	else if (contains(strChunk, "difference")) {
-		auto sh = make_shared<Difference>();
-		shapes.push_back(sh);
-		parseDifference(strChunk, sh);
+	if (parseBoolean(strChunk, shapes)) {
 		return true;
 	}
 	else if (contains(strChunk, "sphere")) {
@@ -269,7 +254,6 @@ bool MyParser::parseTranslate(string& str, shared_ptr<Transformation> transform)
 	glm::vec3 tempVec(0.0, 0.0, 0.0);
 	string translate("translate");
 	parseKeywordVector(str, translate, tempVec);
-	//cout << "translate: " << tempVec.x << " " << tempVec.y << " " << tempVec.z << endl;
 	transform->applyTranslation(tempVec);
 	return true;
 }
@@ -278,7 +262,6 @@ bool MyParser::parseScale(string& str, shared_ptr<Transformation> transform) {
 	glm::vec3 tempVec(1.0, 1.0, 1.0);
 	string scale("scale");
 	parseKeywordVector(str, scale, tempVec);
-	//cout << "scale: " << tempVec.x << " " << tempVec.y << " " << tempVec.z << endl;
 	transform->applyScale(tempVec);
 	return true;
 }
@@ -291,6 +274,29 @@ bool MyParser::parseRotate(string& str, shared_ptr<Transformation> transform) {
 	return true;
 }
 
+bool MyParser::parseBoolean(string& str, vector<shared_ptr<Shape>>& shapes) {
+	size_t startBools = str.find_first_of("uid");
+	string nameStr = str.substr(startBools, startBools + 10);
+	if (contains(nameStr, "union")) {
+		auto sh = make_shared<Union>();
+		shapes.push_back(sh);
+		parseUnion(str, sh);
+		return true;
+	}
+	else if (contains(nameStr, "intersection")) {
+		auto sh = make_shared<Intersect>();
+		shapes.push_back(sh);
+		parseIntersect(str, sh);
+		return true;
+	}
+	else if (contains(nameStr, "difference")) {
+		auto sh = make_shared<Difference>();
+		shapes.push_back(sh);
+		parseDifference(str, sh);
+		return true;
+	}
+	return false;
+}
 
 void MyParser::parseUnion(std::string& str, std::shared_ptr<Union> boolOp)
 {

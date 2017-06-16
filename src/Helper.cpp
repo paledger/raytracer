@@ -42,6 +42,7 @@ float Helper::calculateFirstHit(glm::vec3 origin,
 	glm::vec3 rayDirection, const shared_ptr<Shape>& shapeToTest, Flags flags)
 {
 	vector<float> t;
+	glm::vec3 tRay, tOrigin;
 	if (flags.csgtest && 
 		(shapeToTest->getTypeString() == "Difference" ||
 		 shapeToTest->getTypeString() == "Intersection" ||
@@ -50,7 +51,18 @@ float Helper::calculateFirstHit(glm::vec3 origin,
 		t = shapeToTest->getIntersection(rayDirection, origin, flags);
 	}
 	else {
-		t = shapeToTest->getIntersection(rayDirection, origin);
+		if (flags.transform && !(shapeToTest->getTypeString() == "Difference" ||
+								 shapeToTest->getTypeString() == "Intersection" ||
+								 shapeToTest->getTypeString() == "Union")) 
+		{
+			tRay = shapeToTest->transform->transformVector(rayDirection);
+			tOrigin = shapeToTest->transform->transformPoint(origin);
+		}
+		else {
+			tRay = rayDirection;
+			tOrigin = origin;
+		}
+		t = shapeToTest->getIntersection(tRay, tOrigin);
 	}
 	if (!t.empty()) {
 		sort(t.begin(), t.end());
@@ -62,7 +74,18 @@ float Helper::calculateFirstHit(glm::vec3 origin,
 float Helper::calculateLastHit(glm::vec3 origin,
 	glm::vec3 rayDirection, const shared_ptr<Shape>& shapeToTest, Flags flags)
 {
-	vector<float> t = shapeToTest->getIntersection(rayDirection, origin);
+	glm::vec3 tRay, tOrigin;
+	if (flags.transform && !(shapeToTest->getTypeString() == "Difference" ||
+		shapeToTest->getTypeString() == "Intersection"))
+	{
+		tRay = shapeToTest->transform->transformVector(rayDirection);
+		tOrigin = shapeToTest->transform->transformPoint(origin);
+	}
+	else {
+		tRay = rayDirection;
+		tOrigin = origin;
+	}
+	vector<float> t = shapeToTest->getIntersection(tRay, tOrigin);
 	if (!t.empty()) {
 		sort(t.begin(), t.end());
 		return t[t.size() - 1];
